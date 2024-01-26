@@ -1,0 +1,4 @@
+#ifndef INC_1_CONSTS_HPP
+#define INC_1_CONSTS_HPP
+
+#endif //INC_1_CONSTS_HPP
