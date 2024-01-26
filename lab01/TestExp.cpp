@@ -1,6 +1,7 @@
-#include "Exp.hpp"
 #include <cmath>
 #include <iostream>
+
+#include "Exp.hpp"
 
 void test_float(float x) {
     float EXP = ADAAI::Exp(x);
@@ -21,8 +22,8 @@ void test_ldouble(long double x) {
 }
 
 int main() {
-    test_float(1.0);
-    test_double(1.0);
+    test_float(3.7);
+    test_double(2.2);
     test_ldouble(1345442354523432);
     // std::cout << ADAAI::Exp(x4) << '\n'; // this will fail
     return 0;
