@@ -1,7 +1,7 @@
+#pragma once
+
 #include <cfloat>
 #include <numbers>
-
-#pragma once
 
 namespace ADAAI::CONST
 {
@@ -26,20 +26,21 @@ namespace ADAAI::CONST
   template<typename F>
   constexpr inline F EPS;
   template<>
-  constexpr inline float EPS<float> = FLT_EPSILON;
+  constexpr inline float EPS<float> = std::numeric_limits<float>::epsilon();
   template<>
-  constexpr inline double EPS<double> = DBL_EPSILON;
+  constexpr inline double EPS<double> = std::numeric_limits<double>::epsilon();
   template<>
-  constexpr inline long double EPS<long double> = LDBL_EPSILON;
+  constexpr inline long double EPS<long double> = std::numeric_limits<long double>::epsilon();
 
+  constexpr float scale = 10;
   template<typename F>
   constexpr inline F DELTA;
   template<>
-  constexpr inline float DELTA<float> = 10.0 * EPS<float>;
+  constexpr inline float DELTA<float> = scale * EPS<float>;
   template<>
-  constexpr inline double DELTA<double> = 10.0 * EPS<double>;
+  constexpr inline double DELTA<double> = scale * EPS<double>;
   template<>
-  constexpr inline long double DELTA<long double> = 10.0 * EPS<long double>;
+  constexpr inline long double DELTA<long double> = scale * EPS<long double>;
 
   template<typename F>
   constexpr inline F SQRT2;
