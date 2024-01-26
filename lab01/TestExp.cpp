@@ -34,7 +34,7 @@ bool check_exp()
       -1345442354523432.0,
       0.0,
       -0.0,
-      10.1,
+      10.1, ///FIXME: this value is not working at all
       -10.1,
       100.0,
       -100.0,
