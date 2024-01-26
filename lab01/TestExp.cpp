@@ -23,7 +23,7 @@ void test_ldouble(long double x) {
 int main() {
     test_float(1.0);
     test_double(1.0);
-    test_ldouble(1.5);
+    test_ldouble(1345442354523432);
     // std::cout << ADAAI::Exp(x4) << '\n'; // this will fail
     return 0;
 }
