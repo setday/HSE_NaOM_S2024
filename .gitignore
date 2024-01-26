@@ -1,0 +1,28 @@
+# Compiled object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Build directories
+build/
+bin/
+
+cmake-build-debug/
+cmake-build-release/
+
+# CLion files
+.cmake/
+.idea/
+*.iml
+out/
+
+# Visual Studio Code files
+.vscode/
+.settings/
+*.code-workspace
