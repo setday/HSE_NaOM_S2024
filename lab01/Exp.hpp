@@ -5,6 +5,27 @@
 #include <type_traits>
 
 namespace ADAAI {
+namespace core {
+template <typename F>
+    requires std::is_floating_point_v<F>
+constexpr F Exp_(F x) {  // let's finally compute exp using Taylor series
+    F f1 = 0;
+    F factorial = 1;
+    int n = 0;
+    while (true) {
+        // the only thing left is to compute this damn exponent
+        F term = pow(x, n) / factorial;
+        if (term * CONST::SQRT2<F> < CONST::DELTA<F>) {
+            break;
+        }
+        f1 += term;
+        n++;
+        factorial *= n;
+    }
+    return f1;
+}
+}  // namespace core
+
 template <typename F>
     requires std::is_floating_point_v<F>
 constexpr F Exp(F x) {
@@ -12,7 +33,6 @@ constexpr F Exp(F x) {
     F y1;
     F y2 =
         std::modf(y, &y1);  // here y1 is an integer part of y, y2 is fractional
-    std::cout << "modf test: " << y << ' ' << y1 << ' ' << y2 << '\n';
     if (y2 > 0.5) {
         y2--;
         y1++;
@@ -28,17 +48,4 @@ constexpr F Exp(F x) {
     F E1 = core::Exp_(x2);
     return ldexp(E1, n);
 }
-
-namespace core {
-template <typename F>
-    requires std::is_floating_point_v<F>
-constexpr F Exp_(F x) {  // let's finally compute exp using Taylor series
-    F f1 = 0;
-    while (true) {
-        // the only thing left is to compute this damn exponent
-        break;
-    }
-    return f1;
-}
-}  // namespace core
 }  // namespace ADAAI
