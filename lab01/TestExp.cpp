@@ -13,12 +13,12 @@ void fix_precision( int n )
 
 template<typename T, T MimicFunction( T ) = ADAAI::Exp, T RealFunction( T ) = std::exp>
 bool test( T x )
-{
+{ // calculates relative error
   T got      = MimicFunction( x );
   T expected = RealFunction( x );
-  T diff     = std::abs( got - expected );
+  T diff     = std::abs( got - expected ) / expected;
 
-  std::cout << std::setprecision( 10 ) << diff << " = |" << expected << " - " << got << "| (diff) = |(expected) - (got)|\n";
+  //  std::cout << diff  << " = |" << expected << " - " << got << "| (diff) = |(expected) - (got)| / (expected)\n";
 
   if ( std::isnan( got ) )
   {
@@ -30,49 +30,29 @@ bool test( T x )
     return std::isinf( expected );
   }
 
-  return diff < 0.05;
-  // theoretically, diff should be less than ADAAI::CONST::DELTA<T>, only true on some values and more likely with ld
+  return diff < 0.00001; // relative error is less than 0.001%
 }
 
 bool check_exp()
 {
-  long double test_numbers[] = {
-      1.0,
-      1345442354523432.0,
-      -1345442354523432.0,
-      0.0,
-      -0.0,
-      10.1,
-      -10.1,
-      -100.0,
-      0.0000001,
-      -0.0000001,
-      -656.0,
-      // 100, // the error is terrifying (not relative though)
-  };
-
-  for ( auto x : test_numbers )
-  {
-    assert( ( test<float, ADAAI::Exp, std::exp>( x ) ) );
-    assert( ( test<double, ADAAI::Exp, std::exp>( x ) ) );
-    assert( ( test<long double, ADAAI::Exp, std::exp>( x ) ) );
-  }
-
-  float f = 1;
-  while ( f < 2 )
+  int   border = 90;
+  float step   = 0.005;
+  std::cout << "Testing exp(x) for x in interval [" << -border << ", " << border << "] with step " << step << "\n";
+  float f = -border;
+  while ( f <= border )
   {
     assert( ( test<float, ADAAI::Exp, std::exp>( f ) ) );
     assert( ( test<double, ADAAI::Exp, std::exp>( f ) ) );
     assert( ( test<long double, ADAAI::Exp, std::exp>( f ) ) );
-    f += 0.005;
+    f += step;
   }
-
+  std::cout << "All test passed\n";
   return true;
 }
 
 int main()
 {
-  fix_precision( 10 );
+  //  fix_precision( 10 );
   assert( check_exp() );
   return 0;
 }

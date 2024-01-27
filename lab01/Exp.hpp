@@ -58,7 +58,7 @@ namespace ADAAI
     F E2 = core::Exp_( x2 );
     if ( f )
     { // if we subtracted one from x2, we need to multiply it by exp(1)
-      return ldexp( E2, n ) * Exp(1.0);
+      return ldexp( E2, n ) * Exp( 1.0 );
     }
     return ldexp( E2, n );
   }
