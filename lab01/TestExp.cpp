@@ -1,8 +1,7 @@
 #include <cassert>
-#include <cmath>
-#include <iomanip>
 #include <iostream>
 
+#include "../utils/Tester.hpp"
 #include "Exp.hpp"
 
 void fix_precision( int n )
@@ -11,48 +10,58 @@ void fix_precision( int n )
   std::cout << std::fixed;
 }
 
-template<typename T, T MimicFunction( T ) = ADAAI::Exp, T RealFunction( T ) = std::exp>
-bool test( T x )
-{ // calculates relative error
-  T got      = MimicFunction( x );
-  T expected = RealFunction( x );
-  T diff     = std::abs( got - expected ) / expected;
-
-  //  std::cout << diff  << " = |" << expected << " - " << got << "| (diff) = |(expected) - (got)| / (expected)\n";
-
-  if ( std::isnan( got ) )
-  {
-    return std::isnan( expected );
-  }
-
-  if ( std::isinf( got ) )
-  {
-    return std::isinf( expected );
-  }
-
-  return diff < 0.00001; // relative error is less than 0.001%
-}
-
 bool check_exp()
 {
-  int   border = 90;
-  float step   = 0.005;
-  std::cout << "Testing exp(x) for x in interval [" << -border << ", " << border << "] with step " << step << "\n";
-  float f = -border;
-  while ( f <= border )
+  long double test_set[] = {
+      1.0,
+      1345442354523432.0,
+      -1345442354523432.0,
+      0.0,
+      -0.0,
+      10.1,
+      -10.1,
+      -100.0,
+      0.0000001,
+      -0.0000001,
+      -656.0,
+  };
+
+  std::cout << "=? Testing exp(x) for test set (1.0, 1345442354523432.0, -1345442354523432.0, 0.0, -0.0, 10.1, -10.1, -100.0, 0.0000001, -0.0000001, -656.0)\n";
+
+  for ( auto x : test_set )
   {
-    assert( ( test<float, ADAAI::Exp, std::exp>( f ) ) );
-    assert( ( test<double, ADAAI::Exp, std::exp>( f ) ) );
-    assert( ( test<long double, ADAAI::Exp, std::exp>( f ) ) );
-    f += step;
+    assert( ( test<float, ADAAI::Exp, std::exp>( x ) ) );
+    assert( ( test<double, ADAAI::Exp, std::exp>( x ) ) );
+    assert( ( test<long double, ADAAI::Exp, std::exp>( x ) ) );
   }
-  std::cout << "All test passed\n";
+
+  std::cout << "=> Test passed for test set passed!\n";
+
+  float border = 90.0;
+  float step   = 0.005;
+  float value  = -border;
+
+  std::cout << "=? Testing exp(x) for x in interval [" << -border << ", " << border << "] with step " << step << "\n";
+
+  while ( value <= border )
+  {
+    assert( ( test<float, ADAAI::Exp, std::exp>( value ) ) );
+    assert( ( test<double, ADAAI::Exp, std::exp>( value ) ) );
+    assert( ( test<long double, ADAAI::Exp, std::exp>( value ) ) );
+
+    value += step;
+  }
+
+  std::cout << "=> Test passed for interval [" << -border << ", " << border << "] with step " << step << " passed!\n";
+
+  std::cout << "===>>> All test passed!\n";
+
   return true;
 }
 
 int main()
 {
-  //  fix_precision( 10 );
+  fix_precision( 10 );
   assert( check_exp() );
   return 0;
 }
