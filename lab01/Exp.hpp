@@ -58,22 +58,11 @@ namespace ADAAI
       return std::numeric_limits<F>::infinity();
     }
 
-    int  n  = int( int_part ); // generic case now: e^x = 2^n * e^x2
-    F    x2 = CONST::LN2<F> * frac_part;
-    bool f  = false;
-
-    if ( x2 >= 0.5 )
-    { // we want the argument of core::Exp_ be <= 0.5 in absolute values
-      f = true;
-      x2 -= 1;
-    }
+    int n  = int( int_part ); // generic case now: e^x = 2^n * e^x2
+    F   x2 = CONST::LN2<F> * frac_part;
 
     F E2 = core::Exp_( x2 );
 
-    if ( f )
-    { // if we subtracted one from x2, we need to multiply it by exp(1)
-      return ldexp( E2, n ) * Exp( 1.0 );
-    }
     return ldexp( E2, n );
   }
 } // namespace ADAAI
