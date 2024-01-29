@@ -7,6 +7,8 @@ bool test( T x )
   T expected = RealFunction( x );
   T diff     = std::abs( got - expected );
 
+  T eps = std::numeric_limits<T>::epsilon() * 100000;
+
   //  std::cout << diff  << " = |" << expected << " - " << got << "| (diff) = |(expected) - (got)| / (expected)\n";
 
   if ( std::isnan( got ) )
@@ -21,8 +23,8 @@ bool test( T x )
 
   if ( expected == 0.0 )
   {
-    return diff < 0.00001;
+    return diff < eps;
   }
 
-  return diff / expected < 0.00001; // relative error is less than 0.001%
+  return diff / expected < eps; // relative error is less than 0.001%
 }

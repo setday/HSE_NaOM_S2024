@@ -41,6 +41,11 @@ namespace ADAAI
     requires std::is_floating_point_v<F>
   constexpr F Exp( F x )
   {
+    if ( std::isnan( x ) )
+    {
+      return std::numeric_limits<F>::quiet_NaN();
+    }
+
     F y = CONST::LOG2E<F> * x, int_part = 0;
     F frac_part = std::modf( y, &int_part );
 

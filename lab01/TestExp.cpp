@@ -54,6 +54,28 @@ bool check_exp()
 
   std::cout << "=> Test passed for interval [" << -border << ", " << border << "] with step " << step << " passed!\n";
 
+  long double special_set[] = {
+      std::numeric_limits<long double>::infinity(),
+      -std::numeric_limits<long double>::infinity(),
+      std::numeric_limits<long double>::quiet_NaN(),
+      std::numeric_limits<long double>::signaling_NaN(),
+      std::numeric_limits<long double>::denorm_min(),
+      std::numeric_limits<long double>::min(),
+      std::numeric_limits<long double>::max(),
+      std::numeric_limits<long double>::lowest(),
+  };
+
+  std::cout << "=? Testing exp(x) for special set (inf, -inf, quiet_NaN, signaling_NaN, denorm_min, min, max, lowest)\n";
+
+  for ( auto x : special_set )
+  {
+    assert( ( test<float, ADAAI::Exp, std::exp>( x ) ) );
+    assert( ( test<double, ADAAI::Exp, std::exp>( x ) ) );
+    assert( ( test<long double, ADAAI::Exp, std::exp>( x ) ) );
+  }
+
+  std::cout << "=> Test passed for special set passed!\n";
+
   std::cout << "===>>> All test passed!\n";
 
   return true;
