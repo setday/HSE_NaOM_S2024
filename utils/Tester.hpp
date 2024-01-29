@@ -20,12 +20,12 @@ bool test( T x )
     return std::isinf( expected );
   }
 
-  T delta = 150 * ADAAI::CONST::DELTA<T>;
+  T delta = 105 * ADAAI::CONST::DELTA<T>;
+  T diff  = std::abs( got - expected );
 
   if ( x <= 0 )
   {
-    return std::abs( got - expected ) < delta;
+    return diff < delta;
   }
-
-  return std::abs( got / expected - 1.0 ) < delta;
+  return diff < delta * expected;
 }

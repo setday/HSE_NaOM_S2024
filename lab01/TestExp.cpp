@@ -4,12 +4,6 @@
 #include "../utils/Tester.hpp"
 #include "Exp.hpp"
 
-void fix_precision( int n )
-{ // fixes the precision of output
-  std::cout.precision( n );
-  std::cout << std::fixed;
-}
-
 bool check_exp()
 {
   long double test_set[] = {
@@ -35,9 +29,9 @@ bool check_exp()
     assert( ( test<long double, ADAAI::Exp, std::exp>( x ) ) );
   }
 
-  std::cout << "=> Test passed for test set passed!\n";
+  std::cout << "=> Test for test set passed!\n";
 
-  float border = 90.0;
+  float border = 100.0;
   float step   = 0.005;
   float value  = -border;
 
@@ -52,7 +46,7 @@ bool check_exp()
     value += step;
   }
 
-  std::cout << "=> Test passed for interval [" << -border << ", " << border << "] with step " << step << " passed!\n";
+  std::cout << "=> Test for interval [" << -border << ", " << border << "] with step " << step << " passed!\n";
 
   long double special_set[] = {
       std::numeric_limits<long double>::infinity(),
@@ -74,7 +68,7 @@ bool check_exp()
     assert( ( test<long double, ADAAI::Exp, std::exp>( x ) ) );
   }
 
-  std::cout << "=> Test passed for special set passed!\n";
+  std::cout << "=> Test for special set passed!\n";
 
   std::cout << "===>>> All test passed!\n";
 
@@ -83,7 +77,6 @@ bool check_exp()
 
 int main()
 {
-  fix_precision( 10 );
   assert( check_exp() );
   return 0;
 }

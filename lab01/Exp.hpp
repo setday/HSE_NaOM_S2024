@@ -14,23 +14,19 @@ namespace ADAAI
       requires std::is_floating_point_v<F>
     constexpr F Exp_( F x )
     { // computes exp(x) using Taylor series
-      F   f1 = 0, factorial = 1, power = 1;
+      F   f1 = 0, term = 1;
       int n = 0;
 
       while ( true )
       {
-        F term = power / factorial;
-
-        if ( ( x > 0 and std::abs( term ) * CONST::SQRT2<F> < CONST::DELTA<F> ) or
-             ( x <= 0 and std::abs( term ) < CONST::DELTA<F> ) )
+        if ( ( x > 0 && std::abs( term ) * CONST::SQRT2<F> < CONST::DELTA<F> ) || ( x <= 0 && std::abs( term ) < CONST::DELTA<F> ) )
         {
           break;
         }
 
         f1 += term;
         n++;
-        factorial *= n;
-        power *= x;
+        term *= x / n;
       }
 
       return f1;
@@ -58,11 +54,14 @@ namespace ADAAI
       return std::numeric_limits<F>::infinity();
     }
 
-    int n  = int( int_part ); // generic case now: e^x = 2^n * e^x2
-    F   x2 = CONST::LN2<F> * frac_part;
-
+    int n = int( int_part ); // generic case now: e^x = 2^n * e^x2
+    if ( frac_part > 0.5 )
+    {
+      frac_part--;
+      n++;
+    }
+    F x2 = CONST::LN2<F> * frac_part; // if abs(frac_part) <= 0.5, so will be abs(x2)
     F E2 = core::Exp_( x2 );
-
     return ldexp( E2, n );
   }
 } // namespace ADAAI
