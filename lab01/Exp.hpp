@@ -8,14 +8,22 @@
 
 namespace ADAAI
 {
+  /// \brief Namespace for core functions
+  /// \details Contains functions for computing core functions
   namespace core
   {
+    /// \brief Computes exp(x) using Taylor series
+    /// \example \code Exp_( 0.1 ); \endcode
+    /// \tparam F - Floating point type
+    /// \param x - Value to compute
+    /// \return e^x
     template<typename F>
       requires std::is_floating_point_v<F>
     constexpr F Exp_( F x )
-    { // computes exp(x) using Taylor series
-      F   f1 = 0, term = 1;
-      int n = 0;
+    {
+      F   result = 0;
+      F   term   = 1;
+      int n      = 0;
 
       while ( true )
       {
@@ -24,15 +32,20 @@ namespace ADAAI
           break;
         }
 
-        f1 += term;
+        result += term;
         n++;
         term *= x / n;
       }
 
-      return f1;
+      return result;
     }
   } // namespace core
 
+  /// \brief Computes exp(x)
+  /// \example \code Exp( 0.1 ); \endcode
+  /// \tparam F - Floating point type
+  /// \param x - Value to compute
+  /// \return e^x
   template<typename F>
     requires std::is_floating_point_v<F>
   constexpr F Exp( F x )
@@ -55,13 +68,17 @@ namespace ADAAI
     }
 
     int n = int( int_part ); // generic case now: e^x = 2^n * e^x2
-    if ( frac_part > 0.5 )
-    {
-      frac_part--;
-      n++;
-    }
+
+    // if ( frac_part > 0.5 )
+    // {
+    //   frac_part--;
+    //   n++;
+    // }
+
     F x2 = CONST::LN2<F> * frac_part; // if abs(frac_part) <= 0.5, so will be abs(x2)
     F E2 = core::Exp_( x2 );
-    return ldexp( E2, n );
+    F En = ldexp( 1.0, n ); // ldexp works very bad with non 1.0 multiplier
+    F E  = En * E2;         // so we multiply it separately :)
+    return E;
   }
 } // namespace ADAAI
