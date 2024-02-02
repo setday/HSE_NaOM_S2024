@@ -1,7 +1,9 @@
 #pragma once
 
 #include <cmath>
+#include <climits>
 #include <iostream>
+#include <vector>
 #include <type_traits>
 
 #include "Consts.hpp"
@@ -25,16 +27,21 @@ namespace ADAAI
       F   term   = 1;
       int n      = 0;
 
+      std::vector<F> terms;
       while ( true )
       {
-        if ( ( x > 0 && std::abs( term ) * CONST::SQRT2<F> < CONST::DELTA<F> ) || ( x <= 0 && std::abs( term ) < CONST::DELTA<F> ) )
+        if ( ( x > 0 && term * CONST::SQRT2<F> < CONST::DELTA<F> ) || ( x <= 0 && std::abs( term ) < CONST::DELTA<F> ) )
         {
           break;
         }
 
-        result += term;
+        terms.push_back(term);
         n++;
         term *= x / n;
+      }
+
+      for(std::size_t i = 0; i < terms.size(); ++i) {
+        result += terms[terms.size() - 1 - i];
       }
 
       return result;
@@ -77,7 +84,7 @@ namespace ADAAI
 
     F x2 = CONST::LN2<F> * frac_part; // if abs(frac_part) <= 0.5, so will be abs(x2)
     F E2 = core::Exp_( x2 );
-    F En = ldexp( 1.0, n ); // ldexp works very bad with non 1.0 multiplier
+    F En = std::ldexp( 1.0, n ); // ldexp works very bad with non 1.0 multiplier
     F E  = En * E2;         // so we multiply it separately :)
     return E;
   }
