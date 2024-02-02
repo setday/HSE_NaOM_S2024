@@ -150,8 +150,9 @@ bool check_exp()
   return true;
 }
 
-bool normal_tests() {
-  auto triple_check = []( auto x )
+template<typename F>
+std::size_t test_case(F left, F right, F step, int num) {
+  static auto triple_check = []( auto x )
   {
     return adaptive_compare<float, ADAAI::Exp, std::exp>( x ) &&
            adaptive_compare<double, ADAAI::Exp, std::exp>( x ) &&
@@ -159,250 +160,39 @@ bool normal_tests() {
   };
 
   std::size_t tests = 0;
-
-
-// =============================================================================
-
-
-// #define TEST_01
-// #define TEST_02
-// #define TEST_03
-// #define TEST_04
-// #define TEST_05
-// #define TEST_06
-// #define TEST_07
-// #define TEST_08
-// #define TEST_09
-
-{ // LOW
-#ifdef TEST_01
-{
-  long double left = -1'000'000'000;
-  long double right = 0;
-  long double step = 1000;
-  long double value = left;
+  F value = left;
   while(value < right) {
     ++tests;
     if(!triple_check(value)) {
-      std::cout << "Failed for: " << value << '\n';
-      return false; 
-    }
-    value += step;
-  }
-}
-#endif
-
-#ifdef TEST_02
-{
-  long double left = -1'000'000;
-  long double right = 0;
-  long double step = 1;
-  long double value = left;
-  while(value < right) {
-    ++tests;
-    if(!triple_check(value)) {
-      std::cout << "Failed for: " << value << '\n';
-      return false; 
-    }
-    value += step;
-  }
-}
-#endif  
-
-#ifdef TEST_03
-{
-  long double left = -1'000;
-  long double right = 0;
-  long double step = 0.001;
-  long double value = left;
-  while(value < right) {
-    ++tests;
-    if(!triple_check(value)) {
-      std::cout << "Failed for: " << value << '\n';
-      return false; 
-    }
-    value += step;
-  }
-}
-#endif
-
-#ifdef TEST_04
-{
-  long double left = -1;
-  long double right = 0;
-  long double step = 0.000001;
-  long double value = left;
-  while(value < right) {
-    ++tests;
-    if(!triple_check(value)) {
-      std::cout << "Failed for: " << value << '\n';
-      return false; 
-    }
-    value += step;
-  }
-}
-#endif
-
-#ifdef TEST_05
-{
-  long double left = -0.001;
-  long double right = 0;
-  long double step = 0.000000001;
-  long double value = left;
-  while(value < right) {
-    ++tests;
-    if(!triple_check(value)) {
-      std::cout << "Failed for: " << value << '\n';
-      return false; 
-    }
-    value += step;
-  }
-}
-#endif
-
-#ifdef TEST_06
-{
-  long double left = -1.001;
-  long double right = -1;
-  long double step = 0.000000001;
-  long double value = left;
-  while(value < right) {
-    ++tests;
-    if(!triple_check(value)) {
-      std::cout << "Failed for: " << value << '\n';
-      return false; 
-    }
-    value += step;
-  }
-}
-#endif
-
-#ifdef TEST_07
-{
-  long double left = -1'000.001;
-  long double right = -1'000;
-  long double step = 0.000000001;
-  long double value = left;
-  while(value < right) {
-    ++tests;
-    if(!triple_check(value)) {
-      std::cout << "Failed for: " << value << '\n';
-      return false; 
-    }
-    value += step;
-  }
-}
-#endif
-
-#ifdef TEST_08
-{
-  long double left = -1'000'000.001;
-  long double right = -1'000'000;
-  long double step = 0.000000001;
-  long double value = left;
-  while(value < right) {
-    ++tests;
-    if(!triple_check(value)) {
-      std::cout << "Failed for: " << value << '\n';
-      return false; 
-    }
-    value += step;
-  }
-}
-#endif
-
-#ifdef TEST_09
-{
-  long double left = -1'000'000'000.001;
-  long double right = -1'000'000'000;
-  long double step = 0.000000001;
-  long double value = left;
-  while(value < right) {
-    ++tests;
-    if(!triple_check(value)) {
-      std::cout << "Failed for: " << value << '\n';
-      return false; 
-    }
-    value += step;
-  }
-}
-#endif
-} // LOW
-// passed for 12 * eps
-
-
-// =============================================================================
-
-
-// #define TEST_11
-#define TEST_12
-#define TEST_13
-
- long double max_exp = 709.7827125;
-
-{ // HIGH
-#ifdef TEST_11
-{
-  long double left = 0;
-  long double right = 1;
-  long double step = 0.000001;
-  long double value = left;
-  while(value < right) {
-    ++tests;
-    if(!triple_check(value)) {
-      std::cout << "Failed for: " << value << '\n';
-      return false; 
-    }
-    value += step;
-  }
-}
-#endif
-// passed for 12 * eps
-
-#ifdef TEST_12
-{
-  long double left = 0;
-  long double right = max_exp;
-  long double step = 0.001;
-  long double value = left;
-  while(value < right) {
-    ++tests;
-    if(!triple_check(value)) {
-      std::cout << "TEST_12 Failed for: " << value << '\n';
+      std::cout << "Test case #" << num << ". Failed for: " << value << '\n';
       std::cout << std::fixed << std::exp(value) << '\n';
       std::cout << std::fixed << ADAAI::Exp(value) << '\n';
-      return false; 
+      assert(false); 
     }
     value += step;
   }
+  return tests;
 }
-#endif
+
+bool normal_tests() {
+  std::size_t tests = 0;
+  long double max_exp = 709.7827125;
+
+  tests += test_case<long double>(-1'000'000'000, 0, 1000, 1);
+  tests += test_case<long double>(-1'000'000, 0, 1, 2);
+  tests += test_case<long double>(-1'000, 0, 0.001, 3);
+  tests += test_case<long double>(-1, 0, 0.000001, 4);
+  tests += test_case<long double>(-0.001, 0, 0.000000001, 5);
+  tests += test_case<long double>(-1.001, -1, 0.000000001, 6);
+  tests += test_case<long double>(-1'000.001, -1'000, 0.000000001, 7);
+  tests += test_case<long double>(-1'000'000.001, -1'000'000, 0.000000001, 8);
+  tests += test_case<long double>(-1'000'000'000.001, -1'000'000'000, 0.000000001, 9);
+  tests += test_case<long double>(0, 1, 0.000001, 10);
+// passed for 12 * eps
+
+  tests += test_case<long double>(0, max_exp, 0.001, 11);
+  tests += test_case<long double>(max_exp - 1, max_exp, 0.000001, 12);
 // passed for 304 * eps
-
-#ifdef TEST_13
-{
-  long double left = max_exp - 1;
-  long double right = max_exp;
-  long double step = 0.000001;
-  long double value = left;
-  while(value < right) {
-    ++tests;
-    if(!triple_check(value)) {
-      std::cout << "TEST_13 Failed for: " << value << '\n';
-      std::cout << std::fixed << std::exp(value) << '\n';
-      std::cout << std::fixed << ADAAI::Exp(value) << '\n';
-      return false; 
-    }
-    value += step;
-  }
-}
-#endif
-// passed for 306 * eps
-} // HIGH
-
-
-// =============================================================================
-
 
   std::cout << "Success on: " << tests << " tests\n";
   return true;
