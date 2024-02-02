@@ -42,7 +42,7 @@ bool check_exp()
 
     if ( !triple_check( x ) )
     {
-//      std::cout << "=! Test value " << x << " FAILED!\n";
+      //      std::cout << "=! Test value " << x << " FAILED!\n";
 
       local_fails++;
     }
@@ -75,7 +75,7 @@ bool check_exp()
 
     if ( !triple_check( value ) )
     {
-//      std::cout << "=! Test value " << value << " FAILED!\n";
+      //      std::cout << "=! Test value " << value << " FAILED!\n";
 
       local_fails++;
     }
@@ -117,9 +117,9 @@ bool check_exp()
 
     if ( !triple_check( x ) )
     {
-//      std::cout << "=! Test value " << x << " FAILED!\n";
+      //      std::cout << "=! Test value " << x << " FAILED!\n";
 
-        local_fails++;
+      local_fails++;
     }
     else
     {
@@ -151,7 +151,8 @@ bool check_exp()
 }
 
 template<typename F>
-std::size_t test_case(F left, F right, F step, int num) {
+std::size_t test_case( F left, F right, F step, int num )
+{
   static auto triple_check = []( auto x )
   {
     return adaptive_compare<float, ADAAI::Exp, std::exp>( x ) &&
@@ -160,39 +161,42 @@ std::size_t test_case(F left, F right, F step, int num) {
   };
 
   std::size_t tests = 0;
-  F value = left;
-  while(value < right) {
+  F           value = left;
+  while ( value < right )
+  {
     ++tests;
-    if(!triple_check(value)) {
+    if ( !triple_check( value ) )
+    {
       std::cout << "Test case #" << num << ". Failed for: " << value << '\n';
-      std::cout << std::fixed << std::exp(value) << '\n';
-      std::cout << std::fixed << ADAAI::Exp(value) << '\n';
-      assert(false); 
+      std::cout << std::fixed << std::exp( value ) << '\n';
+      std::cout << std::fixed << ADAAI::Exp( value ) << '\n';
+      assert( false );
     }
     value += step;
   }
   return tests;
 }
 
-bool normal_tests() {
-  std::size_t tests = 0;
+bool normal_tests()
+{
+  std::size_t tests   = 0;
   long double max_exp = 709.7827125;
 
-  tests += test_case<long double>(-1'000'000'000, 0, 1000, 1);
-  tests += test_case<long double>(-1'000'000, 0, 1, 2);
-  tests += test_case<long double>(-1'000, 0, 0.001, 3);
-  tests += test_case<long double>(-1, 0, 0.000001, 4);
-  tests += test_case<long double>(-0.001, 0, 0.000000001, 5);
-  tests += test_case<long double>(-1.001, -1, 0.000000001, 6);
-  tests += test_case<long double>(-1'000.001, -1'000, 0.000000001, 7);
-  tests += test_case<long double>(-1'000'000.001, -1'000'000, 0.000000001, 8);
-  tests += test_case<long double>(-1'000'000'000.001, -1'000'000'000, 0.000000001, 9);
-  tests += test_case<long double>(0, 1, 0.000001, 10);
-// passed for 12 * eps
+  tests += test_case<long double>( -1'000'000'000, 0, 1000, 1 );
+  tests += test_case<long double>( -1'000'000, 0, 1, 2 );
+  tests += test_case<long double>( -1'000, 0, 0.001, 3 );
+  tests += test_case<long double>( -1, 0, 0.000001, 4 );
+  tests += test_case<long double>( -0.001, 0, 0.000000001, 5 );
+  tests += test_case<long double>( -1.001, -1, 0.000000001, 6 );
+  tests += test_case<long double>( -1'000.001, -1'000, 0.000000001, 7 );
+  tests += test_case<long double>( -1'000'000.001, -1'000'000, 0.000000001, 8 );
+  tests += test_case<long double>( -1'000'000'000.001, -1'000'000'000, 0.000000001, 9 );
+  tests += test_case<long double>( 0, 1, 0.000001, 10 );
+  // passed for 12 * eps
 
-  tests += test_case<long double>(0, max_exp, 0.001, 11);
-  tests += test_case<long double>(max_exp - 1, max_exp, 0.000001, 12);
-// passed for 304 * eps
+  tests += test_case<long double>( 0, max_exp, 0.001, 11 );
+  tests += test_case<long double>( max_exp - 1, max_exp, 0.000001, 12 );
+  // passed for 304 * eps
 
   std::cout << "Success on: " << tests << " tests\n";
   return true;
@@ -200,7 +204,7 @@ bool normal_tests() {
 
 int main()
 {
-  assert(normal_tests());
+  assert( normal_tests() );
   // assert( check_exp() );
   return 0;
 }

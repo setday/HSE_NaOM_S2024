@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cmath>
 #include <climits>
+#include <cmath>
 #include <iostream>
-#include <vector>
 #include <type_traits>
+#include <vector>
 
 #include "Consts.hpp"
 
@@ -35,12 +35,13 @@ namespace ADAAI
           break;
         }
 
-        terms.push_back(term);
+        terms.push_back( term );
         n++;
         term *= x / n;
       }
 
-      for(std::size_t i = 0; i < terms.size(); ++i) {
+      for ( std::size_t i = 0; i < terms.size(); ++i )
+      {
         result += terms[terms.size() - 1 - i];
       }
 
@@ -85,7 +86,7 @@ namespace ADAAI
     F x2 = CONST::LN2<F> * frac_part; // if abs(frac_part) <= 0.5, so will be abs(x2)
     F E2 = core::Exp_( x2 );
     F En = std::ldexp( 1.0, n ); // ldexp works very bad with non 1.0 multiplier
-    F E  = En * E2;         // so we multiply it separately :)
+    F E  = En * E2;              // so we multiply it separately :)
     return E;
   }
 } // namespace ADAAI
