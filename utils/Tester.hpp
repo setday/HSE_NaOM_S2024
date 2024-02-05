@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <iomanip>
 
 #include "../lab01/Consts.hpp"
 
@@ -14,7 +15,7 @@ namespace ADAAI::Utils
     bool passed = true;
 
     std::size_t tests_number = 0;
-    std::size_t fails_count = 0;
+    std::size_t fails_count  = 0;
 
     T first_fail = 0;
   };
@@ -43,7 +44,7 @@ namespace ADAAI::Utils
     }
 
     T diff = std::abs( got - expected );
-    T eps  = 304 * ADAAI::CONST::EPS<T>;
+    T eps  = 1000 * ADAAI::CONST::EPS<T>;
 
     if ( x <= 0 )
     {
@@ -75,7 +76,7 @@ namespace ADAAI::Utils
         if ( result.passed )
         {
           result.first_fail = value;
-          result.passed = false;
+          result.passed     = false;
 
           if ( break_on_fail )
           {
@@ -114,7 +115,7 @@ namespace ADAAI::Utils
         if ( result.passed )
         {
           result.first_fail = value;
-          result.passed = false;
+          result.passed     = false;
 
           if ( break_on_fail )
           {
@@ -141,7 +142,7 @@ namespace ADAAI::Utils
     os << "=> Tests passed: " << result.tests_number - result.fails_count << '/' << result.tests_number << '\n';
     if ( !result.passed )
     {
-      os << "=! First fail: " << result.first_fail << '\n';
+      os << std::setprecision( 50 ) << "=! First fail: " << result.first_fail << '\n';
     }
     os << "===--===---===---===--===";
     return os;

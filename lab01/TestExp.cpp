@@ -27,7 +27,6 @@ std::size_t test_case( F left, F right, F step, std::size_t num )
   std::cout << std::fixed << std::exp( result.first_fail ) << '\n';
   std::cout << std::fixed << ADAAI::Exp( result.first_fail ) << '\n';
   assert( false );
-
   return -1;
 }
 
@@ -104,11 +103,10 @@ bool exp_standard_tests()
 /// \return True if all tests passed
 bool exp_range_tests()
 {
-  std::size_t tests   = 0;
+  std::size_t tests   = 1;
   long double max_exp = 709.7827125;
 
-  std::cout << range_check<long double, exp_triple_check>( -1000, 1000, 0.1 ) << '\n';
-
+  std::cout << range_check<long double, exp_triple_check>( -1000, 1000, 0.1, true ) << '\n';
   tests += test_case<long double>( -1'000'000'000, 0, 1000, 1 );
   tests += test_case<long double>( -1'000'000, 0, 1, 2 );
   tests += test_case<long double>( -1'000, 0, 0.001, 3 );
@@ -132,6 +130,6 @@ bool exp_range_tests()
 int main()
 {
   assert( exp_range_tests() );
-  // assert( exp_standard_tests() );
+  assert( exp_standard_tests() );
   return 0;
 }
