@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <type_traits>
+#include <vector>
 
 #include "Consts.hpp"
 
@@ -12,33 +13,64 @@ namespace ADAAI
   /// \details Contains functions for computing core functions
   namespace core
   {
+
+    enum class Method : int
+    {
+      Taylor = 1,
+      Pade,
+    };
+
+    template<typename F>
+    constexpr inline int MakeTaylorOrder()
+    {
+      F term = CONST::SQRT2<F>;
+      for ( int i = 1; i < 1000; ++i )
+      {
+        term *= CONST::LN2<F> * 0.5 / i;
+        if ( term < CONST::DELTA<F> )
+        {
+          return i + 2; // if you'd return i or even i - 1 precision would drop
+        }
+      }
+      assert( false );
+    }
+
+    template<typename F>
+    constexpr int N = MakeTaylorOrder<F>(); // this is required number of Tailor terms for F type
+
     /// \brief Computes exp(x) using Taylor series
     /// \example \code Exp_( 0.1 ); \endcode
     /// \tparam F - Floating point type
     /// \param x - Value to compute
     /// \return e^x
-    template<typename F>
+    template<Method M = Method::Taylor, typename F>
       requires std::is_floating_point_v<F>
     constexpr F Exp_( F x )
     {
-      F   result = 0;
-      F   term   = 1;
-      int n      = 0;
-
-      while ( true )
+      if ( M == Method::Taylor )
       {
-        if ( ( x > 0 && std::abs( term ) * CONST::SQRT2<F> < CONST::DELTA<F> ) || ( x <= 0 && std::abs( term ) < CONST::DELTA<F> ) )
+        std::vector<F> terms( N<F> );
+        terms[0] = 1;
+        for ( int n = 1; n < N<F>; ++n )
         {
-          break;
+          terms[n] = terms[n - 1] * x / n;
         }
-
-        result += term;
-        n++;
-        term *= x / n;
+        F result = 0;
+        for ( int n = N<F> - 1; n >= 0; --n )
+        {
+          result += terms[n];
+        }
+        return result;
       }
 
-      return result;
+      if ( M == Method::Pade )
+      {
+        __asm( "nop" );
+        return 0;
+      }
+      assert( false );
     }
+
   } // namespace core
 
   /// \brief Computes exp(x)
@@ -77,8 +109,8 @@ namespace ADAAI
 
     F x2 = CONST::LN2<F> * frac_part; // if abs(frac_part) <= 0.5, so will be abs(x2)
     F E2 = core::Exp_( x2 );
-    F En = ldexp( 1.0, n ); // ldexp works very bad with non 1.0 multiplier
-    F E  = En * E2;         // so we multiply it separately :)
-    return E;
+    //    F E2 = core::Exp_<core::Method::Pade>( x2 ); // this will fail all tests for now
+    F En = std::ldexp( 1.0, n ); // ldexp works very bad with non 1.0 multiplier
+    return En * E2;              // so we multiply it separately :)
   }
 } // namespace ADAAI

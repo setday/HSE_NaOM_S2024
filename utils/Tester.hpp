@@ -32,7 +32,7 @@ namespace ADAAI::Utils
     }
 
     T diff = std::abs( got - expected );
-    T eps  = 7 * ADAAI::CONST::DELTA<T>; // = std::numeric_limits<T>::epsilon() * 70
+    T eps  = 62 * ADAAI::CONST::EPS<T>;
 
     if ( x <= 0 )
     {
