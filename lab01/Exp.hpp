@@ -52,19 +52,19 @@ namespace ADAAI
       {
         std::vector<F> terms( N<F> );
         terms[0] = 1;
-        
+
         for ( int n = 1; n < N<F>; ++n )
         {
           terms[n] = terms[n - 1] * x / n;
         }
-        
+
         F result = 0;
 
-        for ( std::size_t n = N<F>; n > 0; --n )
+        for ( int n = N<F> - 1; n >= 0; --n )
         {
-          result += terms[n - 1];
+          result += terms[n];
         }
-        
+
         return result;
       }
 
@@ -115,7 +115,7 @@ namespace ADAAI
     F x2 = CONST::LN2<F> * frac_part; // if abs(frac_part) <= 0.5, so will be abs(x2)
     F E2 = core::Exp_( x2 );
     //    F E2 = core::Exp_<core::Method::Pade>( x2 ); // this will fail all tests for now
-    F En = std::ldexp( 1.0, n ); // ldexp works very bad with non 1.0 multiplier
-    return En * E2;              // so we multiply it separately :)
+    F En = std::pow<F>( 2.0, n ); // should've been equivalent to std::ldexp(1.0, n);
+    return E2 * En;
   }
 } // namespace ADAAI
