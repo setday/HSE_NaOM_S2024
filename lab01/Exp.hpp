@@ -1,5 +1,6 @@
 #pragma once
 
+#include <climits>
 #include <cmath>
 #include <iostream>
 #include <type_traits>
@@ -17,7 +18,7 @@ namespace ADAAI
     enum class Method : int
     {
       Taylor = 1,
-      Pade,
+      Pade   = 2,
     };
 
     template<typename F>
@@ -51,15 +52,19 @@ namespace ADAAI
       {
         std::vector<F> terms( N<F> );
         terms[0] = 1;
+        
         for ( int n = 1; n < N<F>; ++n )
         {
           terms[n] = terms[n - 1] * x / n;
         }
+        
         F result = 0;
-        for ( int n = N<F> - 1; n >= 0; --n )
+
+        for ( std::size_t n = N<F>; n > 0; --n )
         {
-          result += terms[n];
+          result += terms[n - 1];
         }
+        
         return result;
       }
 

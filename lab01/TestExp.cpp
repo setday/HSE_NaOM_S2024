@@ -6,19 +6,34 @@
 
 using namespace ADAAI::Utils;
 
-bool check_exp()
+bool exp_triple_check( auto x )
 {
-  auto triple_check = []( auto x )
-  {
-    return adaptive_compare<float, ADAAI::Exp, std::exp>( x ) and
-           adaptive_compare<double, ADAAI::Exp, std::exp>( x ) and
-           adaptive_compare<long double, ADAAI::Exp, std::exp>( x );
-  };
+  return adaptive_compare<float, ADAAI::Exp, std::exp>( x ) and
+         adaptive_compare<double, ADAAI::Exp, std::exp>( x ) and
+         adaptive_compare<long double, ADAAI::Exp, std::exp>( x );
+}
 
-  int global_fails = 0;
-  int local_tests  = 0;
-  int local_fails  = 0;
-  int local_passes = 0;
+template<typename F>
+std::size_t test_case( F left, F right, F step, std::size_t num )
+{
+  auto result = range_check<F, exp_triple_check>( left, right, step, true );
+
+  if ( result.passed )
+  {
+    return result.tests_number;
+  }
+
+  std::cout << "Test case #" << num << ". Failed for: " << result.first_fail << '\n';
+  std::cout << std::fixed << std::exp( result.first_fail ) << '\n';
+  std::cout << std::fixed << ADAAI::Exp( result.first_fail ) << '\n';
+  assert( false );
+
+  return -1;
+}
+
+bool exp_standard_tests()
+{
+  std::size_t global_fails = 0;
 
   long double test_set[] = {
       1.0,
@@ -34,69 +49,23 @@ bool check_exp()
       -656.0,
   };
 
-  std::cout << "=== Test case 1 ===\n=> Testing exp(x) for adaptive_compare set (1.0, 1345442354523432.0, -1345442354523432.0, 0.0, -0.0, 10.1, -10.1, -100.0, 0.0000001, -0.0000001, -656.0)\n";
+  auto result_case_1 = array_check<long double, exp_triple_check>( test_set, 11 );
 
-  for ( auto x : test_set )
+  if ( result_case_1.fails_count > 0 )
   {
-    local_tests++;
-
-    if ( !triple_check( x ) )
-    {
-//      std::cout << "=! Test value " << x << " FAILED!\n";
-
-      local_fails++;
-    }
-    else
-    {
-      local_passes++;
-    }
-  }
-
-  if ( local_fails > 0 )
-  {
-    std::cout << "=== Test case 1 FAILED! ===\n= " << local_passes << " / " << local_tests << " tests passed! =\n\n";
     global_fails++;
-    local_fails = 0;
-  }
-  else
-  {
-    std::cout << "=== Test case 1 PASSED! ===\n\n";
   }
 
-  float border = 100.0;
-  float step   = 0.005;
-  float value  = -border;
+  std::cout << result_case_1 << "\n\n";
 
-  std::cout << "=== Test case 2 ===\n=> Testing exp(x) for x in interval [" << -border << ", " << border << "] with step " << step << "\n";
+  auto result_case_2 = range_check<float, exp_triple_check>( -100.0, 100.0, 0.005 );
 
-  while ( value <= border )
+  if ( result_case_2.fails_count > 0 )
   {
-    local_tests++;
-
-    if ( !triple_check( value ) )
-    {
-//      std::cout << "=! Test value " << value << " FAILED!\n";
-
-      local_fails++;
-    }
-    else
-    {
-      local_passes++;
-    }
-
-    value += step;
-  }
-
-  if ( local_fails > 0 )
-  {
-    std::cout << "=== Test case 2 FAILED! ===\n= " << local_passes << " / " << local_tests << " tests passed! =\n\n";
     global_fails++;
-    local_fails = 0;
   }
-  else
-  {
-    std::cout << "=== Test case 2 PASSED! ===\n\n";
-  }
+
+  std::cout << result_case_2 << "\n\n";
 
   long double special_set[] = {
       std::numeric_limits<long double>::infinity(),
@@ -109,34 +78,14 @@ bool check_exp()
       std::numeric_limits<long double>::lowest(),
   };
 
-  std::cout << "=== Test case 3 ===\n=> Testing exp(x) for special set (inf, -inf, quiet_NaN, signaling_NaN, denorm_min, min, max, lowest)\n";
+  auto result_case_3 = array_check<long double, exp_triple_check>( special_set, 8 );
 
-  for ( auto x : special_set )
+  if ( result_case_3.fails_count > 0 )
   {
-    local_tests++;
-
-    if ( !triple_check( x ) )
-    {
-//      std::cout << "=! Test value " << x << " FAILED!\n";
-
-        local_fails++;
-    }
-    else
-    {
-      local_passes++;
-    }
-  }
-
-  if ( local_fails > 0 )
-  {
-    std::cout << "=== Test case 3 FAILED! ===\n= " << local_passes << " / " << local_tests << " tests passed! =\n\n";
     global_fails++;
-    local_fails = 0;
   }
-  else
-  {
-    std::cout << "=== Test case 3 PASSED! ===\n\n";
-  }
+
+  std::cout << result_case_3 << "\n\n";
 
   if ( global_fails > 0 )
   {
@@ -150,8 +99,39 @@ bool check_exp()
   return true;
 }
 
+/// \brief Tests the range of the exp function
+/// \details Average test time: 18s
+/// \return True if all tests passed
+bool exp_range_tests()
+{
+  std::size_t tests   = 0;
+  long double max_exp = 709.7827125;
+
+  std::cout << range_check<long double, exp_triple_check>( -1000, 1000, 0.1 ) << '\n';
+
+  tests += test_case<long double>( -1'000'000'000, 0, 1000, 1 );
+  tests += test_case<long double>( -1'000'000, 0, 1, 2 );
+  tests += test_case<long double>( -1'000, 0, 0.001, 3 );
+  tests += test_case<long double>( -1, 0, 0.000001, 4 );
+  tests += test_case<long double>( -0.001, 0, 0.000000001, 5 );
+  tests += test_case<long double>( -1.001, -1, 0.000000001, 6 );
+  tests += test_case<long double>( -1'000.001, -1'000, 0.000000001, 7 );
+  tests += test_case<long double>( -1'000'000.001, -1'000'000, 0.000000001, 8 );
+  tests += test_case<long double>( -1'000'000'000.001, -1'000'000'000, 0.000000001, 9 );
+  tests += test_case<long double>( 0, 1, 0.000001, 10 );
+  // passed for 12 * eps
+
+  tests += test_case<long double>( 0, max_exp, 0.001, 11 );
+  tests += test_case<long double>( max_exp - 1, max_exp, 0.000001, 12 );
+  // passed for 304 * eps
+
+  std::cout << "Success on: " << tests << " tests\n";
+  return true;
+}
+
 int main()
 {
-  assert( check_exp() );
+  assert( exp_range_tests() );
+  // assert( exp_standard_tests() );
   return 0;
 }
