@@ -70,8 +70,18 @@ namespace ADAAI
 
       if ( M == Method::Pade )
       {
-        __asm( "nop" );
-        return 0;
+        F numerator   = 9;
+        F denumerator = 0;
+
+        for(const auto &term : CONST::P_TERMS) {
+          numerator = x * numerator + term;
+        }
+
+        for(const auto &term : CONST::Q_TERMS) {
+          denumerator = x * denumerator + term;
+        }
+
+        return numerator / denumerator;
       }
       assert( false );
     }
@@ -107,7 +117,7 @@ namespace ADAAI
     int n  = int( int_part );           // generic case now: e^x = 2^n * e^x2
     F   x2 = CONST::LN2<F> * frac_part; // if abs(frac_part) <= 0.5, so will be abs(x2)
     F   E2 = core::Exp_( x2 );
-    //    F E2 = core::Exp_<core::Method::Pade>( x2 ); // this will fail all tests for now
+    // F E2 = core::Exp_<core::Method::Pade>( x2 ); // this will fail all tests for now
     F En = std::pow<F>( 2.0, n ); // should've been equivalent to std::ldexp(1.0, n);
     return E2 * En;
   }
