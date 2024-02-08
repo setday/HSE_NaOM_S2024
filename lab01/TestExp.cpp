@@ -133,24 +133,26 @@ int main()
   // assert( exp_standard_tests() );
 
   long double max = 0;
-  for ( long double f = -ADAAI::CONST::LN2<long double> * 5.0; f <= ADAAI::CONST::LN2<long double> * 5.0; f += ADAAI::CONST::LN2<long double> / 1e6 )
+  for ( long double f = -ADAAI::CONST::LN2<long double> * 50.0; f <= 0; f += ADAAI::CONST::LN2<long double> / 1e5 )
   {
     max = std::max( max, std::abs( std::exp( f ) - ADAAI::Exp<ADAAI::Method::Pade>( f ) ) );
-    // std::cout << std::setprecision(50) << ADAAI::Exp(f) << '\n' << std::exp(f) << "\n\n";
-    // std::cout << std::setprecision(50) << ADAAI::Exp(f) << '\n';
   }
-  // std::cout << std::setprecision(50) << max << '\n';
+  for ( long double f = 0; f <= ADAAI::CONST::LN2<long double> * 50.0; f += ADAAI::CONST::LN2<long double> / 1e5 )
+  {
+    max = std::max( max, std::abs( std::exp( f ) - ADAAI::Exp<ADAAI::Method::Pade>( f ) ) / std::exp( f ) );
+    max = std::max( max, std::abs( std::exp( f ) - ADAAI::Exp<ADAAI::Method::Pade>( f ) ) / ADAAI::Exp<ADAAI::Method::Pade>( f ) );
+  }
   std::cout << std::setprecision( 50 ) << max / std::numeric_limits<long double>::epsilon();
 
-  // x \in [-5*ln(2), 5*ln(2)]
+  // x \in [-50*ln(2), 5*ln(2)]
   //                   *eps
-  // tailor   880
-  // [10, 10] over9999
-  // [19, 1]  112
-  // [1, 19]  560
-  // [0, 20]  624
-  // [15, 5]  256
-  // [5, 15]  over9999
+  // tailor   49.5
+  // [10, 10] 18.6
+  // [19, 1]  18.6
+  // [1, 19]  18.75
+  // [0, 20]  18.63
+  // [15, 5]  18.59
+  // [5, 15]  18.68
 
   return 0;
 }
