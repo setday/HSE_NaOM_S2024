@@ -133,13 +133,14 @@ int main()
   // assert( exp_standard_tests() );
 
   long double max = 0;
-  for(long double f = -ADAAI::CONST::LN2<long double> * 5.0; f <= ADAAI::CONST::LN2<long double> * 5.0; f += ADAAI::CONST::LN2<long double>/1e6) {
-    max = std::max(max, std::abs(std::exp(f) - ADAAI::Exp(f)));
+  for ( long double f = -ADAAI::CONST::LN2<long double> * 5.0; f <= ADAAI::CONST::LN2<long double> * 5.0; f += ADAAI::CONST::LN2<long double> / 1e6 )
+  {
+    max = std::max( max, std::abs( std::exp( f ) - ADAAI::Exp<ADAAI::Method::Pade>( f ) ) );
     // std::cout << std::setprecision(50) << ADAAI::Exp(f) << '\n' << std::exp(f) << "\n\n";
     // std::cout << std::setprecision(50) << ADAAI::Exp(f) << '\n';
   }
   // std::cout << std::setprecision(50) << max << '\n';
-  std::cout << std::setprecision(50) << max / std::numeric_limits<long double>::epsilon();
+  std::cout << std::setprecision( 50 ) << max / std::numeric_limits<long double>::epsilon();
 
   // x \in [-5*ln(2), 5*ln(2)]
   //                   *eps
@@ -149,7 +150,7 @@ int main()
   // [1, 19]  560
   // [0, 20]  624
   // [15, 5]  256
-  // [5, 15]  over9999  
+  // [5, 15]  over9999
 
   return 0;
 }

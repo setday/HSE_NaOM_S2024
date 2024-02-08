@@ -10,16 +10,17 @@
 
 namespace ADAAI
 {
+
+  enum class Method : int
+  {
+    Taylor = 1,
+    Pade   = 2,
+  };
+
   /// \brief Namespace for core functions
   /// \details Contains functions for computing core functions
   namespace core
   {
-
-    enum class Method : int
-    {
-      Taylor = 1,
-      Pade   = 2,
-    };
 
     template<typename F>
     constexpr inline int MakeTaylorOrder()
@@ -70,14 +71,16 @@ namespace ADAAI
 
       if ( M == Method::Pade )
       {
-        F numerator   = 9;
+        F numerator   = 0;
         F denumerator = 0;
 
-        for(const auto &term : CONST::P_TERMS) {
+        for ( const auto& term : CONST::P_TERMS )
+        {
           numerator = x * numerator + term;
         }
 
-        for(const auto &term : CONST::Q_TERMS) {
+        for ( const auto& term : CONST::Q_TERMS )
+        {
           denumerator = x * denumerator + term;
         }
 
@@ -93,7 +96,7 @@ namespace ADAAI
   /// \tparam F - Floating point type
   /// \param x - Value to compute
   /// \return e^x
-  template<typename F>
+  template<Method M = Method::Taylor, typename F>
     requires std::is_floating_point_v<F>
   constexpr F Exp( F x )
   {
@@ -116,9 +119,8 @@ namespace ADAAI
 
     int n  = int( int_part );           // generic case now: e^x = 2^n * e^x2
     F   x2 = CONST::LN2<F> * frac_part; // if abs(frac_part) <= 0.5, so will be abs(x2)
-    F   E2 = core::Exp_( x2 );
-    // F E2 = core::Exp_<core::Method::Pade>( x2 ); // this will fail all tests for now
-    F En = std::pow<F>( 2.0, n ); // should've been equivalent to std::ldexp(1.0, n);
+    F   E2 = core::Exp_<M>( x2 );
+    F   En = std::pow<F>( 2.0, n ); // should've been equivalent to std::ldexp(1.0, n);
     return E2 * En;
   }
 } // namespace ADAAI
