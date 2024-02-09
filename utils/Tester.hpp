@@ -14,10 +14,14 @@ namespace ADAAI::Utils
   {
     bool passed = true;
 
+    std::size_t test_case_number = UINT_MAX;
+
     std::size_t tests_number = 0;
     std::size_t fails_count  = 0;
 
     T first_fail = 0;
+
+    T min_eps = -1;
   };
 
   /// \brief Tests if two functions are equal for a given value
@@ -138,12 +142,18 @@ namespace ADAAI::Utils
   template<typename T>
   std::ostream& operator<<( std::ostream& os, const TestResult<T>& result )
   {
-    os << "=== Test case " << ( result.passed ? "PASSED!" : "FAILED!" ) << " ===\n";
+    os << "=== Test case " << ( result.test_case_number == UINT_MAX ? 0 : result.test_case_number )
+       << " " << ( result.passed ? "PASSED!" : "FAILED!" ) << " ===\n";
     os << "=> Tests passed: " << result.tests_number - result.fails_count << '/' << result.tests_number << '\n';
-    if ( !result.passed )
+//    if ( !result.passed )
+//    {
+//      os << std::setprecision( 50 ) << "=! First fail: " << result.first_fail << '\n';
+//    }
+    if ( result.min_eps != -1 )
     {
-      os << std::setprecision( 50 ) << "=! First fail: " << result.first_fail << '\n';
+      os << "=> Minimal number of epsilons: " << result.min_eps << '\n';
     }
+    os << "===--===---===---===--===";
     return os;
   }
 } // namespace ADAAI::Utils

@@ -35,10 +35,11 @@ bool exp_triple_check( auto x )
 template<typename F, ADAAI::Method M = ADAAI::Method::Taylor>
 std::size_t test_case( F left, F right, F step, std::size_t num )
 {
-  std::cout << "Test case # " << num << '\n';
   error       = 0.0;
   auto result = range_check<F, exp_triple_check<M>>( left, right, step, true );
-  std::cout << result << "num of eps: " << error << "\n\n";
+  result.min_eps = error;
+  result.test_case_number = num;
+  std::cout << result << "\n\n";
 
   if ( result.passed )
   {
@@ -69,16 +70,20 @@ bool exp_standard_tests()
 
   error              = 0.0;
   auto result_case_1 = array_check<long double, exp_triple_check<M>>( test_set, 11 );
+  result_case_1.min_eps = error;
+  result_case_1.test_case_number = 1;
 
   if ( result_case_1.fails_count > 0 )
   {
     global_fails++;
   }
 
-  std::cout << result_case_1 << " num of eps: " << error << "\n\n";
+  std::cout << result_case_1 << "\n\n";
 
   error              = 0.0;
   auto result_case_2 = range_check<float, exp_triple_check<M>>( -100.0, 100.0, 0.005 );
+  result_case_2.min_eps = error;
+  result_case_2.test_case_number = 2;
 
   if ( result_case_2.fails_count > 0 )
   {
@@ -100,6 +105,8 @@ bool exp_standard_tests()
 
   error              = 0.0;
   auto result_case_3 = array_check<long double, exp_triple_check<M>>( special_set, 8 );
+  result_case_3.min_eps = error;
+  result_case_3.test_case_number = 3;
 
   if ( result_case_3.fails_count > 0 )
   {
@@ -138,9 +145,9 @@ bool exp_range_tests()
   long double max_exp = 11356.6;
   std::size_t tests = 0;
 
-  tests += test_case<long double, M>( 1000.0, 12000.0, 0.1, -1 );
+  tests += test_case<long double, M>( 1000.0, 12000.0, 0.1, 0 );
   tests += test_case<long double, M>( 700.0, 720.0, 0.1, 0 );
-  tests += test_case<long double, M>( -1000, 1000, 0.1, 1 );
+  tests += test_case<long double, M>( -1000, 1000, 0.1, 0 );
   tests += test_case<long double, M>( -1'000'000'000, 0, 1000, 1 );
   tests += test_case<long double, M>( -1'000'000, 0, 1, 2 );
   tests += test_case<long double, M>( -1'000, 0, 0.001, 3 );
