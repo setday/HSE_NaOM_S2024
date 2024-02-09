@@ -44,7 +44,7 @@ namespace ADAAI::Utils
     }
 
     T diff = std::abs( got - expected );
-    T eps  = 550 * ADAAI::CONST::EPS<T>;
+    T eps  = 530 * ADAAI::CONST::EPS<T>;
 
     if ( x <= 0 )
     {

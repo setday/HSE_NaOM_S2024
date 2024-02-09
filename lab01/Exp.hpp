@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "../utils/Math.hpp"
 #include "Consts.hpp"
 
 namespace ADAAI
@@ -23,10 +24,10 @@ namespace ADAAI
   {
 
     template<typename F>
-    constexpr inline int MakeTaylorOrder()
+    constexpr inline std::size_t MakeTaylorOrder()
     {
       F term = CONST::SQRT2<F>;
-      for ( int i = 1; i < 1000; ++i )
+      for ( std::size_t i = 1; i < 1000; ++i )
       {
         term *= CONST::LN2<F> * 0.5 / i;
         if ( term < CONST::DELTA<F> )
@@ -38,7 +39,7 @@ namespace ADAAI
     }
 
     template<typename F>
-    constexpr int N = MakeTaylorOrder<F>(); // this is required number of Tailor terms for F type
+    constexpr std::size_t N = MakeTaylorOrder<F>(); // this is required number of Tailor terms for F type
 
     /// \brief Computes exp(x) using Taylor series
     /// \example \code Exp_( 0.1 ); \endcode
@@ -54,16 +55,16 @@ namespace ADAAI
         std::vector<F> terms( N<F> );
         terms[0] = 1;
 
-        for ( int n = 1; n < N<F>; ++n )
+        for ( std::size_t n = 1; n < N<F>; ++n )
         {
           terms[n] = terms[n - 1] * x / n;
         }
 
         F result = 0;
 
-        for ( int n = N<F> - 1; n >= 0; --n )
+        for ( std::size_t n = N<F>; n > 0; --n )
         {
-          result += terms[n];
+          result += terms[n - 1];
         }
 
         return result;
@@ -118,6 +119,13 @@ namespace ADAAI
     }
 
     int n  = int( int_part );           // generic case now: e^x = 2^n * e^x2
+
+    //    if ( frac_part > 0.5 )
+    //    {
+    //      n++;
+    //      frac_part -= 1;
+    //    }
+
     F   x2 = CONST::LN2<F> * frac_part; // if abs(frac_part) <= 0.5, so will be abs(x2)
     F   E2 = core::Exp_<M>( x2 );
     F   En = std::pow<F>( 2.0, n ); // should've been equivalent to std::ldexp(1.0, n);
