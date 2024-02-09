@@ -1,13 +1,12 @@
 #pragma once
 
-#include <cfloat>
 #include <numbers>
 #include <vector>
 
 namespace ADAAI::CONST
 {
-  template<typename F>
-  constexpr inline F LOG2E;
+  template<typename T>
+  constexpr inline T LOG2E;
   template<>
   constexpr inline float LOG2E<float> = std::numbers::log2e_v<float>;
   template<>
@@ -15,8 +14,8 @@ namespace ADAAI::CONST
   template<>
   constexpr inline long double LOG2E<long double> = std::numbers::log2e_v<long double>;
 
-  template<typename F>
-  constexpr inline F LN2;
+  template<typename T>
+  constexpr inline T LN2;
   template<>
   constexpr inline float LN2<float> = std::numbers::ln2_v<float>;
   template<>
@@ -24,8 +23,8 @@ namespace ADAAI::CONST
   template<>
   constexpr inline long double LN2<long double> = std::numbers::ln2_v<long double>;
 
-  template<typename F>
-  constexpr inline F EPS;
+  template<typename T>
+  constexpr inline T EPS;
   template<>
   constexpr inline float EPS<float> = std::numeric_limits<float>::epsilon();
   template<>
@@ -34,8 +33,8 @@ namespace ADAAI::CONST
   constexpr inline long double EPS<long double> = std::numeric_limits<long double>::epsilon();
 
   constexpr float scale = 10;
-  template<typename F>
-  constexpr inline F DELTA;
+  template<typename T>
+  constexpr inline T DELTA;
   template<>
   constexpr inline float DELTA<float> = scale * EPS<float>;
   template<>
@@ -43,8 +42,18 @@ namespace ADAAI::CONST
   template<>
   constexpr inline long double DELTA<long double> = scale * EPS<long double>;
 
-  template<typename F>
-  constexpr inline F SQRT2;
+  constexpr float bound_scale = 535;
+  template<typename T>
+  constexpr inline T BOUND;
+  template<>
+  constexpr inline float BOUND<float> = bound_scale * EPS<float>;
+  template<>
+  constexpr inline double BOUND<double> = bound_scale * EPS<double>;
+  template<>
+  constexpr inline long double BOUND<long double> = bound_scale * EPS<long double>;
+
+  template<typename T>
+  constexpr inline T SQRT2;
   template<>
   constexpr inline float SQRT2<float> = std::numbers::sqrt2_v<float>;
   template<>
@@ -52,9 +61,9 @@ namespace ADAAI::CONST
   template<>
   constexpr inline long double SQRT2<long double> = std::numbers::sqrt2_v<long double>;
 
-  // sizes of P_TERMS + Q_TERMS for F float 9, double 15, long double 17
-  template<typename F>
-  constexpr inline F* P_TERMS;
+  // sizes of P_TERMS + Q_TERMS for T float 9, double 15, long double 17
+  template<typename T>
+  constexpr inline T* P_TERMS;
   template<>
   constexpr inline float P_TERMS<float>[] = { 1., 25., 300., 2100., 8400., 15120. };
   template<>
@@ -62,8 +71,8 @@ namespace ADAAI::CONST
   template<>
   constexpr inline long double P_TERMS<long double>[] = { 1.0, 81.0, 3240.0, 83160.0, 1496880.0, 19459440.0, 181621440.0, 1167566400.0, 4670265600.0, 8821612800.0 };
 
-  template<typename F>
-  constexpr inline F* Q_TERMS;
+  template<typename T>
+  constexpr inline T* Q_TERMS;
   template<>
   constexpr inline float Q_TERMS<float>[] = { 5, -120, 1260, -6720, 15120 };
   template<>

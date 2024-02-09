@@ -15,13 +15,42 @@ namespace ADAAI::Utils
     bool passed = true;
 
     std::size_t test_case_number = UINT_MAX;
-
-    std::size_t tests_number = 0;
-    std::size_t fails_count  = 0;
+    std::size_t tests_number     = 0;
+    std::size_t fails_count      = 0;
 
     T first_fail = 0;
 
     T min_eps = -1;
+
+    void update( T value, bool test_passed )
+    {
+      tests_number++;
+
+      if ( !test_passed )
+      {
+        if ( passed )
+        {
+          first_fail = value;
+          passed     = false;
+        }
+
+        fails_count++;
+      }
+    }
+  };
+
+  template<typename T>
+    requires std::is_floating_point_v<T>
+  struct CheckResult
+  {
+    bool passed = true;
+    T    error  = 0;
+
+    void update( T inp )
+    {
+      if ( !std::isinf<T>( inp ) )
+        error = std::max( error, inp );
+    }
   };
 
   /// \brief Tests if two functions are equal for a given value
@@ -30,9 +59,9 @@ namespace ADAAI::Utils
   /// \tparam MimicFunction - Function to adaptive_compare
   /// \tparam RealFunction - Function to compare with
   /// \param x - Value to adaptive_compare
-  /// \return True if functions are close enough, false otherwise
+  /// \return CheckResult structure
   template<typename T, T MimicFunction( T ), T RealFunction( T )>
-  std::pair<bool, T> adaptive_compare( T x )
+  CheckResult<T> adaptive_compare( T x )
   {
     T got      = MimicFunction( x );
     T expected = RealFunction( x );
@@ -48,13 +77,12 @@ namespace ADAAI::Utils
     }
 
     T diff = std::abs( got - expected );
-    T eps  = 530 * ADAAI::CONST::EPS<T>;
 
     if ( x <= 0 )
     {
-      return { diff < eps, diff / ADAAI::CONST::EPS<T> };
+      return { diff < ADAAI::CONST::BOUND<T>, diff / ADAAI::CONST::EPS<T> };
     }
-    return { diff < eps * expected, diff / expected / ADAAI::CONST::EPS<T> };
+    return { diff < ADAAI::CONST::BOUND<T> * expected, diff / expected / ADAAI::CONST::EPS<T> };
   }
 
   /// \brief Tests a range of values with a given step
@@ -73,22 +101,11 @@ namespace ADAAI::Utils
 
     for ( T value = left; value <= right; value += step )
     {
-      result.tests_number++;
-
-      if ( !CheckFunction( value ) )
+      bool passed = CheckFunction( value );
+      result.update( value, passed );
+      if ( !passed && break_on_fail )
       {
-        if ( result.passed )
-        {
-          result.first_fail = value;
-          result.passed     = false;
-
-          if ( break_on_fail )
-          {
-            break;
-          }
-        }
-
-        result.fails_count++;
+        break;
       }
     }
 
@@ -112,22 +129,11 @@ namespace ADAAI::Utils
     {
       T value = array[i];
 
-      result.tests_number++;
-
-      if ( !CheckFunction( value ) )
+      bool passed = CheckFunction( value );
+      result.update( value, passed );
+      if ( !passed && break_on_fail )
       {
-        if ( result.passed )
-        {
-          result.first_fail = value;
-          result.passed     = false;
-
-          if ( break_on_fail )
-          {
-            break;
-          }
-        }
-
-        result.fails_count++;
+        break;
       }
     }
 
@@ -145,15 +151,15 @@ namespace ADAAI::Utils
     os << "=== Test case " << ( result.test_case_number == UINT_MAX ? 0 : result.test_case_number )
        << " " << ( result.passed ? "PASSED!" : "FAILED!" ) << " ===\n";
     os << "=> Tests passed: " << result.tests_number - result.fails_count << '/' << result.tests_number << '\n';
-//    if ( !result.passed )
-//    {
-//      os << std::setprecision( 50 ) << "=! First fail: " << result.first_fail << '\n';
-//    }
-    if ( result.min_eps != -1 )
-    {
-      os << "=> Minimal number of epsilons: " << result.min_eps << '\n';
-    }
-    os << "===--===---===---===--===";
+    //        if ( !result.passed )
+    //        {
+    //          os << "=! First fail: " << result.first_fail << '\n';
+    //    }
+    //    if ( result.min_eps != -1 )
+    //    {
+    //      os << "=> Minimal number of epsilons: " << result.min_eps << '\n';
+    //    }
+    //    os << "===--===---===---===--===";
     return os;
   }
 } // namespace ADAAI::Utils
