@@ -36,7 +36,7 @@ template<typename F, ADAAI::Method M = ADAAI::Method::Taylor>
 std::size_t test_case( F left, F right, F step, std::size_t num )
 {
   error       = 0.0;
-  auto result = range_check<F, exp_triple_check<M>>( left, right, step, true );
+  auto result = range_check<F, exp_triple_check<M>>( left, right, step );
   result.min_eps = error;
   result.test_case_number = num;
   std::cout << result << "\n\n";
