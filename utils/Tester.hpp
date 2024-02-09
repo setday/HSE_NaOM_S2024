@@ -28,7 +28,7 @@ namespace ADAAI::Utils
   /// \param x - Value to adaptive_compare
   /// \return True if functions are close enough, false otherwise
   template<typename T, T MimicFunction( T ), T RealFunction( T )>
-  bool adaptive_compare( T x )
+  std::pair<bool, T> adaptive_compare( T x )
   {
     T got      = MimicFunction( x );
     T expected = RealFunction( x );
@@ -36,11 +36,11 @@ namespace ADAAI::Utils
     // Checking for special cases
     if ( std::isnan( got ) )
     {
-      return std::isnan( expected );
+      return { std::isnan( expected ), 0.0 };
     }
     if ( std::isinf( got ) )
     {
-      return std::isinf( expected );
+      return { std::isinf( expected ), 0.0 };
     }
 
     T diff = std::abs( got - expected );
@@ -48,9 +48,9 @@ namespace ADAAI::Utils
 
     if ( x <= 0 )
     {
-      return diff < eps;
+      return { diff < eps, diff / ADAAI::CONST::EPS<T> };
     }
-    return diff < eps * expected;
+    return { diff < eps * expected, diff / expected / ADAAI::CONST::EPS<T> };
   }
 
   /// \brief Tests a range of values with a given step
