@@ -112,7 +112,7 @@ namespace ADAAI
     {
       return 0.0;
     }
-    if ( int_part > INT_MAX )
+    if ( int_part > 11500 )
     {
       return std::numeric_limits<F>::infinity();
     }

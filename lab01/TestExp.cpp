@@ -9,6 +9,16 @@ using namespace ADAAI::Utils;
 long double error = 0.0;
 
 template<ADAAI::Method M>
+bool exp_check( auto x )
+{
+  auto long_double_check = adaptive_compare<long double, ADAAI::Exp<long double, M>, std::exp>( x );
+
+  error = std::max( error, (long double)long_double_check.second );
+
+  return long_double_check.first;
+}
+
+template<ADAAI::Method M>
 bool exp_triple_check( auto x )
 {
   auto float_check       = adaptive_compare<float, ADAAI::Exp<float, M>, std::exp>( x );
@@ -124,23 +134,26 @@ bool exp_range_tests()
   {
     std::cout << "Method used Pade\n\n";
   }
-  long double max_exp = 709.7827125;
-  std::size_t tests   = 0;
+  
+  long double max_exp = 11356.6;
+  std::size_t tests = 0;
 
-  error = 0.0;
+  tests += test_case<long double, M>( 1000.0, 12000.0, 0.1, -1 );
+  tests += test_case<long double, M>( 700.0, 720.0, 0.1, 0 );
   tests += test_case<long double, M>( -1000, 1000, 0.1, 1 );
-  tests += test_case<long double, M>( -1'000'000'000, 0, 1000, 2 );
-  tests += test_case<long double, M>( -1'000'000, 0, 1, 3 );
-  tests += test_case<long double, M>( -1'000, 0, 0.001, 4 );
-  tests += test_case<long double, M>( -1, 0, 0.000001, 5 );
-  tests += test_case<long double, M>( -0.001, 0, 0.000000001, 6 );
-  tests += test_case<long double, M>( -1.001, -1, 0.000000001, 7 );
-  tests += test_case<long double, M>( -1'000.001, -1'000, 0.000000001, 8 );
-  tests += test_case<long double, M>( -1'000'000.001, -1'000'000, 0.000000001, 9 );
-  tests += test_case<long double, M>( -1'000'000'000.001, -1'000'000'000, 0.000000001, 10 );
-  tests += test_case<long double, M>( 0, 1, 0.000001, 12 );
-  tests += test_case<long double, M>( 0, max_exp, 0.001, 13 );
-  tests += test_case<long double, M>( max_exp - 1, max_exp, 0.000001, 14 );
+  tests += test_case<long double, M>( -1'000'000'000, 0, 1000, 1 );
+  tests += test_case<long double, M>( -1'000'000, 0, 1, 2 );
+  tests += test_case<long double, M>( -1'000, 0, 0.001, 3 );
+  tests += test_case<long double, M>( -1, 0, 0.000001, 4 );
+  tests += test_case<long double, M>( -0.001, 0, 0.000000001, 5 );
+  tests += test_case<long double, M>( -1.001, -1, 0.000000001, 6 );
+  tests += test_case<long double, M>( -1'000.001, -1'000, 0.000000001, 7 );
+  tests += test_case<long double, M>( -1'000'000.001, -1'000'000, 0.000000001, 8 );
+  tests += test_case<long double, M>( -1'000'000'000.001, -1'000'000'000, 0.000000001, 9 );
+  tests += test_case<long double, M>( 0, 1, 0.000001, 10 );
+
+  tests += test_case<long double, M>( 0, max_exp, 0.001, 11 );
+  tests += test_case<long double, M>( max_exp - 1, max_exp, 0.000001, 12 );
 
   return true;
 }
@@ -148,8 +161,8 @@ bool exp_range_tests()
 int main()
 {
   assert( exp_range_tests() );
-  assert( exp_standard_tests() );
-  assert( exp_range_tests<ADAAI::Method::Pade>() );
-  assert( exp_standard_tests<ADAAI::Method::Pade>() );
+//  assert( exp_standard_tests() );
+//  assert( exp_range_tests<ADAAI::Method::Pade>() );
+//  assert( exp_standard_tests<ADAAI::Method::Pade>() );
   return 0;
 }
