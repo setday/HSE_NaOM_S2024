@@ -72,7 +72,7 @@ namespace ADAAI
       if ( M == Method::Pade )
       {
         F numerator   = 0;
-        F denumerator = 0;
+        F denominator = 0;
 
         for ( const auto& term : CONST::P_TERMS<F> )
         {
@@ -81,10 +81,10 @@ namespace ADAAI
 
         for ( const auto& term : CONST::Q_TERMS<F> )
         {
-          denumerator = x * denumerator + term;
+          denominator = x * denominator + term;
         }
 
-        return numerator / denumerator;
+        return numerator / denominator;
       }
       assert( false );
     }

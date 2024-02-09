@@ -144,7 +144,6 @@ namespace ADAAI::Utils
     {
       os << std::setprecision( 50 ) << "=! First fail: " << result.first_fail << '\n';
     }
-    os << "===--===---===---===--===";
     return os;
   }
 } // namespace ADAAI::Utils
