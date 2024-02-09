@@ -52,8 +52,7 @@ namespace ADAAI
     {
       if ( M == Method::Taylor )
       {
-        std::vector<F> terms( N<F> );
-        terms[0] = 1;
+        std::vector<F> terms( N<F>, 1 );
 
         for ( std::size_t n = 1; n < N<F>; ++n )
         {
@@ -75,12 +74,12 @@ namespace ADAAI
         F numerator   = 0;
         F denumerator = 0;
 
-        for ( const auto& term : CONST::P_TERMS )
+        for ( const auto& term : CONST::P_TERMS<F> )
         {
           numerator = x * numerator + term;
         }
 
-        for ( const auto& term : CONST::Q_TERMS )
+        for ( const auto& term : CONST::Q_TERMS<F> )
         {
           denumerator = x * denumerator + term;
         }
@@ -97,7 +96,7 @@ namespace ADAAI
   /// \tparam F - Floating point type
   /// \param x - Value to compute
   /// \return e^x
-  template<Method M = Method::Taylor, typename F>
+  template<typename F, Method M = Method::Taylor>
     requires std::is_floating_point_v<F>
   constexpr F Exp( F x )
   {
