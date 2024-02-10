@@ -2,6 +2,9 @@
 
 #include <climits>
 #include <cmath>
+#include <iostream>
+#include <type_traits>
+#include <vector>
 
 #include "../utils/Math.hpp"
 #include "Consts.hpp"
@@ -12,7 +15,7 @@ namespace ADAAI
   enum class Method : int
   {
     Taylor = 1,
-    Pade,
+    Pade   = 2,
   };
 
   /// \brief Namespace for core functions
@@ -20,14 +23,14 @@ namespace ADAAI
   namespace core
   {
 
-    template<typename T>
+    template<typename F>
     constexpr inline std::size_t MakeTaylorOrder()
     {
-      T term = CONST::SQRT2<T>;
+      F term = CONST::SQRT2<F>;
       for ( std::size_t i = 1; i < 1000; ++i )
       {
-        term *= CONST::LN2<T> * 0.5 / i;
-        if ( term < CONST::DELTA<T> )
+        term *= CONST::LN2<F> * 0.5 / i;
+        if ( term < CONST::DELTA<F> )
         {
           return i + 2; // if you'd return i or even i - 1 precision would drop
         }
@@ -35,50 +38,47 @@ namespace ADAAI
       assert( false );
     }
 
-    template<typename T>
-    constexpr std::size_t N = MakeTaylorOrder<T>(); // this is required number of Tailor terms for T type
+    template<typename F>
+    constexpr std::size_t N = MakeTaylorOrder<F>(); // this is required number of Tailor terms for F type
 
     /// \brief Computes exp(x) using Taylor series
     /// \example \code Exp_( 0.1 ); \endcode
-    /// \tparam T - Floating point type
-    /// \tparam M - Method to use for exp computation
+    /// \tparam F - Floating point type
     /// \param x - Value to compute
     /// \return e^x
-    template<typename T, Method M>
-      requires std::is_floating_point_v<T>
-    constexpr T Exp_( T x )
+    template<Method M = Method::Taylor, typename F>
+      requires std::is_floating_point_v<F>
+    constexpr F Exp_( F x )
     {
       if ( M == Method::Taylor )
       {
-        T result = 1, term = 1;
-
-        for ( std::size_t n = 1; n < N<T>; ++n )
+        F result = 0;
+        F term   = 1;
+        for ( std::size_t n = 1; n < N<F>; ++n )
         {
-          term *= x / n;
           result += term;
+          term = term * x / n;
         }
-
-        return result;
+        return result + term;
       }
 
       if ( M == Method::Pade )
       {
-        T numerator   = 0;
-        T denominator = 0;
+        F numerator   = 0;
+        F denominator = 0;
 
-        for ( const auto& term : CONST::P_TERMS<T> )
+        for ( const auto& term : CONST::P_TERMS<F> )
         {
           numerator = x * numerator + term;
         }
 
-        for ( const auto& term : CONST::Q_TERMS<T> )
+        for ( const auto& term : CONST::Q_TERMS<F> )
         {
           denominator = x * denominator + term;
         }
 
         return numerator / denominator;
       }
-
       assert( false );
     }
 
@@ -86,29 +86,28 @@ namespace ADAAI
 
   /// \brief Computes exp(x)
   /// \example \code Exp( 0.1 ); \endcode
-  /// \tparam T - Floating point type
-  /// \tparam M - Method to use for exp computation
+  /// \tparam F - Floating point type
   /// \param x - Value to compute
   /// \return e^x
-  template<typename T, Method M = Method::Taylor>
-    requires std::is_floating_point_v<T>
-  constexpr T Exp( T x )
+  template<typename F, Method M = Method::Taylor>
+    requires std::is_floating_point_v<F>
+  constexpr F Exp( F x )
   {
     if ( std::isnan( x ) )
     {
-      return std::numeric_limits<T>::quiet_NaN();
+      return std::numeric_limits<F>::quiet_NaN();
     }
 
-    T y = CONST::LOG2E<T> * x, int_part = 0;
-    T frac_part = std::modf( y, &int_part );
+    F y = CONST::LOG2E<F> * x, int_part = 0;
+    F frac_part = std::modf( y, &int_part );
 
     if ( int_part < INT_MIN )
     {
       return 0.0;
     }
-    if ( int_part > 11500 ) // it will be an overflow for any floating point type
+    if ( int_part > 11500 )
     {
-      return std::numeric_limits<T>::infinity();
+      return std::numeric_limits<F>::infinity();
     }
 
     int n = int( int_part ); // generic case now: e^x = 2^n * e^x2
@@ -119,9 +118,9 @@ namespace ADAAI
     //      frac_part -= 1;
     //    }
 
-    T x2 = CONST::LN2<T> * frac_part; // if abs(frac_part) <= 0.5, so will be abs(x2)
-    T E2 = core::Exp_<T, M>( x2 );
-    T En = std::pow<T>( 2.0, n ); // should've been equivalent to std::ldexp(1.0, n);
+    F x2 = CONST::LN2<F> * frac_part; // if abs(frac_part) <= 0.5, so will be abs(x2)
+    F E2 = core::Exp_<M>( x2 );
+    F En = std::pow<F>( 2.0, n ); // should've been equivalent to std::ldexp(1.0, n);
     return E2 * En;
   }
 } // namespace ADAAI
