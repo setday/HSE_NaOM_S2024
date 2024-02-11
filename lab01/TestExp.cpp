@@ -57,6 +57,7 @@ bool test_case( std::vector<long double> array, std::size_t num = 0 )
 template<ADAAI::Method M = ADAAI::Method::Taylor>
 void exp_standard_tests()
 {
+  std::cout << "Method used: " << ( M == ADAAI::Method::Taylor ? "Taylor" : "Pade" ) << "\n";
   test_case<M>( {
                     1.0,
                     1345442354523432.0,
@@ -118,15 +119,9 @@ void exp_range_tests()
 
 int main()
 {
-  std::cout << "Method used "
-            << "Taylor"
-            << "\n\n";
   exp_standard_tests();
   exp_range_tests();
 
-  std::cout << "Method used "
-            << "Taylor"
-            << "\n\n";
   exp_standard_tests<ADAAI::Method::Pade>();
   exp_range_tests<ADAAI::Method::Pade>();
   return 0;
