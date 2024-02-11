@@ -23,7 +23,7 @@ struct ExpTripleCheckObject : public CheckObjectBase<long double>
 
     error = std::max( error, ( long double ) long_double_check );
 
-    return check_error < 540;
+    return check_error < ADAAI::CONST::BOUND<long double>;
   }
 
   void print_data( std::ostream& os ) const override
