@@ -14,7 +14,7 @@ namespace ADAAI
   {
     Taylor    = 1,
     Pade      = 2,
-    Chebyshev = 3
+    Chebyshev = 3,
   };
 
   /// \brief Namespace for core functions
@@ -40,6 +40,103 @@ namespace ADAAI
     template<typename T>
     constexpr std::size_t N = MakeTaylorOrder<T>(); // this is required number of Tailor terms for T type
 
+    template<typename T>
+      requires std::is_floating_point_v<T>
+    constexpr T Chebyshev_Exp( T x )
+    {
+      // TODO: refactor a_nk
+      constexpr auto a_nk = []( int n, int k )
+      {
+        if ( n % 2 == 0 )
+        {
+          if ( k % 2 == 0 )
+          {
+            return 0;
+          }
+          else if ( k == 1 )
+          {
+            return n;
+          }
+          else
+          {
+            return 2 * n;
+          }
+        }
+        else
+        {
+          if ( k % 2 == 1 )
+          {
+            return 0;
+          }
+          else if ( k == 0 )
+          {
+            return n;
+          }
+          else
+          {
+            return 2 * n;
+          }
+        }
+      };
+
+      constexpr auto T_n = []( int n )
+      {
+        if ( n % 2 == 1 )
+        {
+          return 0;
+        }
+        return 1 - ( n % 4 );
+      };
+
+      std::size_t SIZE                = N<T> + 1;
+      double      a_data[SIZE * SIZE] = { 0.0 }; // TODO: GSL works badly with other types
+
+      for ( std::size_t k = 0; k < SIZE - 1; ++k )
+      {
+        a_data[k * SIZE + k] = -1.0;
+        for ( std::size_t n = k + 1; n < SIZE; ++n )
+        {
+          a_data[k * SIZE + n] = a_nk( n, k );
+        }
+      }
+      for ( std::size_t i = 0; i < SIZE; ++i )
+      {
+        a_data[( SIZE - 1 ) * SIZE + i] = T_n( i );
+      }
+      gsl_matrix_view m = gsl_matrix_view_array( a_data, SIZE, SIZE );
+
+      double b_data[SIZE] = { 0.0 };
+      b_data[SIZE - 1]    = 1.0;
+      gsl_vector_view b   = gsl_vector_view_array( b_data, SIZE );
+
+      gsl_vector*      c = gsl_vector_alloc( SIZE );
+      int              s;
+      gsl_permutation* p = gsl_permutation_alloc( SIZE );
+
+      gsl_linalg_LU_decomp( &m.matrix, p, &s );
+      gsl_linalg_LU_solve( &m.matrix, p, &b.vector, c );
+
+      double coeffs[SIZE];
+      for ( std::size_t i = 0; i < SIZE; ++i )
+      {
+        coeffs[i] = c->data[i];
+      }
+
+      gsl_cheb_series* cs = gsl_cheb_alloc( SIZE );
+      cs->c               = coeffs;
+      cs->order           = SIZE;
+      cs->a               = -1.0;
+      cs->b               = 1.0;
+
+      std::cout << "x: " << x << '\n'
+                << "standard exp: " << std::exp( x ) << '\n'
+                << "Chebyshev exp: " << gsl_cheb_eval( cs, x ) << "\n\n";
+
+      gsl_permutation_free( p );
+      gsl_vector_free( c );
+      return 0.0;
+    }
+
     /// \brief Computes exp(x) using Taylor series
     /// \example \code Exp_( 0.1 ); \endcode
     /// \tparam T - Floating point type
@@ -50,130 +147,40 @@ namespace ADAAI
       requires std::is_floating_point_v<T>
     constexpr T Exp_( T x )
     {
-      if ( M == Method::Chebyshev )
+      switch ( M )
       {
-        // TODO: refactor a_nk
-        constexpr auto a_nk = []( int n, int k )
+        case Method::Chebyshev:
+          return Chebyshev_Exp( x );
+        case Method::Taylor:
         {
-          if ( n % 2 == 0 )
+          T result = 1, term = 1;
+          for ( std::size_t n = 1; n < N<T>; ++n )
           {
-            if ( k % 2 == 0 )
-            {
-              return 0;
-            }
-            else if ( k == 1 )
-            {
-              return n;
-            }
-            else
-            {
-              return 2 * n;
-            }
+            term = term * x / n;
+            result += term;
           }
-          else
-          {
-            if ( k % 2 == 1 )
-            {
-              return 0;
-            }
-            else if ( k == 0 )
-            {
-              return n;
-            }
-            else
-            {
-              return 2 * n;
-            }
-          }
-        };
-
-        constexpr auto T_n = []( int n )
-        {
-          if ( n % 2 == 1 )
-          {
-            return 0;
-          }
-          return 1 - ( n % 4 );
-        };
-
-        std::size_t SIZE                = N<T> + 1;
-        double      a_data[SIZE * SIZE] = { 0.0 }; // TODO: GSL works badly with other types
-
-        for ( std::size_t k = 0; k < SIZE - 1; ++k )
-        {
-          a_data[k * SIZE + k] = -1.0;
-          for ( std::size_t n = k + 1; n < SIZE; ++n )
-          {
-            a_data[k * SIZE + n] = a_nk( n, k );
-          }
+          return result;
         }
-        for ( std::size_t i = 0; i < SIZE; ++i )
+        case Method::Pade:
         {
-          a_data[( SIZE - 1 ) * SIZE + i] = T_n( i );
+          T numerator   = 0;
+          T denominator = 0;
+
+          for ( const auto& term : CONST::P_TERMS<T> )
+          {
+            numerator = x * numerator + term;
+          }
+
+          for ( const auto& term : CONST::Q_TERMS<T> )
+          {
+            denominator = x * denominator + term;
+          }
+
+          return numerator / denominator;
         }
-        gsl_matrix_view m = gsl_matrix_view_array( a_data, SIZE, SIZE );
-
-        double b_data[SIZE] = { 0.0 };
-        b_data[SIZE - 1]    = 1.0;
-        gsl_vector_view b   = gsl_vector_view_array( b_data, SIZE );
-
-        gsl_vector*      c = gsl_vector_alloc( SIZE );
-        int              s;
-        gsl_permutation* p = gsl_permutation_alloc( SIZE );
-
-        gsl_linalg_LU_decomp( &m.matrix, p, &s );
-        gsl_linalg_LU_solve( &m.matrix, p, &b.vector, c );
-
-        double coeffs[SIZE];
-        for ( std::size_t i = 0; i < SIZE; ++i )
-        {
-          coeffs[i] = c->data[i];
-        }
-
-        gsl_cheb_series* cs = gsl_cheb_alloc( SIZE );
-        cs->c               = coeffs;
-        cs->order           = SIZE;
-        cs->a               = -1.0;
-        cs->b               = 1.0;
-
-        std::cout << x << '\n'
-                  << std::exp( x ) << '\n'
-                  << gsl_cheb_eval( cs, x ) << "\n\n";
-
-        gsl_permutation_free( p );
-        gsl_vector_free( c );
-        return 0.0;
+        default:
+          assert( false );
       }
-
-      if ( M == Method::Taylor )
-      {
-        T result = 1, term = 1;
-        for ( std::size_t n = 1; n < N<T>; ++n )
-        {
-          term = term * x / n;
-          result += term;
-        }
-        return result;
-      }
-
-      if ( M == Method::Pade )
-      {
-        T numerator   = 0;
-        T denominator = 0;
-
-        for ( const auto& term : CONST::P_TERMS<T> )
-        {
-          numerator = x * numerator + term;
-        }
-
-        for ( const auto& term : CONST::Q_TERMS<T> )
-        {
-          denominator = x * denominator + term;
-        }
-
-        return numerator / denominator;
-      }
-      assert( false );
     }
 
   } // namespace core
