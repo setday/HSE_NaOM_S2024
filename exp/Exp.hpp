@@ -88,26 +88,43 @@ namespace ADAAI
         }
       }
 
-      gsl_matrix_view M = gsl_matrix_view_array( a_data, SIZE, SIZE );
-
       T b_data[SIZE]   = { 0.0 };
       b_data[SIZE - 1] = 1.0;
 
+      // TODO: here we need to somehow implement gsl_matrix_float_view and gsl_matrix_long_double_view somehow
+      gsl_matrix_view M = gsl_matrix_view_array( a_data, SIZE, SIZE );
       gsl_vector_view b = gsl_vector_view_array( b_data, SIZE );
 
-      int              s;
+      int              sign;
       gsl_vector*      sol = gsl_vector_alloc( SIZE ); // solution
       gsl_permutation* p   = gsl_permutation_alloc( SIZE );
 
-      gsl_linalg_LU_decomp( &M.matrix, p, &s );
+      gsl_linalg_LU_decomp( &M.matrix, p, &sign );
       gsl_linalg_LU_solve( &M.matrix, p, &b.vector, sol );
+
+      std::cout << "Solution\n";
+      for ( int i = 0; i < SIZE; ++i )
+      {
+        std::cout << sol->data[i] << " ";
+      }
+      std::cout << "\n";
+
+      std::cout << "Sums by row\n";
+      for ( int k = 0; k < SIZE; ++k )
+      {
+        T cnt = 0;
+        for ( int n = 0; n < SIZE; ++n )
+          cnt += a_data[k * SIZE + n] * sol->data[n];
+        std::cout << cnt << " " << b_data[k] << " :: ";
+      }
+      std::cout << "\n";
 
       gsl_cheb_series* cs = gsl_cheb_alloc( SIZE );
       cs->c               = sol->data;
       cs->c[0] *= 2;
-      cs->order           = SIZE;
-      cs->a               = -1;
-      cs->b               = 1;
+      cs->order = SIZE;
+      cs->a     = -1;
+      cs->b     = 1;
 
       std::cout << "x: " << x << '\n'
                 << "standard exp: " << std::exp( x ) << '\n'
