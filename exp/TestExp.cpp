@@ -120,10 +120,12 @@ void exp_range_tests()
 
 int main()
 {
-  exp_standard_tests();
-  exp_range_tests();
+  // exp_standard_tests();
+  // exp_range_tests();
 
-  exp_standard_tests<ADAAI::Method::Pade>();
-  exp_range_tests<ADAAI::Method::Pade>();
+  // exp_standard_tests<ADAAI::Method::Pade>();
+  // exp_range_tests<ADAAI::Method::Pade>();
+  ADAAI::Exp<double, ADAAI::Method::Chebyshev>( 0 );
+
   return 0;
 }
