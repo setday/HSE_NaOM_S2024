@@ -144,10 +144,10 @@ int main()
 
   // exp_standard_tests<ADAAI::Method::Pade>();
   // exp_range_tests<ADAAI::Method::Pade>();
-  //  auto res = range_check<double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, double>>( -100, 100, 0.001, false );
-  //  std::cout << res;
+  auto res = range_check<double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, double>>( -100, 100, 0.001, false );
+  std::cout << res;
 
-  ADAAI::Exp<double, ADAAI::Method::Chebyshev>( 2 );
+  //  std::cout << ADAAI::Exp<double, ADAAI::Method::Chebyshev>( 1 ) << " " << std::exp( 1 );
 
   return 0;
 }

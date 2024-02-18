@@ -56,7 +56,7 @@ namespace ADAAI
       return 2 * n;
     }
 
-    constexpr int get_T( int n )
+    constexpr int get_T0( int n )
     {
       if ( n % 2 == 1 )
         return 0;
@@ -65,10 +65,17 @@ namespace ADAAI
       return -1;
     };
 
-    double f( double x, void* p )
+    template<typename T>
+    T f( T x, void* p )
     {
       return std::exp( x );
-    }
+    };
+
+    //    template<typename T>
+    //    T calc_T( int n, T x )
+    //    {
+    //      return std::cos( n * std::acos( x ) );
+    //    }
 
     template<typename T>
       requires std::is_floating_point_v<T>
@@ -76,35 +83,46 @@ namespace ADAAI
     {
       const std::size_t SIZE = N<T> + 1;
 
-      T a_data[SIZE * SIZE] = { 0.0 };
+      //      T a_data[SIZE * SIZE] = { 0.0 };
+      //
+      //      for ( int k = 0; k < SIZE; ++k )
+      //      {
+      //        if ( k == SIZE - 1 )
+      //        {
+      //          for ( int n = 0; n < SIZE; ++n )
+      //            a_data[k * SIZE + n] = get_T0( n );
+      //        }
+      //        else
+      //        {
+      //          a_data[k * SIZE + k] = -1.0;
+      //          for ( int n = k + 1; n < SIZE; ++n )
+      //            a_data[k * SIZE + n] = get_a( n, k );
+      //        }
+      //      }
+      //
+      //      T b_data[SIZE]   = { 0.0 };
+      //      b_data[SIZE - 1] = 1.0;
+      //
+      //      T a_data_copy[SIZE * SIZE] = { 0.0 };
+      //      std::copy( std::begin( a_data ), std::end( a_data ), std::begin( a_data_copy ) );
+      //
+      //      // TODO: here we need to somehow implement gsl_matrix_float_view and gsl_matrix_long_double_view
+      //      gsl_matrix_view A = gsl_matrix_view_array( a_data, SIZE, SIZE );
+      //      gsl_vector_view b = gsl_vector_view_array( b_data, SIZE );
+      //
+      //      int              s;
+      //      gsl_permutation* p   = gsl_permutation_alloc( SIZE );
+      //      gsl_vector*      sol = gsl_vector_alloc( SIZE );
+      //      gsl_linalg_LU_decomp( &A.matrix, p, &s );
+      //      gsl_linalg_LU_solve( &A.matrix, p, &b.vector, sol );
 
-      for ( int k = 0; k < SIZE; ++k )
-      {
-        if ( k == SIZE - 1 )
-        {
-          for ( int n = 0; n < SIZE; ++n )
-            a_data[( SIZE - 1 ) * SIZE + n] = get_T( n );
-        }
-        else
-        {
-          a_data[k * SIZE + k] = -1.0;
-          for ( int n = k + 1; n < SIZE; ++n )
-            a_data[k * SIZE + n] = get_a( n, k );
-        }
-      }
-
-      T b_data[SIZE]   = { 0.0 };
-      b_data[SIZE - 1] = 1.0;
-
-      T a_data_copy[SIZE * SIZE] = { 0.0 };
-      std::copy( std::begin( a_data ), std::end( a_data ), std::begin( a_data_copy ) );
-
-      // TODO: here we need to somehow implement gsl_matrix_float_view and gsl_matrix_long_double_view
-      gsl_matrix_view A = gsl_matrix_view_array( a_data, SIZE, SIZE );
-      gsl_vector_view b = gsl_vector_view_array( b_data, SIZE );
-
-      gsl_vector* sol = gsl_vector_alloc( SIZE );       // solution
-      gsl_linalg_HH_solve( &A.matrix, &b.vector, sol ); // s is status
+      //      T res = 0;
+      //      for ( int i = 0; i < SIZE; ++i )
+      //      {
+      //        res += sol->data[i] * calc_T( i, x );
+      //      }
+      //      std::cout << std::exp( x ) << " " << res << "\n";
+      //      return res;
 
       //      std::cout << "Solution\n";
       //      for ( int i = 0; i < SIZE; ++i )
@@ -126,25 +144,17 @@ namespace ADAAI
       //      std::cout << "\n";
 
       gsl_cheb_series* cs = gsl_cheb_alloc( SIZE - 1 );
-      gsl_function     F;
-      F.function = &f;
-      gsl_cheb_init( cs, &F, -1, 1 );
 
-            std::cout << "real chebyshev and ours\n";
-            for (int i = 0; i < SIZE; ++i) {
-              std::cout << cs->c[i] << " " << sol->data[i] << "\n";
-            }
+      gsl_function F;
+      F.function = &f<T>;
+
+      gsl_cheb_init( cs, &F, -1, 1 );
 
       //      cs->c = sol->data;
       //      cs->c[0] *= 2;
       //      cs->order = SIZE;
-      //      cs->a     = -1;
-      //      cs->b     = 1;
-
-      //      std::cout << "x: " << x << '\n'
-      //                << "standard exp: " << std::exp( x ) << '\n'
-      //                << "Chebyshev exp: " << gsl_cheb_eval( cs, x ) << "\n\n";
-
+      //      cs->a     = -1.15;
+      //      cs->b     = 1.15;
       return gsl_cheb_eval( cs, x );
     }
 
