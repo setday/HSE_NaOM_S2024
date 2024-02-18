@@ -65,6 +65,11 @@ namespace ADAAI
       return -1;
     };
 
+    double f( double x, void* p )
+    {
+      return std::exp( x );
+    }
+
     template<typename T>
       requires std::is_floating_point_v<T>
     constexpr T Chebyshev_Exp( T x )
@@ -101,38 +106,46 @@ namespace ADAAI
       gsl_vector* sol = gsl_vector_alloc( SIZE );       // solution
       gsl_linalg_HH_solve( &A.matrix, &b.vector, sol ); // s is status
 
-      std::cout << "Solution\n";
-      for ( int i = 0; i < SIZE; ++i )
-      {
-        std::cout << sol->data[i] << " ";
-      }
-      std::cout << "\n";
+      //      std::cout << "Solution\n";
+      //      for ( int i = 0; i < SIZE; ++i )
+      //      {
+      //        std::cout << sol->data[i] << " ";
+      //      }
+      //      std::cout << "\n";
+      //
+      //      std::cout << "Sums by row\n";
+      //      for ( int k = 0; k < SIZE; ++k )
+      //      {
+      //        T cnt = 0;
+      //        for ( int n = 0; n < SIZE; ++n )
+      //        {
+      //          cnt += a_data_copy[k * SIZE + n] * sol->data[n];
+      //        }
+      //        std::cout << cnt << " " << b_data[k] << "\n";
+      //      }
+      //      std::cout << "\n";
 
-      std::cout << "Sums by row\n";
-      for ( int k = 0; k < SIZE; ++k )
-      {
-        T cnt = 0;
-        for ( int n = 0; n < SIZE; ++n )
-        {
-          cnt += a_data_copy[k * SIZE + n] * sol->data[n];
-        }
-        std::cout << cnt << " " << b_data[k] << "\n";
-      }
-      std::cout << "\n";
+      gsl_cheb_series* cs = gsl_cheb_alloc( SIZE - 1 );
+      gsl_function     F;
+      F.function = &f;
+      gsl_cheb_init( cs, &F, -1, 1 );
 
-      gsl_cheb_series* cs = gsl_cheb_alloc( SIZE );
-      cs->c               = sol->data;
-      cs->c[0] *= 2;
-      cs->order = SIZE;
-      cs->a     = -1;
-      cs->b     = 1;
+            std::cout << "real chebyshev and ours\n";
+            for (int i = 0; i < SIZE; ++i) {
+              std::cout << cs->c[i] << " " << sol->data[i] << "\n";
+            }
 
-      std::cout << "x: " << x << '\n'
-                << "standard exp: " << std::exp( x ) << '\n'
-                << "Chebyshev exp: " << gsl_cheb_eval( cs, x ) << "\n\n";
+      //      cs->c = sol->data;
+      //      cs->c[0] *= 2;
+      //      cs->order = SIZE;
+      //      cs->a     = -1;
+      //      cs->b     = 1;
 
-      gsl_vector_free( sol );
-      return 0.0;
+      //      std::cout << "x: " << x << '\n'
+      //                << "standard exp: " << std::exp( x ) << '\n'
+      //                << "Chebyshev exp: " << gsl_cheb_eval( cs, x ) << "\n\n";
+
+      return gsl_cheb_eval( cs, x );
     }
 
     /// \brief Computes exp(x) using Taylor series

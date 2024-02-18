@@ -7,6 +7,25 @@
 
 using namespace ADAAI::Utils;
 
+template<ADAAI::Method M, typename T>
+struct ExpSingleCheckObject : public CheckObjectBase<T>
+{
+  T error = 0.0;
+
+  bool check_function( T x ) override
+  {
+    auto check = adaptive_compare<T, ADAAI::Exp<T, M>, std::exp>( x );
+    error      = std::max( error, check );
+
+    return check < ADAAI::CONST::BOUND<T>;
+  }
+
+  void print_data( std::ostream& os ) const override
+  {
+    os << "=> Max error: " << error << "\n";
+  }
+};
+
 template<ADAAI::Method M>
 struct ExpTripleCheckObject : public CheckObjectBase<long double>
 {
@@ -125,7 +144,10 @@ int main()
 
   // exp_standard_tests<ADAAI::Method::Pade>();
   // exp_range_tests<ADAAI::Method::Pade>();
-  ADAAI::Exp<double, ADAAI::Method::Chebyshev>( 0 );
+  //  auto res = range_check<double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, double>>( -100, 100, 0.001, false );
+  //  std::cout << res;
+
+  ADAAI::Exp<double, ADAAI::Method::Chebyshev>( 2 );
 
   return 0;
 }
