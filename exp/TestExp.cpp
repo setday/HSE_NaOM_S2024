@@ -1,4 +1,5 @@
 #include <cassert>
+#include <climits>
 #include <iostream>
 
 #include "../utils/Tester.hpp"
