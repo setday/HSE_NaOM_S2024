@@ -38,8 +38,7 @@ namespace ADAAI
     template<typename T>
     constexpr std::size_t N = MakeTaylorOrder<T>(); // this is required number of Tailor terms for T type
 
-    template<typename T>
-    constexpr T get_a( int n, int k )
+    constexpr int get_a( int n, int k )
     {
       if ( n % 2 == 0 )
       {
@@ -57,8 +56,7 @@ namespace ADAAI
       return 2 * n;
     }
 
-    template<typename T>
-    constexpr T get_T( int n )
+    constexpr int get_T( int n )
     {
       if ( n % 2 == 1 )
         return 0;
@@ -80,13 +78,13 @@ namespace ADAAI
         if ( k == SIZE - 1 )
         {
           for ( int n = 0; n < SIZE; ++n )
-            a_data[( SIZE - 1 ) * SIZE + n] = get_T<T>( n );
+            a_data[( SIZE - 1 ) * SIZE + n] = get_T( n );
         }
         else
         {
           a_data[k * SIZE + k] = -1.0;
           for ( int n = k + 1; n < SIZE; ++n )
-            a_data[k * SIZE + n] = get_a<T>( n, k );
+            a_data[k * SIZE + n] = get_a( n, k );
         }
       }
 
@@ -106,6 +104,7 @@ namespace ADAAI
 
       gsl_cheb_series* cs = gsl_cheb_alloc( SIZE );
       cs->c               = sol->data;
+      cs->c[0] *= 2;
       cs->order           = SIZE;
       cs->a               = -1;
       cs->b               = 1;
