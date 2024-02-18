@@ -91,16 +91,15 @@ namespace ADAAI
       T b_data[SIZE]   = { 0.0 };
       b_data[SIZE - 1] = 1.0;
 
-      // TODO: here we need to somehow implement gsl_matrix_float_view and gsl_matrix_long_double_view somehow
-      gsl_matrix_view M = gsl_matrix_view_array( a_data, SIZE, SIZE );
+      T a_data_copy[SIZE * SIZE] = { 0.0 };
+      std::copy( std::begin( a_data ), std::end( a_data ), std::begin( a_data_copy ) );
+
+      // TODO: here we need to somehow implement gsl_matrix_float_view and gsl_matrix_long_double_view
+      gsl_matrix_view A = gsl_matrix_view_array( a_data, SIZE, SIZE );
       gsl_vector_view b = gsl_vector_view_array( b_data, SIZE );
 
-      int              sign;
-      gsl_vector*      sol = gsl_vector_alloc( SIZE ); // solution
-      gsl_permutation* p   = gsl_permutation_alloc( SIZE );
-
-      gsl_linalg_LU_decomp( &M.matrix, p, &sign );
-      gsl_linalg_LU_solve( &M.matrix, p, &b.vector, sol );
+      gsl_vector* sol = gsl_vector_alloc( SIZE );       // solution
+      gsl_linalg_HH_solve( &A.matrix, &b.vector, sol ); // s is status
 
       std::cout << "Solution\n";
       for ( int i = 0; i < SIZE; ++i )
@@ -114,8 +113,10 @@ namespace ADAAI
       {
         T cnt = 0;
         for ( int n = 0; n < SIZE; ++n )
-          cnt += a_data[k * SIZE + n] * sol->data[n];
-        std::cout << cnt << " " << b_data[k] << " :: ";
+        {
+          cnt += a_data_copy[k * SIZE + n] * sol->data[n];
+        }
+        std::cout << cnt << " " << b_data[k] << "\n";
       }
       std::cout << "\n";
 
@@ -130,7 +131,6 @@ namespace ADAAI
                 << "standard exp: " << std::exp( x ) << '\n'
                 << "Chebyshev exp: " << gsl_cheb_eval( cs, x ) << "\n\n";
 
-      gsl_permutation_free( p );
       gsl_vector_free( sol );
       return 0.0;
     }
