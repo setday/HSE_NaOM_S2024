@@ -3,7 +3,7 @@
 #include <cmath>
 #include <iomanip>
 
-#include "../lab01/Consts.hpp"
+#include "../exp/Consts.hpp"
 
 /// \brief Namespace for utility functions
 /// \details Contains functions for testing and other purposes
