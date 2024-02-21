@@ -113,25 +113,23 @@ void exp_standard_tests()
 template<ADAAI::Method M = ADAAI::Method::Taylor>
 void exp_range_tests()
 {
-  long double max_exp = 11356.6;
-
-  // real challenge to beat 4000 * exp
+  // real challenge to beat 4000 * eps
   // test_case<M>( 1000.0, 12000.0, 0.1, 1 );
 
-  test_case<M>( 700.0, 720.0, 0.1, 2 );
-  test_case<M>( -1000, 1000, 0.001, 3 );
+  test_case<M>( 700.0, 720.0, 0.1, 1 );
+  test_case<M>( -1000, 1000, 0.001, 2 );
 
   // just the limits checking (not really useful)
   // test_case<M>( -1'000'000'000, 0, 1000, 1 );
   // test_case<M>( -1'000'000, 0, 1, 2 );
   // test_case<M>( -1'000, 0, 0.001, 3 );
-  test_case<M>( -1, 0, 0.000001, 4 );
+  test_case<M>( -1, 0, 0.000001, 3 );
   // test_case<M>( -0.001, 0, 0.000000001, 5 );
   // test_case<M>( -1.001, -1, 0.000000001, 6 );
   // test_case<M>( -1'000.001, -1'000, 0.000000001, 7 );
   // test_case<M>( -1'000'000.001, -1'000'000, 0.000000001, 8 );
   // test_case<M>( -1'000'000'000.001, -1'000'000'000, 0.000000001, 9 );
-  test_case<M>( 0, 1, 0.000001, 10 );
+  test_case<M>( 0, 1, 0.000001, 4 );
 
   // test_case<M>( 0, max_exp, 0.001, 11 );
   // test_case<M>( max_exp - 1, max_exp, 0.000001, 12 );
@@ -144,10 +142,11 @@ int main()
 
   // exp_standard_tests<ADAAI::Method::Pade>();
   // exp_range_tests<ADAAI::Method::Pade>();
-  auto res = range_check<double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, double>>( -100, 100, 0.001, false );
+
+  /// TODO: Chebyshev only works great for double now
+  auto res = range_check<double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, double>>( -300, 300, 0.001, false );
   std::cout << res;
-
-  //  std::cout << ADAAI::Exp<double, ADAAI::Method::Chebyshev>( 1 ) << " " << std::exp( 1 );
-
+  auto res2 = range_check<double, ExpSingleCheckObject<ADAAI::Method::Taylor, double>>( -300, 300, 0.001, false );
+  std::cout << res2;
   return 0;
 }
