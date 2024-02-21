@@ -164,7 +164,7 @@ namespace ADAAI::Utils
        << " ===\n";
     os << "=> Test data: " << result.test_data << '\n';
     result.print_data( os );
-    os << "===--===---===---===--===";
+    os << "===--===---===---===--===\n";
     return os;
   }
 } // namespace ADAAI::Utils
