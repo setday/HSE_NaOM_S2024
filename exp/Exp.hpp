@@ -1,11 +1,14 @@
 #pragma once
 
 #include <climits>
+#include <cmath>
 
 #include "../utils/Math.hpp"
 #include "Consts.hpp"
 #include <gsl/gsl_chebyshev.h>
 #include <gsl/gsl_linalg.h>
+#include <gsl/gsl_poly.h>
+
 
 namespace ADAAI
 {
@@ -16,6 +19,7 @@ namespace ADAAI
     Pade,
     Chebyshev,
     ChebyshevExperimental,
+    Fourier,
   };
 
   /// \brief Namespace for core functions
@@ -31,13 +35,14 @@ namespace ADAAI
       {
         term *= CONST::LN2<T> * 0.5 / i;
         if ( term < CONST::DELTA<T> )
-          return i + 2; // if you'd return i or even i - 1 precision would drop
+          return i + 2; // If you return either i or i - 1, precision will drop
       }
       assert( false );
     }
 
     template<typename T>
-    constexpr std::size_t N = MakeTaylorOrder<T>(); // this is required number of Tailor terms for type T
+    constexpr std::size_t N = MakeTaylorOrder<T>(); // This is the required number
+                                                    // of Taylor terms for type T
 
     namespace experimental
     {

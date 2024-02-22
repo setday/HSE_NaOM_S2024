@@ -2,9 +2,12 @@
 
 #include <numbers>
 #include <vector>
+#include <cmath>
 
 namespace ADAAI::CONST
 {
+  const double a_0 = (std::exp(M_PI) - 1) / M_PI;
+  
   template<typename T>
   constexpr inline T LOG2E;
   template<>

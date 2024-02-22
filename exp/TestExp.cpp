@@ -4,6 +4,7 @@
 
 #include "../utils/Tester.hpp"
 #include "Exp.hpp"
+#include "Fourier_temp.cpp"
 
 using namespace ADAAI::Utils;
 
@@ -144,11 +145,25 @@ int main()
   // exp_range_tests<ADAAI::Method::Pade>();
 
   // Chebyshev only works great for float and double (as implemented)
-  auto res = range_check<float, ExpSingleCheckObject<ADAAI::Method::Chebyshev, float>>( -300, 1000, 0.001, false );
-  std::cout << res;
-  auto res2 = range_check<double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, double>>( -300, 1000, 0.001, false );
-  std::cout << res2;
-  auto res3 = range_check<long double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, long double>>( -300, 1000, 0.001, false );
-  std::cout << res3;
+  // auto res = range_check<float, ExpSingleCheckObject<ADAAI::Method::Chebyshev, float>>( -300, 1000, 0.001, false );
+  // std::cout << res;
+  // auto res2 = range_check<double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, double>>( -300, 1000, 0.001, false );
+  // std::cout << res2;
+  // auto res3 = range_check<long double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, long double>>( -300, 1000, 0.001, false );
+  // std::cout << res3;
+
+  // TASK 1 SIMPLE TEST
+  std::cout << "STEP 1 IS COMPLETED. TEST: \n";
+  display_diffs_between_exp_and_analytical_Fourier();
+  std::cout << "=======================\n";
+  // TASK 2 SIMPLE TEST
+  // FOURIER
+  std::cout << "STEP 2 IS COMPLETED. TEST: \n";
+  calculate_the_nodes();
+  calculate_exp_of_acos_of_x_i();
+  compare_coefficients_for_analytical_and_gauss_approaches();
+  std::cout << "=======================\n";
+  // TASK 3 SIMPLE TEST
+  // TODO !!!!!!!!
   return 0;
 }
