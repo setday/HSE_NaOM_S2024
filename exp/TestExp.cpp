@@ -153,18 +153,17 @@ int main()
   // std::cout << res3;
 
   // TASK 1 SIMPLE TEST
-  std::cout << "STEP 1 IS COMPLETED. TEST: \n";
+  std::cout << "=======================\n";
+  std::cout << "EXP(x) VS fourier(x) with analytical coeffs: \n";
+  std::cout << "=======================\n";
   display_diffs_between_exp_and_analytical_Fourier();
   std::cout << "=======================\n";
   // TASK 2 SIMPLE TEST
-  // FOURIER
-  std::cout << "STEP 2 IS COMPLETED. TEST: \n";
-  calculate_the_nodes();
-  calculate_exp_of_acos_of_x_i();
-  
+  std::cout << "a_k analytical vs a_k evaluated: \n";
+  std::cout << "=======================\n";
   compare_coefficients_for_analytical_and_gauss_approaches();
   std::cout << "=======================\n";
   // TASK 3 SIMPLE TEST
-  // TODO !!!!!!!!
+  //FFT();
   return 0;
 }
