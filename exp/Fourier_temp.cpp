@@ -189,8 +189,9 @@ void FFT()
 
   // implement FFT
   // TODO
-  // find the value of sum(a_k * e^(-kIx)) over k = 1..N 
+  // find the value of sum(a[k] * e^(-k * I * x_i)) over k = 1..N
   // where I is an imaginary unit
-  // and x = PI * i / (N + 1)
+  // and x_i = PI * i / (N + 1) for i = 0...N
+
   // see https://www.gnu.org/software/gsl/doc/html/fft.html
 }
