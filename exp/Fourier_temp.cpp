@@ -28,7 +28,7 @@ double get_a_k_analytically( int k )
 /// \return The computed value of the Fourier series.
 double fourier_series_for_exp( double x )
 {
-  double value = ADAAI::CONST::a_0; // Initializing with a_0, the constant term
+  double value = get_a_k_analytically(0) / 2.0; // Initializing with a_0, the constant term
 
   // Summing up terms in the Fourier series
   for ( int k = 1; k <= N; ++k )
