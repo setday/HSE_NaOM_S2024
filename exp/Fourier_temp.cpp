@@ -11,7 +11,7 @@
 #include <gsl/gsl_poly.h>
 
 // STEP 1: finding coefficients (a_k) analytically
-const int N = 20; // number of terms for the Fourier series.
+const int N = 100; // number of terms for the Fourier series.
 
 /// \brief Computes the k-th coefficient for the Fourier series.
 /// \param k - Index of the coefficient.
@@ -79,7 +79,7 @@ void calculate_the_nodes()
   for ( int i = 1; i <= N + 1; ++i )
   {
     // Calculate the node x_i using the specified formula
-    x_i_values[i] = std::cos( M_PI * ( 2 * i - 1 ) / ( 2 * ( N + 1 ) ) );
+    x_i_values[i] = std::cos( M_PI * ( 2.0 * i - 1 ) / ( 2.0 * ( N + 1 ) ) );
   }
 }
 
@@ -99,6 +99,14 @@ void calculate_exp_of_acos_of_x_i()
   }
 }
 
+template<typename T>
+T f( T x, void* p )
+{
+  return std::exp( x );
+}
+
+// WARNING: IT'S A RECURSIVE COMPUTATION OF THE CHEBYSHEV POLYNOMIALS
+
 /// \brief Computes the k-th Chebyshev polynomial at a given point using gsl_chebyshev.h
 /// \example \code computeChebyshev(3, 0.5); \endcode
 /// \tparam k - Degree of the Chebyshev polynomial
@@ -106,20 +114,18 @@ void calculate_exp_of_acos_of_x_i()
 /// \return The value of the k-th Chebyshev polynomial at the given point x
 double compute_Chebyshev( int k, double x )
 {
-  gsl_cheb_series* series = gsl_cheb_alloc( k + 1 );
-
-  gsl_function F;
-  F.function = []( double x, void* )
-  { return std::exp( x ); };
-  F.params = nullptr;
-
-  gsl_cheb_init( series, &F, -1, 1 );
-
-  double res = gsl_cheb_eval( series, x );
-
-  gsl_cheb_free( series );
-
-  return res;
+  if ( k == 1 )
+  {
+    return x;
+  }
+  else if ( k == 0 )
+  {
+    return 1;
+  }
+  else
+  {
+    return 2 * x * compute_Chebyshev( k - 1, x ) - compute_Chebyshev( k - 2, x );
+  }
 }
 
 double get_a_k_using_Chebyshev_Gauss_quadrature( int k )
@@ -129,7 +135,7 @@ double get_a_k_using_Chebyshev_Gauss_quadrature( int k )
   {
     a_k += compute_Chebyshev( k, x_i_values[i] ) * exp_of_acos_of_x_i_values[i];
   }
-  a_k *= 2 / ( N + 1 );
+  a_k *= 2.0 / ( N + 1 );
   return a_k;
 }
 
@@ -139,6 +145,6 @@ void compare_coefficients_for_analytical_and_gauss_approaches()
   {
     double a_true       = get_a_k_analytically( i );
     double a_calculated = get_a_k_using_Chebyshev_Gauss_quadrature( i );
-    std::cout << "diff=" << abs( a_calculated - a_true) << '\n';
+    std::cout << "diff=" << abs( a_calculated - a_true ) << '\n';
   }
 }

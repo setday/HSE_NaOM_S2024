@@ -161,6 +161,7 @@ int main()
   std::cout << "STEP 2 IS COMPLETED. TEST: \n";
   calculate_the_nodes();
   calculate_exp_of_acos_of_x_i();
+  
   compare_coefficients_for_analytical_and_gauss_approaches();
   std::cout << "=======================\n";
   // TASK 3 SIMPLE TEST
