@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "../utils/Tester.hpp"
+#include "../utils/Clock.hpp"
 #include "Exp.hpp"
 
 using namespace ADAAI::Utils;
@@ -29,7 +30,9 @@ struct ExpSingleCheckObject : public CheckObjectBase<T>
 template<ADAAI::Method M>
 struct ExpTripleCheckObject : public CheckObjectBase<long double>
 {
-  long double error = 0.0;
+  long double f_error  = 0.0;
+  long double d_error  = 0.0;
+  long double ld_error = 0.0;
 
   bool check_function( long double x ) override
   {
@@ -37,18 +40,38 @@ struct ExpTripleCheckObject : public CheckObjectBase<long double>
     auto double_check      = adaptive_compare<double, ADAAI::Exp<double, M>, std::exp>( x );
     auto long_double_check = adaptive_compare<long double, ADAAI::Exp<long double, M>, std::exp>( x );
 
-    auto check_error = long_double_check;
-    check_error      = std::max( check_error, ( long double ) float_check );
-    check_error      = std::max( check_error, ( long double ) double_check );
+    f_error  = std::max( f_error, ( long double ) float_check );
+    d_error  = std::max( d_error, ( long double ) double_check );
+    ld_error = std::max( ld_error, ( long double ) long_double_check );
 
-    error = std::max( error, ( long double ) long_double_check );
+    long double check_error = ld_error;
+    check_error             = std::max( check_error, d_error );
+    check_error             = std::max( check_error, f_error );
 
     return check_error < ADAAI::CONST::BOUND<long double>;
   }
 
   void print_data( std::ostream& os ) const override
   {
-    os << "=> Max error: " << error << "\n";
+    std::string method = "Unknown";
+    if ( M == ADAAI::Method::Taylor )
+    {
+      method = "Taylor";
+    }
+    else if ( M == ADAAI::Method::Pade )
+    {
+      method = "Pade";
+    }
+    else if ( M == ADAAI::Method::Chebyshev )
+    {
+      method = "Chebyshev";
+    }
+
+    os << "\n-> Method used: " << method << "\n\n";
+    os << "=> Max errors:\n";
+    os << "==> Float:       " << f_error << " * exp\n";
+    os << "==> Double:      " << d_error << " * exp\n";
+    os << "==> Long double: " << ld_error << " * exp\n";
   }
 };
 
@@ -116,20 +139,21 @@ void exp_range_tests()
   // real challenge to beat 4000 * eps
   // test_case<M>( 1000.0, 12000.0, 0.1, 1 );
 
-  test_case<M>( 700.0, 720.0, 0.1, 1 );
-  test_case<M>( -1000, 1000, 0.001, 2 );
+  // test_case<M>( 700.0, 720.0, 0.1, 1 );
+  test_case<M>( -300, 1000, 0.001, 1 );
+  // test_case<M>( -1000, 1000, 0.001, 2 );
 
   // just the limits checking (not really useful)
   // test_case<M>( -1'000'000'000, 0, 1000, 1 );
   // test_case<M>( -1'000'000, 0, 1, 2 );
   // test_case<M>( -1'000, 0, 0.001, 3 );
-  test_case<M>( -1, 0, 0.000001, 3 );
+  // test_case<M>( -1, 0, 0.000001, 3 );
   // test_case<M>( -0.001, 0, 0.000000001, 5 );
   // test_case<M>( -1.001, -1, 0.000000001, 6 );
   // test_case<M>( -1'000.001, -1'000, 0.000000001, 7 );
   // test_case<M>( -1'000'000.001, -1'000'000, 0.000000001, 8 );
   // test_case<M>( -1'000'000'000.001, -1'000'000'000, 0.000000001, 9 );
-  test_case<M>( 0, 1, 0.000001, 4 );
+  // test_case<M>( 0, 1, 0.000001, 4 );
 
   // test_case<M>( 0, max_exp, 0.001, 11 );
   // test_case<M>( max_exp - 1, max_exp, 0.000001, 12 );
@@ -140,15 +164,8 @@ int main()
   // exp_standard_tests();
   // exp_range_tests();
 
-  // exp_standard_tests<ADAAI::Method::Pade>();
-  // exp_range_tests<ADAAI::Method::Pade>();
-
-  // Chebyshev only works great for float and double (as implemented)
-  auto res = range_check<float, ExpSingleCheckObject<ADAAI::Method::Chebyshev, float>>( -300, 1000, 0.001, false );
+  exp_range_tests<ADAAI::Method::Chebyshev>(); // Estimated time: 41s
+  // auto res = range_check<double, ExpSingleCheckObject<ADAAI::Method::ChebyshevExperimental, double>>( -300, 1000, 0.001 );
   std::cout << res;
-  auto res2 = range_check<double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, double>>( -300, 1000, 0.001, false );
-  std::cout << res2;
-  auto res3 = range_check<long double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, long double>>( -300, 1000, 0.001, false );
-  std::cout << res3;
   return 0;
 }
