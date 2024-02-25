@@ -33,5 +33,17 @@
 ==> Float:       32.1264 * exp
 ==> Double:      224.236 * exp
 ==> Long double: 15415.4 * exp
-=> Execution time: 42.277s
+=> Execution time: 26.768s
+===--===---===---===--===
+
+=== Test case 4 ===
+=> Test data: Range check in [-300.000000, 1000.000000] with step 0.001000
+
+-> Method used: ChebyshevExperimental
+
+=> Max errors:
+==> Float:       32.1264 * eps
+==> Double:      222.265 * eps
+==> Long double: 3058.24 * eps
+=> Execution time: 34.036s
 ===--===---===---===--===

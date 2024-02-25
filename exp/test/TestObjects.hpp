@@ -52,18 +52,24 @@ namespace ADAAI::Exp::Tests
 
     void print_data( std::ostream& os ) const override
     {
-      std::string method = "Unknown";
-      if ( M == ADAAI::Exp::Method::Taylor )
+      std::string method;
+
+      switch ( M )
       {
-        method = "Taylor";
-      }
-      else if ( M == ADAAI::Exp::Method::Pade )
-      {
-        method = "Pade";
-      }
-      else if ( M == ADAAI::Exp::Method::Chebyshev )
-      {
-        method = "Chebyshev";
+        case ADAAI::Exp::Method::Taylor:
+          method = "Taylor";
+          break;
+        case ADAAI::Exp::Method::Pade:
+          method = "Pade";
+          break;
+        case ADAAI::Exp::Method::Chebyshev:
+          method = "Chebyshev";
+          break;
+        case ADAAI::Exp::Method::ChebyshevExperimental:
+          method = "ChebyshevExperimental";
+          break;
+        default:
+          method = "Unknown";
       }
 
       os << "\n-> Method used: " << method << "\n\n";

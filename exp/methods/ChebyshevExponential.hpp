@@ -44,16 +44,16 @@ namespace ADAAI::Exp::Core::Chebyshev
 
   namespace experimental
   {
-    constexpr int get_a( int n, int k )
+    constexpr size_t get_a( size_t n, size_t k )
     {
       if ( ( k & 1 ) == ( n & 1 ) ) // k and n are both even or both odd
         return 0;
-      if ( k == !( n & 1 ) )
+      if ( ( n & 1 ) == 1 && k == 0 )
         return n;
       return n << 1;
     }
 
-    constexpr int get_T0( int n )
+    constexpr int get_T0( size_t n )
     {
       if ( ( n & 1 ) == 1 )
         return 0;
@@ -70,17 +70,17 @@ namespace ADAAI::Exp::Core::Chebyshev
 
       double a_data[SIZE * SIZE] = { 0.0 };
 
-      for ( int k = 0; k < SIZE; ++k )
+      for ( size_t k = 0; k < SIZE; ++k )
       {
         if ( k == SIZE - 1 )
         {
-          for ( int n = 0; n < SIZE; ++n )
+          for ( size_t n = 0; n < SIZE; ++n )
             a_data[k * SIZE + n] = get_T0( n );
         }
         else
         {
           a_data[k * SIZE + k] = -1.0;
-          for ( int n = k + 1; n < SIZE; ++n )
+          for ( size_t n = k + 1; n < SIZE; ++n )
             a_data[k * SIZE + n] = get_a( n, k );
         }
       }
@@ -95,15 +95,20 @@ namespace ADAAI::Exp::Core::Chebyshev
       int              s;
       gsl_permutation* p   = gsl_permutation_alloc( SIZE );
       gsl_vector*      sol = gsl_vector_alloc( SIZE );
+
       gsl_linalg_LU_decomp( &A.matrix, p, &s );
       gsl_linalg_LU_solve( &A.matrix, p, &b.vector, sol );
+
       gsl_cheb_series* cs = gsl_cheb_alloc( Taylor::N<T> );
       cs->c               = sol->data;
+
       cs->c[0] *= 2;
+
       cs->order = SIZE;
       cs->a     = -1;
       cs->b     = 1;
-      return gsl_cheb_eval( cs, x );
+
+      return gsl_cheb_eval( cs, ( double ) x );
     }
   } // namespace experimental
 } // namespace ADAAI::Exp::Core::Chebyshev
