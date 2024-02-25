@@ -26,7 +26,8 @@ namespace ADAAI::Exp::Core::Chebyshev
   /// \return e^x
   template<typename T>
     requires std::is_floating_point_v<T>
-  constexpr T Exp_Chebyshev( T x )
+  constexpr T
+  Exp_Chebyshev( T x )
   {
     gsl_cheb_series* cs = gsl_cheb_alloc( Taylor::N<T> + 1 );
 
@@ -102,7 +103,7 @@ namespace ADAAI::Exp::Core::Chebyshev
       cs->order = SIZE;
       cs->a     = -1;
       cs->b     = 1;
-      return gsl_cheb_eval( cs, ( double ) x );
+      return gsl_cheb_eval( cs, x );
     }
   } // namespace experimental
 } // namespace ADAAI::Exp::Core::Chebyshev
