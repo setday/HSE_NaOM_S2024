@@ -61,12 +61,13 @@ namespace ADAAI::Exp::Core::Chebyshev
       return -1;
     }
 
+    /// @warning Only double values are available
     template<typename T>
     constexpr T ChebyshevExp( T x )
     {
       const std::size_t SIZE = Taylor::N<T> + 1;
 
-      T a_data[SIZE * SIZE] = { 0.0 };
+      double a_data[SIZE * SIZE] = { 0.0 };
 
       for ( int k = 0; k < SIZE; ++k )
       {
@@ -83,8 +84,8 @@ namespace ADAAI::Exp::Core::Chebyshev
         }
       }
 
-      T b_data[SIZE]   = { 0.0 };
-      b_data[SIZE - 1] = 1.0;
+      double b_data[SIZE] = { 0.0 };
+      b_data[SIZE - 1]    = 1.0;
 
       // TODO: here we need to somehow implement gsl_matrix_float_view and gsl_matrix_long_double_view
       gsl_matrix_view A = gsl_matrix_view_array( a_data, SIZE, SIZE );
@@ -101,7 +102,7 @@ namespace ADAAI::Exp::Core::Chebyshev
       cs->order = SIZE;
       cs->a     = -1;
       cs->b     = 1;
-      return gsl_cheb_eval( cs, x );
+      return gsl_cheb_eval( cs, ( double ) x );
     }
   } // namespace experimental
 } // namespace ADAAI::Exp::Core::Chebyshev
