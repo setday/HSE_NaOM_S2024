@@ -18,7 +18,7 @@
 #include <gsl/gsl_poly.h>
 
 // STEP 1: finding coefficients (a_k) analytically (integration by parts)
-const int N = 30; // number of terms for the Fourier series.
+const int N = 31; // number of terms for the Fourier series.
 
 /// \brief Computes the k-th coefficient for the Fourier series.
 /// \param k - Index of the coefficient.
@@ -200,10 +200,6 @@ void FFT()
   // we uses sum sum(a[k] * e^(-pi * I * j * k / (N+1))) over k = 0..N that is different from gsl implementation (sum(a[k] * exp(-2 * pi * I * j * k / (N+1))))
   // so we should double the number of elements in the complex array and fill the second half with zeros
 
-  // Initialize the FFT complex workspace and complex wave table
-  wavetable = gsl_fft_complex_wavetable_alloc( el_count );
-  workspace = gsl_fft_complex_workspace_alloc( el_count );
-
   double data[2 * el_count];
 
   // Initialize the complex array with the coefficients a_k
@@ -220,17 +216,13 @@ void FFT()
   }
 
   // Perform the forward FFT
-  gsl_fft_complex_forward( data, 1, el_count, wavetable, workspace );
+  gsl_fft_complex_radix2_forward( data, 1, el_count );
 
   // Extract the result from the complex array
   for ( int i = 0; i < a_count; ++i )
   {
     result[i] = data[2 * i];
   }
-
-  // Free the memory
-  gsl_fft_complex_wavetable_free( wavetable );
-  gsl_fft_complex_workspace_free( workspace );
 }
 
 /// \brief compares the results of the FFT with the exp(x_i) values
