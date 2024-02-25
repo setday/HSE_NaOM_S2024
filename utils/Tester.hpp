@@ -10,14 +10,14 @@
 /// \details Contains functions for testing and other purposes
 namespace ADAAI::Utils
 {
-  static unsigned TEST_NUMBER = 0;
+  static unsigned TEST_NUMBER = 1;
 
   template<typename T>
   struct CheckObjectBase
   {
     bool passed = true;
 
-    std::size_t test_case_number = UINT_MAX;
+    std::size_t test_case_number = TEST_NUMBER++;
 
     std::size_t tests_number = 0;
     std::size_t fails_count  = 0;
@@ -86,8 +86,7 @@ namespace ADAAI::Utils
 
     CheckObject result;
 
-    result.test_case_number = ++TEST_NUMBER;
-    result.test_data        = "Range check in [" + std::to_string( left ) + ", " + std::to_string( right ) + "] with step " + std::to_string( step );
+    result.test_data = "Range check in [" + std::to_string( left ) + ", " + std::to_string( right ) + "] with step " + std::to_string( step );
 
     for ( T value = left; value <= right; value += step )
     {
@@ -127,8 +126,7 @@ namespace ADAAI::Utils
   {
     CheckObject result;
 
-    result.test_case_number = ++TEST_NUMBER;
-    result.test_data        = "Array check of size " + std::to_string( size );
+    result.test_data = "Array check of size " + std::to_string( size );
 
     for ( std::size_t i = 0; i < size; i++ )
     {
@@ -164,7 +162,7 @@ namespace ADAAI::Utils
   template<typename T>
   std::ostream& operator<<( std::ostream& os, const CheckObjectBase<T>& result )
   {
-    os << "=== Test case " << ( result.test_case_number == UINT_MAX ? 0 : result.test_case_number )
+    os << "=== Test case " << result.test_case_number
        // << " " << ( result.passed ? "PASSED!" : "FAILED!" )
        << " ===\n";
     os << "=> Test data: " << result.test_data << '\n';
