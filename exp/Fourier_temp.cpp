@@ -106,7 +106,7 @@ void calculate_exp_of_acos_of_x_i()
   }
 }
 
-// WARNING: IT'S A RECURSIVE COMPUTATION OF THE CHEBYSHEV POLYNOMIALS
+/// WARNING: IT'S A RECURSIVE COMPUTATION OF THE CHEBYSHEV POLYNOMIALS
 
 /// \brief Computes the k-th Chebyshev polynomial at a given point using gsl_chebyshev.h
 /// \example \code computeChebyshev(3, 0.5); \endcode
@@ -175,6 +175,8 @@ void initialize_points_x_i()
 /// \brief evaluates a[i]
 void initialize_coefficients_a_k()
 {
+  calculate_the_nodes();
+  calculate_exp_of_acos_of_x_i();
   for ( int k = 0; k <= N; ++k )
   {
     a_k[k] = get_a_k_using_Chebyshev_Gauss_quadrature( k );
@@ -187,11 +189,57 @@ void FFT()
   initialize_points_x_i();
   initialize_coefficients_a_k();
 
-  // implement FFT
-  // TODO
-  // find the value of sum(a[k] * e^(-k * I * x_i)) over k = 1..N
-  // where I is an imaginary unit
-  // and x_i = PI * i / (N + 1) for i = 0...N
+  // Change first coefficient to be a_0 / 2 (as an additive constant to sum on 1..N)
+  a_k[0] /= 2.0;
 
-  // see https://www.gnu.org/software/gsl/doc/html/fft.html
+  gsl_fft_complex_wavetable* wavetable;
+  gsl_fft_complex_workspace* workspace;
+
+  size_t a_count  = N + 1;       // number of elements in a_k
+  size_t el_count = a_count * 2; // number of coefficient in the complex array (double as many as a_k)
+  // we uses sum sum(a[k] * e^(-pi * I * j * k / (N+1))) over k = 0..N that is different from gsl implementation (sum(a[k] * exp(-2 * pi * I * j * k / (N+1))))
+  // so we should double the number of elements in the complex array and fill the second half with zeros
+
+  // Initialize the FFT complex workspace and complex wave table
+  wavetable = gsl_fft_complex_wavetable_alloc( el_count );
+  workspace = gsl_fft_complex_workspace_alloc( el_count );
+
+  double data[2 * el_count];
+
+  // Initialize the complex array with the coefficients a_k
+  for ( size_t i = 0; i < a_count; ++i )
+  {
+    data[2 * i]     = a_k[i]; // real part
+    data[2 * i + 1] = 0.0;    // imaginary part
+  }
+  // we skip elements from N+1 to 2N because we don't need the second half of sum
+  for ( size_t i = a_count; i < el_count; ++i )
+  {
+    data[2 * i]     = 0.0; // real part
+    data[2 * i + 1] = 0.0; // imaginary part
+  }
+
+  // Perform the forward FFT
+  gsl_fft_complex_forward( data, 1, el_count, wavetable, workspace );
+
+  // Extract the result from the complex array
+  for ( int i = 0; i < a_count; ++i )
+  {
+    result[i] = data[2 * i];
+  }
+
+  // Free the memory
+  gsl_fft_complex_wavetable_free( wavetable );
+  gsl_fft_complex_workspace_free( workspace );
+}
+
+/// \brief compares the results of the FFT with the exp(x_i) values
+void compare_results_of_FFT_with_exp_x_i()
+{
+  FFT();
+  for ( int i = 0; i <= N; ++i )
+  {
+    double true_value = std::exp( x_i[i] );
+    std::cout << i << " / " << N << ") diff=" << abs( result[i] - true_value ) << '\n';
+  }
 }

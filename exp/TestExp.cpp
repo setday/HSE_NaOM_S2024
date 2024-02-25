@@ -156,14 +156,18 @@ int main()
   std::cout << "=======================\n";
   std::cout << "EXP(x) VS fourier(x) with analytical coeffs: \n";
   std::cout << "=======================\n";
-  display_diffs_between_exp_and_analytical_Fourier();
+  // display_diffs_between_exp_and_analytical_Fourier();
   std::cout << "=======================\n";
   // TASK 2 SIMPLE TEST
   std::cout << "a_k analytical vs a_k evaluated: \n";
   std::cout << "=======================\n";
-  compare_coefficients_for_analytical_and_gauss_approaches();
+  // compare_coefficients_for_analytical_and_gauss_approaches();
   std::cout << "=======================\n";
   // TASK 3 SIMPLE TEST
-  //FFT();
+  std::cout << "FFT vs analytical: \n";
+  std::cout << "=======================\n";
+  FFT();
+  compare_results_of_FFT_with_exp_x_i();
+  std::cout << "=======================\n";
   return 0;
 }
