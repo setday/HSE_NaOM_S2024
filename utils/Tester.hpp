@@ -87,8 +87,7 @@ namespace ADAAI::Utils
     CheckObject result;
 
     result.test_case_number = ++TEST_NUMBER;
-
-    result.test_data = "Range check in [" + std::to_string( left ) + ", " + std::to_string( right ) + "] with step " + std::to_string( step );
+    result.test_data        = "Range check in [" + std::to_string( left ) + ", " + std::to_string( right ) + "] with step " + std::to_string( step );
 
     for ( T value = left; value <= right; value += step )
     {
@@ -128,7 +127,8 @@ namespace ADAAI::Utils
   {
     CheckObject result;
 
-    result.test_data = "Array check of size " + std::to_string( size );
+    result.test_case_number = ++TEST_NUMBER;
+    result.test_data        = "Array check of size " + std::to_string( size );
 
     for ( std::size_t i = 0; i < size; i++ )
     {
