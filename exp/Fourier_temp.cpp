@@ -192,36 +192,32 @@ void FFT()
   // Change first coefficient to be a_0 / 2 (as an additive constant to sum on 1..N)
   a_k[0] /= 2.0;
 
-  gsl_fft_complex_wavetable* wavetable;
-  gsl_fft_complex_workspace* workspace;
-
   size_t a_count  = N + 1;       // number of elements in a_k
   size_t el_count = a_count * 2; // number of coefficient in the complex array (double as many as a_k)
   // we uses sum sum(a[k] * e^(-pi * I * j * k / (N+1))) over k = 0..N that is different from gsl implementation (sum(a[k] * exp(-2 * pi * I * j * k / (N+1))))
   // so we should double the number of elements in the complex array and fill the second half with zeros
 
-  double data[2 * el_count];
+  double data[el_count];
 
-  // Initialize the complex array with the coefficients a_k
+  // Initialize the real array with the coefficients a_k
   for ( size_t i = 0; i < a_count; ++i )
   {
-    data[2 * i]     = a_k[i]; // real part
-    data[2 * i + 1] = 0.0;    // imaginary part
+    data[i] = a_k[i];
   }
-  // we skip elements from N+1 to 2N because we don't need the second half of sum
+
+  // The rest is a bunch of zeroes
   for ( size_t i = a_count; i < el_count; ++i )
   {
-    data[2 * i]     = 0.0; // real part
-    data[2 * i + 1] = 0.0; // imaginary part
+    data[i] = 0;
   }
 
   // Perform the forward FFT
-  gsl_fft_complex_radix2_forward( data, 1, el_count );
+  gsl_fft_real_radix2_transform( data, 1, el_count );
 
-  // Extract the result from the complex array
+  // Extract the result from the real array
   for ( int i = 0; i < a_count; ++i )
   {
-    result[i] = data[2 * i];
+    result[i] = data[i];
   }
 }
 
