@@ -47,7 +47,7 @@ namespace ADAAI::Exp
         }
         case Method::ChebyshevExperimental:
         {
-           return Chebyshev::experimental::ChebyshevExp( x ); //FIXME: not recommended for now
+           return Chebyshev::experimental::ChebyshevExp( x );
         }
         default:
         {
