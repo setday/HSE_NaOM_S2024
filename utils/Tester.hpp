@@ -1,20 +1,23 @@
 #pragma once
 
+#include <climits>
 #include <cmath>
 #include <iomanip>
 
-#include "../exp/Consts.hpp"
+#include "Consts.hpp"
 
 /// \brief Namespace for utility functions
 /// \details Contains functions for testing and other purposes
 namespace ADAAI::Utils
 {
+  static unsigned TEST_NUMBER = 1;
+
   template<typename T>
   struct CheckObjectBase
   {
     bool passed = true;
 
-    std::size_t test_case_number = UINT_MAX;
+    std::size_t test_case_number = TEST_NUMBER++;
 
     std::size_t tests_number = 0;
     std::size_t fails_count  = 0;
@@ -159,7 +162,7 @@ namespace ADAAI::Utils
   template<typename T>
   std::ostream& operator<<( std::ostream& os, const CheckObjectBase<T>& result )
   {
-    os << "=== Test case " << ( result.test_case_number == UINT_MAX ? 0 : result.test_case_number )
+    os << "=== Test case " << result.test_case_number
        // << " " << ( result.passed ? "PASSED!" : "FAILED!" )
        << " ===\n";
     os << "=> Test data: " << result.test_data << '\n';

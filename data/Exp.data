@@ -1,0 +1,49 @@
+=== Test case 1 ===
+=> Test data: Range check in [-300.000000, 1000.000000] with step 0.001000
+
+-> Method used: Taylor
+
+=> Max errors:
+==> Float:       32.5538 * exp
+==> Double:      222.972 * exp
+==> Long double: 532.001 * exp
+=> Execution time: 1.231s
+===--===---===---===--===
+
+
+=== Test case 2 ===
+=> Test data: Range check in [-300.000000, 1000.000000] with step 0.001000
+
+-> Method used: Pade
+
+=> Max errors:
+==> Float:       32.7759 * exp
+==> Double:      222.512 * exp
+==> Long double: 532.522 * exp
+=> Execution time: 1.057s
+===--===---===---===--===
+
+
+=== Test case 3 ===
+=> Test data: Range check in [-300.000000, 1000.000000] with step 0.001000
+
+-> Method used: Chebyshev
+
+=> Max errors:
+==> Float:       32.1264 * exp
+==> Double:      224.236 * exp
+==> Long double: 15415.4 * exp
+=> Execution time: 26.768s
+===--===---===---===--===
+
+=== Test case 4 ===
+=> Test data: Range check in [-300.000000, 1000.000000] with step 0.001000
+
+-> Method used: ChebyshevExperimental
+
+=> Max errors:
+==> Float:       32.1264 * eps
+==> Double:      222.265 * eps
+==> Long double: 3058.24 * eps
+=> Execution time: 34.036s
+===--===---===---===--===
