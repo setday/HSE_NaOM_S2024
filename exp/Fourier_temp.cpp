@@ -46,32 +46,6 @@ double fourier_series_for_exp( double x )
   return value; // Returning the final computed value of the Fourier series
 }
 
-/// \brief Compares exp(x) with the Fourier series approximation.
-/// The Fourier series approximation is given by:
-///
-/// f(x) = a_0 + \sum_{k=1}^{N} (a_k \cos(kx))\f$, where
-/// a_0 = \int_{0}^{\pi} f(x)dx\f$ and f(x) = \exp(x).
-///
-/// For each x in the range [0.1, 0.9], it calculates the absolute difference
-/// between exp(x) and the Fourier series approximation and displays the result.
-void display_diffs_between_exp_and_analytical_Fourier()
-{
-  // Loop through x values from 0.1 to 0.9
-  for ( int i = 1; i <= 50; ++i )
-  {
-    double x = static_cast<double>( i ) / 50;
-
-    // True value is exp(x)
-    double true_value = std::exp( x );
-
-    // Evaluate the Fourier series for exp(x)
-    double evaluated_value = fourier_series_for_exp( x );
-
-    // Display the absolute difference between true and evaluated values
-    std::cout << "diff=" << std::abs( true_value - evaluated_value ) << '\n';
-  }
-}
-
 // STEP 2: finding coefficients (a_k) using Chebyshev–Gauss quadrature
 
 double x_i_values[N + 2]; // nodes
@@ -106,27 +80,41 @@ void calculate_exp_of_acos_of_x_i()
   }
 }
 
-/// WARNING: IT'S A RECURSIVE COMPUTATION OF THE CHEBYSHEV POLYNOMIALS
+double chebyshev_polynomials[N + 1][N + 1] = { 0.0 };
 
-/// \brief Computes the k-th Chebyshev polynomial at a given point using gsl_chebyshev.h
+// chebyshev_polynomials[i][k] - k-th coefficient of the i-th chebyshev polynomial
+
+constexpr inline void construct_chebyshev_polynomials()
+{
+  chebyshev_polynomials[0][0] = 1;
+  chebyshev_polynomials[1][1] = 1;
+
+  for ( int order = 2; order <= N; ++order )
+  {
+    for ( int i = order; i > 0; i-- )
+    {
+      chebyshev_polynomials[order][i] = 2 * chebyshev_polynomials[order - 1][i - 1] -
+                                        chebyshev_polynomials[order - 2][i];
+    }
+    chebyshev_polynomials[order][0] = -chebyshev_polynomials[order - 2][0];
+  }
+}
+
+/// \brief Computes the k-th Chebyshev polynomial at a given point
 /// \example \code computeChebyshev(3, 0.5); \endcode
 /// \tparam k - Degree of the Chebyshev polynomial
 /// \tparam x - Point at which to evaluate the Chebyshev polynomial
 /// \return The value of the k-th Chebyshev polynomial at the given point x
 double compute_Chebyshev( int k, double x )
 {
-  if ( k == 1 )
+  double x_to_the_power_of_i = x;
+  double res = chebyshev_polynomials[k][0];
+  for ( int i = 1; i <= k; i++ )
   {
-    return x;
+    res += chebyshev_polynomials[k][i] * x_to_the_power_of_i;
+    x_to_the_power_of_i *= x;
   }
-  else if ( k == 0 )
-  {
-    return 1;
-  }
-  else
-  {
-    return 2 * x * compute_Chebyshev( k - 1, x ) - compute_Chebyshev( k - 2, x );
-  }
+  return res;
 }
 
 /// \brief Computes the k-th coefficient for the Fourier series using Chebyshev-Gauss quadrature
@@ -141,19 +129,6 @@ double get_a_k_using_Chebyshev_Gauss_quadrature( int k )
   }
   a_k *= 2.0 / ( N + 1 );
   return a_k;
-}
-
-/// \brief compares coefficients obtaied using analytical solution and Chebyshev-Gauss quadrature
-void compare_coefficients_for_analytical_and_gauss_approaches()
-{
-  calculate_the_nodes();
-  calculate_exp_of_acos_of_x_i();
-  for ( int i = 0; i <= 30; i++ )
-  {
-    double a_true       = get_a_k_analytically( i );
-    double a_calculated = get_a_k_using_Chebyshev_Gauss_quadrature( i );
-    std::cout << "diff=" << abs( a_calculated - a_true ) << '\n';
-  }
 }
 
 // STEP 3: using FFT to compute the sum

@@ -151,7 +151,7 @@ int main()
   // std::cout << res2;
   // auto res3 = range_check<long double, ExpSingleCheckObject<ADAAI::Method::Chebyshev, long double>>( -300, 1000, 0.001, false );
   // std::cout << res3;
-
+  construct_chebyshev_polynomials();
   // TASK 1 SIMPLE TEST
   std::cout << "=======================\n";
   std::cout << "EXP(x) VS fourier(x) with analytical coeffs: \n";
