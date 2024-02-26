@@ -5,6 +5,8 @@
 
 namespace ADAAI::CONST
 {
+  const inline long double EXP_OF_PI = std::exp( M_PI ); // can't be constexpr using std::exp
+
   template<typename T>
   constexpr inline T LOG2E;
   template<>

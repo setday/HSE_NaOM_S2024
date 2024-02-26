@@ -11,10 +11,9 @@ namespace ADAAI::Exp::Core::Chebyshev
   /// \brief Function to be used with gsl_cheb_alloc
   /// \tparam T - Floating point type
   /// \param x - Value to compute
-  /// \param p - Pointer to void
   /// \return e^x
   template<typename T>
-  T f( T x, void* p )
+  T f( T x, void* )
   {
     return std::exp( x );
   }
@@ -64,7 +63,7 @@ namespace ADAAI::Exp::Core::Chebyshev
 
     /// @warning Only double values are available
     template<typename T>
-    constexpr T ChebyshevExp( T x )
+    constexpr T Exp_ChebyshevExperimental( T x )
     {
       const std::size_t SIZE = Taylor::N<T> + 1;
 
@@ -99,7 +98,7 @@ namespace ADAAI::Exp::Core::Chebyshev
       gsl_linalg_LU_decomp( &A.matrix, p, &s );
       gsl_linalg_LU_solve( &A.matrix, p, &b.vector, sol );
 
-      gsl_cheb_series* cs = gsl_cheb_alloc( Taylor::N<T> );
+      gsl_cheb_series* cs = gsl_cheb_alloc( SIZE - 1 );
       cs->c               = sol->data;
 
       cs->c[0] *= 2;
