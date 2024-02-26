@@ -116,8 +116,6 @@ namespace ADAAI::Exp::Core::Fourier
   double
   get_a_k_using_Chebyshev_Gauss_quadrature( int k )
   {
-    construct_chebyshev_polynomials();
-
     double a_k = 0;
     for ( int i = 1; i <= N + 1; ++i )
     {
@@ -147,6 +145,7 @@ namespace ADAAI::Exp::Core::Fourier
   void initialize_coefficients_a_k()
   {
     calculate_exp_of_acos_of_x_i();
+    construct_chebyshev_polynomials();
 
     for ( int k = 0; k <= N; ++k )
     {
