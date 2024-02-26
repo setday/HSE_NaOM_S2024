@@ -2,15 +2,7 @@
 
 #include "../../utils/Consts.hpp"
 
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_chebyshev.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_fft_complex.h>
 #include <gsl/gsl_fft_halfcomplex.h>
-#include <gsl/gsl_fft_real.h>
-#include <gsl/gsl_linalg.h>
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_poly.h>
 
 namespace ADAAI::Exp::Core::Fourier
 {
