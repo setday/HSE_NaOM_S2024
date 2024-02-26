@@ -4,9 +4,9 @@
 
 #include "../utils/Consts.hpp"
 #include "methods/ChebyshevExponential.hpp"
+#include "methods/FourierExponential.hpp"
 #include "methods/PadeExponential.hpp"
 #include "methods/TaylorExponential.hpp"
-#include "methods/FourierExponential.hpp"
 
 namespace ADAAI::Exp
 {
@@ -15,8 +15,9 @@ namespace ADAAI::Exp
     Taylor,
     Pade,
     Chebyshev,
-    ChebyshevExperimental,
+    ChebyshevUnused,
     Fourier,
+    FourierUnused,
   };
 
   /// \brief Namespace for core functions
@@ -47,13 +48,17 @@ namespace ADAAI::Exp
         {
           return Chebyshev::Exp_Chebyshev( x );
         }
-        case Method::ChebyshevExperimental:
+        case Method::ChebyshevUnused:
         {
-          return Chebyshev::experimental::Exp_ChebyshevExperimental( x );
+          return Chebyshev::unused::Exp_Chebyshev( x );
         }
         case Method::Fourier:
         {
-           return Fourier::Exp_Fourier( x );
+          return Fourier::Exp_Fourier( x );
+        }
+        case Method::FourierUnused:
+        {
+          return Fourier::unused::Exp_Fourier( x );
         }
         default:
         {

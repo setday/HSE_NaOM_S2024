@@ -14,6 +14,10 @@ int main()
   //  exp_range_tests<Method::Fourier>(); // we implemented Fourier only for [0, pi]
 
   test_case<Method::Fourier>(0, M_PI, 0.001);
+  test_case<Method::FourierUnused>(0, M_PI, 0.001);
+
+  test_case<Method::Chebyshev>(0, M_PI, 0.001);
+  test_case<Method::ChebyshevUnused>(0, M_PI, 0.001);
 
   return 0;
 }
