@@ -1,7 +1,16 @@
 #pragma once
 
 #include "../../utils/Consts.hpp"
+
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_chebyshev.h>
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_fft_complex.h>
 #include <gsl/gsl_fft_halfcomplex.h>
+#include <gsl/gsl_fft_real.h>
+#include <gsl/gsl_linalg.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_poly.h>
 
 namespace ADAAI::Exp::Core::Fourier
 {
@@ -109,7 +118,8 @@ namespace ADAAI::Exp::Core::Fourier
   /// \brief Computes the k-th coefficient for the Fourier series using Chebyshev-Gauss quadrature
   /// \param k - Index of the coefficient.
   /// \return The computed coefficient a_k.
-  double get_a_k_using_Chebyshev_Gauss_quadrature( int k )
+  double
+  get_a_k_using_Chebyshev_Gauss_quadrature( int k )
   {
     double a_k = 0;
     for ( int i = 1; i <= N + 1; ++i )
@@ -193,21 +203,12 @@ namespace ADAAI::Exp::Core::Fourier
   ///
   /// For each x in the range [0.1, 0.9], it calculates the absolute difference
   /// between exp(x) and the Fourier series approximation and displays the result.
-  void display_Fourier()
+  void display_Fourier( double step = 0.01 )
   {
-    // Loop through x values from 0.1 to 0.9
-    for ( int i = 1; i <= 50; ++i )
+    // Loop through x values from 0 to 1
+    for ( double x = 0; x <= 1; x += step )
     {
-      double x = static_cast<double>( i ) / 50;
-
-      // True value is exp(x)
-      double true_value = std::exp( x );
-
-      // Evaluate the Fourier series for exp(x)
-      double evaluated_value = fourier_series_for_exp( x );
-
-      // Display the absolute difference between true and evaluated values
-      std::cout << "diff=" << std::abs( true_value - evaluated_value ) << '\n';
+      std::cout << " diff of exp and Fourier for " << x << " is " << std::abs( std::exp( x ) - fourier_series_for_exp( x ) ) << '\n';
     }
   }
 } // namespace ADAAI::Exp::Core::Fourier
