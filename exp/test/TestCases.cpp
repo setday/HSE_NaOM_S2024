@@ -68,6 +68,8 @@ void exp_range_tests()
   // test_case<M>( 1000.0, 12000.0, 0.1 );
 
   // test_case<M>( 700.0, 720.0, 0.1 );
+  test_case<M>( 0, 1000, 0.001 );
+  test_case<M>( -300, 0, 0.001 );
   test_case<M>( -300, 1000, 0.001 );
   // test_case<M>( -1000, 1000, 0.001 );
 

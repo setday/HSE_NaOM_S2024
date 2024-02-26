@@ -68,6 +68,9 @@ namespace ADAAI::Exp::Tests
         case ADAAI::Exp::Method::ChebyshevExperimental:
           method = "ChebyshevExperimental";
           break;
+        case ADAAI::Exp::Method::Fourier:
+          method = "Fourier";
+          break;
         default:
           method = "Unknown";
       }

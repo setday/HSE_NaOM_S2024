@@ -1,7 +1,10 @@
 #pragma once
 
-#include "../../utils/Consts.hpp"
+#include <algorithm>
+
 #include <gsl/gsl_fft_halfcomplex.h>
+
+#include "../../utils/Consts.hpp"
 
 namespace ADAAI::Exp::Core::Fourier
 {
@@ -15,19 +18,19 @@ namespace ADAAI::Exp::Core::Fourier
   double get_a_k_analytically( int k )
   {
     // Formula for a_k in the Fourier series
-    return ( 2 / M_PI ) * ( CONST::EXP_OF_PI * ( k * std::sin( M_PI * k ) + std::cos( M_PI * k ) ) - 1 ) / ( k * k + 1 );
+    return CONST::TWO_OVER_PI * ( CONST::EXP_OF_PI * ( k * std::sin( M_PI * k ) + std::cos( M_PI * k ) ) - 1 ) / ( k * k + 1 );
   }
 
   /// \brief Computes the value of the Fourier series for the exponential function.
   /// \param x - The input value.
-  /// \param N - The number of terms in the series (default is 20).
+  /// \param N - The number of terms in the series (default is 32).
   /// \return The computed value of the Fourier series.
   double fourier_series_for_exp( double x )
   {
     double value = get_a_k_analytically( 0 ) / 2.0; // Initializing with a_0, the constant term
 
     // Summing up terms in the Fourier series
-    for ( int k = 1; k <= N; ++k )
+    for ( int k = 1; k < N; ++k )
     {
       value += ( get_a_k_analytically( k ) * std::cos( k * x ) ); // Adding each term in the series
     }
@@ -61,6 +64,8 @@ namespace ADAAI::Exp::Core::Fourier
   /// \exp(\arccos(x_i)) and stores the result in exp_of_acos_of_x_i_values.
   void calculate_exp_of_acos_of_x_i()
   {
+    calculate_the_nodes();
+
     // Loop through i values from 1 to N
     for ( int i = 1; i <= N + 1; ++i )
     {
@@ -82,8 +87,7 @@ namespace ADAAI::Exp::Core::Fourier
     {
       for ( int i = order; i > 0; i-- )
       {
-        chebyshev_polynomials[order][i] = 2 * chebyshev_polynomials[order - 1][i - 1] -
-                                          chebyshev_polynomials[order - 2][i];
+        chebyshev_polynomials[order][i] = 2 * chebyshev_polynomials[order - 1][i - 1] - chebyshev_polynomials[order - 2][i];
       }
       chebyshev_polynomials[order][0] = -chebyshev_polynomials[order - 2][0];
     }
@@ -111,6 +115,8 @@ namespace ADAAI::Exp::Core::Fourier
   /// \return The computed coefficient a_k.
   double get_a_k_using_Chebyshev_Gauss_quadrature( int k )
   {
+    construct_chebyshev_polynomials();
+
     double a_k = 0;
     for ( int i = 1; i <= N + 1; ++i )
     {
@@ -139,8 +145,8 @@ namespace ADAAI::Exp::Core::Fourier
   /// \brief evaluates a[i]
   void initialize_coefficients_a_k()
   {
-    calculate_the_nodes();
     calculate_exp_of_acos_of_x_i();
+
     for ( int k = 0; k <= N; ++k )
     {
       a_k[k] = get_a_k_using_Chebyshev_Gauss_quadrature( k );
@@ -150,7 +156,6 @@ namespace ADAAI::Exp::Core::Fourier
   /// \brief evaluates exp(x_i) using FFT
   void FFT()
   {
-    initialize_points_x_i();
     initialize_coefficients_a_k();
 
     // Change first coefficient to be a_0 / 2 (as an additive constant to sum on 1..N)
@@ -195,19 +200,48 @@ namespace ADAAI::Exp::Core::Fourier
   /// between exp(x) and the Fourier series approximation and displays the result.
   void display_Fourier()
   {
-    // Loop through x values from 0.1 to 0.9
-    for ( int i = 1; i <= 50; ++i )
+    FFT();
+    initialize_points_x_i();
+
+    for ( int i = 0; i <= N; ++i )
     {
-      double x = static_cast<double>( i ) / 50;
-
-      // True value is exp(x)
-      double true_value = std::exp( x );
-
-      // Evaluate the Fourier series for exp(x)
-      double evaluated_value = fourier_series_for_exp( x );
-
-      // Display the absolute difference between true and evaluated values
-      std::cout << "diff=" << std::abs( true_value - evaluated_value ) << '\n';
+      double true_value = std::exp( x_i[i] );
+      std::cout << i << " / " << N << ") diff=" << abs( result[i] - true_value ) << '\n';
     }
+  }
+
+  bool is_initialized = false;
+
+  /// \brief Computes exp(x) using the Fourier series approximation.
+  /// \example \code Exp_Taylor( 0.1 ); \endcode
+  /// \tparam T - Floating point type
+  /// \param x - Value to compute
+  /// \return e^x
+  template<typename T>
+    requires std::is_floating_point_v<T>
+  constexpr T Exp_Fourier( T x )
+  {
+    if ( !is_initialized )
+    {
+      FFT();
+      initialize_points_x_i();
+      is_initialized = true;
+    }
+
+    size_t i = 0;
+    double prev_delta = std::abs( x - x_i[i] );
+    for ( ; i <= N; ++i )
+    {
+      double delta = std::abs( x - x_i[i] );
+
+      if ( delta > prev_delta )
+      {
+        break;
+      }
+
+      prev_delta = delta;
+    }
+
+    return result[i];
   }
 } // namespace ADAAI::Exp::Core::Fourier

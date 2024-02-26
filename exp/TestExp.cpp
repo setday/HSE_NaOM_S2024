@@ -12,8 +12,7 @@ int main()
   //  exp_range_tests<Method::Chebyshev>();             // Estimated time: 27s
   //  exp_range_tests<Method::ChebyshevExperimental>(); // Estimated time: 34s
 
-  //  exp_range_tests<Method::Fourier>(); // this won't work
-  Core::Fourier::display_Fourier();
+  exp_range_tests<Method::Fourier>();
 
   return 0;
 }
