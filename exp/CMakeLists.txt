@@ -7,6 +7,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 find_package(GSL REQUIRED)
 link_libraries(GSL::gsl)
 
-add_executable(exp
-        TestExp.cpp
-)
+add_executable(exp TestExp.cpp)
