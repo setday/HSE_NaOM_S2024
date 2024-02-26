@@ -199,7 +199,7 @@ namespace ADAAI::Exp::Core::Fourier
   ///
   /// For each x in the range [0.1, 0.9], it calculates the absolute difference
   /// between exp(x) and the Fourier series approximation and displays the result.
-  void display_Fourier( double step = 0.01 )
+  void display_Fourier()
   {
     FFT();
     initialize_points_x_i();
