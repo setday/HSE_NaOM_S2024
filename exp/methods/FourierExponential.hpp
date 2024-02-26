@@ -30,7 +30,7 @@ namespace ADAAI::Exp::Core::Fourier
     double value = get_a_k_analytically( 0 ) / 2.0; // Initializing with a_0, the constant term
 
     // Summing up terms in the Fourier series
-    for ( int k = 1; k < N; ++k )
+    for ( int k = 1; k <= N; ++k )
     {
       value += ( get_a_k_analytically( k ) * std::cos( k * x ) ); // Adding each term in the series
     }
