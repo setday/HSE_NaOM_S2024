@@ -195,14 +195,3 @@ void FFT()
     result[i] = data[i];
   }
 }
-
-/// \brief compares the results of the FFT with the exp(x_i) values
-void compare_results_of_FFT_with_exp_x_i()
-{
-  FFT();
-  for ( int i = 0; i <= N; ++i )
-  {
-    double true_value = std::exp( x_i[i] );
-    std::cout << i << " / " << N << ") diff=" << abs( result[i] - true_value ) << '\n';
-  }
-}
