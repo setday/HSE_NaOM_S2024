@@ -1,6 +1,6 @@
 #pragma once
 
-#include <algorithm>
+#include "../../utils/Consts.hpp"
 
 #include <gsl/gsl_fft_halfcomplex.h>
 
@@ -113,7 +113,8 @@ namespace ADAAI::Exp::Core::Fourier
   /// \brief Computes the k-th coefficient for the Fourier series using Chebyshev-Gauss quadrature
   /// \param k - Index of the coefficient.
   /// \return The computed coefficient a_k.
-  double get_a_k_using_Chebyshev_Gauss_quadrature( int k )
+  double
+  get_a_k_using_Chebyshev_Gauss_quadrature( int k )
   {
     construct_chebyshev_polynomials();
 
@@ -198,7 +199,7 @@ namespace ADAAI::Exp::Core::Fourier
   ///
   /// For each x in the range [0.1, 0.9], it calculates the absolute difference
   /// between exp(x) and the Fourier series approximation and displays the result.
-  void display_Fourier()
+  void display_Fourier( double step = 0.01 )
   {
     FFT();
     initialize_points_x_i();
