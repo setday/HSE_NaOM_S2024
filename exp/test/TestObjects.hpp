@@ -39,13 +39,13 @@ namespace ADAAI::Exp::Tests
       auto double_check      = adaptive_compare<double, ADAAI::Exp::Exp<double, M>, std::exp>( x );
       auto long_double_check = adaptive_compare<long double, ADAAI::Exp::Exp<long double, M>, std::exp>( x );
 
-      f_error  = std::max( f_error, ( long double ) float_check );
-      d_error  = std::max( d_error, ( long double ) double_check );
-      ld_error = std::max( ld_error, ( long double ) long_double_check );
+      f_error  = std::max( ( long double ) float_check, f_error );
+      d_error  = std::max( ( long double ) double_check, d_error );
+      ld_error = std::max( ( long double ) long_double_check, ld_error );
 
       long double check_error = ld_error;
-      check_error             = std::max( check_error, d_error );
-      check_error             = std::max( check_error, f_error );
+      check_error             = std::max( d_error, check_error );
+      check_error             = std::max( f_error, check_error );
 
       return check_error < ADAAI::CONST::BOUND<long double>;
     }
