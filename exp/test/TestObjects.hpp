@@ -65,11 +65,14 @@ namespace ADAAI::Exp::Tests
         case ADAAI::Exp::Method::Chebyshev:
           method = "Chebyshev";
           break;
-        case ADAAI::Exp::Method::ChebyshevExperimental:
-          method = "ChebyshevExperimental";
+        case ADAAI::Exp::Method::ChebyshevUnused:
+          method = "ChebyshevUnused";
           break;
         case ADAAI::Exp::Method::Fourier:
           method = "Fourier";
+          break;
+        case ADAAI::Exp::Method::FourierUnused:
+          method = "FourierUnused";
           break;
         default:
           method = "Unknown";

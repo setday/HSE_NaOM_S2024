@@ -37,7 +37,7 @@ namespace ADAAI::Utils
   };
 
   /// \brief Tests if two functions are equal for a given value
-  /// \example \code assert( ( adaptive_compare<float, ADAAI::Exp, std::exp>( x ) ) ); \endcode
+  /// \example \code assert( ( adaptive_compare<float, ADAAI::Exp, std::exp>( points ) ) ); \endcode
   /// \tparam T - Type of the value
   /// \tparam MimicFunction - Function to adaptive_compare
   /// \tparam RealFunction - Function to compare with

@@ -8,7 +8,6 @@ template<ADAAI::Exp::Method M = ADAAI::Exp::Method::Taylor>
 bool test_case( long double left, long double right, long double step )
 {
   auto result = range_check<long double, ExpTripleCheckObject<M>>( left, right, step );
-  //  result.test_case_number = num;
   std::cout << result << "\n\n";
 
   return result.passed;
@@ -18,7 +17,6 @@ template<ADAAI::Exp::Method M = ADAAI::Exp::Method::Taylor>
 bool test_case( std::vector<long double> array )
 {
   auto result = array_check<long double, ExpTripleCheckObject<M>>( array.data(), array.size() );
-  //  result.test_case_number = num;
   std::cout << result << "\n\n";
 
   return result.passed;
