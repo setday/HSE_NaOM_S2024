@@ -73,7 +73,7 @@ namespace ADAAI::Exp::Core::Fourier
 
   // chebyshev_polynomials[i][k] - k-th coefficient of the i-th chebyshev polynomial
 
-  constexpr inline void construct_chebyshev_polynomials()
+  inline void construct_chebyshev_polynomials()
   {
     chebyshev_polynomials[0][0] = 1;
     chebyshev_polynomials[1][1] = 1;

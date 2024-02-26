@@ -53,7 +53,7 @@ namespace ADAAI::Exp
         }
         case Method::Fourier:
         {
-          //          return Fourier::Exp_Fourier( x ); // can't do this now
+          // return Fourier::Exp_Fourier( x ); /// TODO: Make an interface
         }
         default:
         {

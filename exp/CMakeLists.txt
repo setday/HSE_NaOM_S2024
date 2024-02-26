@@ -8,6 +8,5 @@ find_package(GSL REQUIRED)
 link_libraries(GSL::gsl)
 
 add_executable(exp
-        test/TestCases.cpp
         TestExp.cpp
 )
