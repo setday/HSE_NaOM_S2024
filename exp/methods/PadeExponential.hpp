@@ -4,7 +4,7 @@
 
 namespace ADAAI::Exp::Core::Pade
 {
-  // sizes of P_TERMS + Q_TERMS for T float 9, double 15, long double 17
+  // size of P_TERMS + Q_TERMS is 9 for float, 15 for double, 17 for long double
   template<typename T>
   constexpr inline T* P_TERMS;
   template<>

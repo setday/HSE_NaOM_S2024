@@ -15,7 +15,7 @@ namespace ADAAI::Exp::Core::Fourier
   {
     /// \brief Computes the k-th coefficient for the Fourier series.
     /// \param k - Index of the coefficient.
-    /// \return The computed coefficient a.
+    /// \return The computed coefficient a_k.
     constexpr double get_a( int k )
     {
       return CONST::TWO_OVER_PI * ( CONST::EXP_OF_PI * ( k * std::sin( M_PI * k ) + std::cos( M_PI * k ) ) - 1 ) / ( k * k + 1 );
@@ -34,7 +34,7 @@ namespace ADAAI::Exp::Core::Fourier
 
       for ( int k = 1; k <= N; ++k )
       {
-        value += ( get_a( k ) * std::cos( k * x ) );
+        value += get_a( k ) * std::cos( k * x );
       }
 
       return value;
@@ -44,13 +44,12 @@ namespace ADAAI::Exp::Core::Fourier
 
   double points[N + 2];                     // points to compute Chebyshev in
   double scale[N + 2];                      // exp(arccos(points[i]))
-  double nodes[N + 2];                      // points at which we will evaluate exp(points) (unused in further computations)
+  double nodes[N + 2];                      // nodes at which exp will be evaluated (unused in further computations)
+                                            // nodes[i] = PI * i / (N + 1) where i = 0...N
   double chebyshev[N + 1][N + 1] = { 0.0 }; // chebyshev[i][k] is k-th coefficient of the i-th chebyshev polynomial
-                                            // nodes = PI * i / (N + 1) where i = 0...N
-  double a[N + 2]      = { 0 };             // coefficients for FFT
-  double result[N + 2] = { 0 };             // result[i] = exp(nodes[i]) calculated with Chebyshev-Gauss quadrature
+  double result[N + 2]           = { 0 };   // coefficients for FFT calculated with Chebyshev-Gauss quadrature, then exp(nodes[i])
 
-  /// \brief Computes the nodes (nodes values)
+  /// \brief Computes the points
   inline void initialize_points()
   {
     for ( int i = 1; i <= N + 1; ++i )
@@ -59,7 +58,7 @@ namespace ADAAI::Exp::Core::Fourier
     }
   }
 
-  /// \brief Computes \exp(\arccos(nodes)) for each point.
+  /// \brief Computes \exp(\arccos(point)) for each point.
   inline void initialize_scale()
   {
     for ( int i = 1; i <= N + 1; ++i )
@@ -68,7 +67,7 @@ namespace ADAAI::Exp::Core::Fourier
     }
   }
 
-  /// \brief Computes nodes[i].
+  /// \brief Computes nodes.
   void initialize_nodes()
   {
     for ( int i = 0; i <= N; ++i )
@@ -96,7 +95,7 @@ namespace ADAAI::Exp::Core::Fourier
   /// \param k - Degree of the Chebyshev polynomial
   /// \param x - Point at which to evaluate the Chebyshev polynomial
   /// \return The value of the k-th Chebyshev polynomial at the given point points
-  double compute_Chebyshev( int k, double x )
+  double computeChebyshev( int k, double x )
   {
     double x_pow = 1;
     double res   = 0;
@@ -108,17 +107,18 @@ namespace ADAAI::Exp::Core::Fourier
     return res;
   }
 
-  /// \brief Initializes coefficients a[k] for k in [0, N] the Fourier series using Chebyshev-Gauss quadrature
+  /// \brief Initializes coefficients for Fourier series using Chebyshev-Gauss quadrature
   void initialize_a()
   {
     for ( int k = 0; k <= N; ++k )
     {
       for ( int i = 1; i <= N + 1; ++i )
       {
-        a[k] += compute_Chebyshev( k, points[i] ) * scale[i];
+        result[k] += computeChebyshev( k, points[i] ) * scale[i];
       }
-      a[k] *= 2.0 / ( N + 1 );
+      result[k] *= 2.0 / ( N + 1 );
     }
+    result[0] /= 2.0;
   }
 
   /// \brief initializes FFT method
@@ -130,32 +130,19 @@ namespace ADAAI::Exp::Core::Fourier
     initialize_chebyshev_polynomials();
     initialize_a();
 
-    // Change first coefficient to be a_0 / 2 (as an additive constant to sum on 1...N)
-    a[0] /= 2.0;
-
-    size_t a_count  = N + 1;       // number of elements in a
-    size_t el_count = a_count * 2; // number of coefficient in the complex array (double as many as a)
-    // using sum( a[k] * e^(-pi * I * j * k / (N + 1) ) ) over k = 0...N that is different from gsl implementation sum( a[k] * exp(-2 * pi * I * j * k / ( N + 1 ) ) )
-    // so we should double the number of elements in the complex array and fill the second half with zeros
-
-    // Initialize the real array with the coefficients a
-    for ( size_t i = 0; i < a_count; ++i )
-    {
-      result[i] = a[i];
-    }
-
+    size_t el_count = 2 * ( N + 1 ); // number of coefficient in the complex array (double as many as 2^n)
     // Perform the forward FFT
     gsl_fft_real_radix2_transform( result, 1, el_count );
   }
 
   static bool is_initialized = false;
 
-  /// @warning now only suitable for float and double
+  /// @warning only suitable for float and double fr now
   /// \brief Computes exp(x) using the Fourier series approximation.
   /// \example \code Exp_Fourier( 0.1 ); \endcode
   /// \tparam T - Floating point type
   /// \param x - Value to compute
-  /// \return e^x approximation
+  /// \return e^x
   template<typename T>
     requires std::is_floating_point_v<T>
   constexpr T Exp_Fourier( T x )

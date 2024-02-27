@@ -27,7 +27,7 @@
 === Test case 3 ===
 => Test data: Range check in [-300.000000, 1000.000000] with step 0.001000
 
--> Method used: Chebyshev
+-> Method used: ChebyshevUnused
 
 => Max errors:
 ==> Float:       32.1264 * exp
@@ -39,7 +39,7 @@
 === Test case 4 ===
 => Test data: Range check in [-300.000000, 1000.000000] with step 0.001000
 
--> Method used: ChebyshevExperimental
+-> Method used: Chebyshev
 
 => Max errors:
 ==> Float:       32.1264 * eps

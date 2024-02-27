@@ -62,7 +62,7 @@ namespace ADAAI::Exp
         }
         default:
         {
-          throw std::invalid_argument( "Invalid method in Exp_" );
+          throw std::invalid_argument( "Invalid method for Exp_" );
         }
       }
     }
