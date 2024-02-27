@@ -137,7 +137,7 @@ namespace ADAAI::Exp::Core::Fourier
 
   static bool is_initialized = false;
 
-  /// @warning only suitable for float and double fr now
+  /// @warning only suitable for float and double for now
   /// \brief Computes exp(x) using the Fourier series approximation.
   /// \example \code Exp_Fourier( 0.1 ); \endcode
   /// \tparam T - Floating point type
