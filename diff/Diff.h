@@ -104,10 +104,34 @@ namespace ADAAI::Diff
   }
 
   template<D d, typename Callable>
-  double Stencil5Extra( Callable const& f, double x, double y )
+  double Stencil5( Callable const& f, double h, double x, double y )
   {
-    /// TODO
-    return 0;
+    switch ( d )
+    {
+      case D::X:
+        return ( -f( x + 2 * h, y ) + 8 * f( x + h, y ) - 8 * f( x - h, y ) + f( x - 2 * h, y ) ) / ( 12 * h );
+      case D::Y:
+        return ( -f( x, y + 2 * h ) + 8 * f( x, y + h ) - 8 * f( x, y - h ) + f( x, y - 2 * h ) ) / ( 12 * h );
+    }
+  }
+
+  /// \param n - should be 2 at least
+  template<D d, typename Callable>
+  double Stencil5Extra( Callable const& f, double x, double y, int n = 2 )
+  {
+    double h_x = CONST::h * std::max( std::abs( x ), 1.0 );
+    double h_y = CONST::h * std::max( std::abs( y ), 1.0 );
+    switch ( d )
+    {
+      case D::X:
+        return ( n * n * Stencil5<d>( f, h_x / n, x, y ) - Stencil5<d>( f, h_x, x, y ) ) / ( n * n - 1 );
+      case D::Y:
+        return ( n * n * Stencil5<d>( f, h_y / n, x, y ) - Stencil5<d>( f, h_y, x, y ) ) / ( n * n - 1 );
+      case D::XX: /// TODO: idk what should be here
+      case D::YY:
+      case D::XY:
+        return 0;
+    }
   }
 
   /// \brief Example function for Differentiator in use demonstration
