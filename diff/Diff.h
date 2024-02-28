@@ -26,7 +26,7 @@ namespace ADAAI::Diff
     XY
   };
 
-  template<D d, Method M, typename Callable>
+  template<D d, typename Callable>
   double Stencil3( Callable const& f, double x, double y )
   {
     double h_x = CONST::h * std::max( std::abs( x ), 1.0 );
@@ -46,13 +46,38 @@ namespace ADAAI::Diff
     }
   }
 
-  template<D d, Method M, typename Callable>
-  double Stencil3Extra( Callable const& f, double x, double y )
-  { /// TODO
-    return 0;
+  template<D d, typename Callable>
+  double Stencil3( Callable const& f, double h, double x, double y )
+  {
+    switch ( d )
+    {
+      case D::X:
+        return ( f( x + h, y ) - f( x - h, y ) ) / ( 2 * h );
+      case D::Y:
+        return ( f( x, y + h ) - f( x, y - h ) ) / ( 2 * h );
+    }
   }
 
-  template<D d, Method M, typename Callable>
+  /// \param n - should be 2 at least
+  template<D d, typename Callable>
+  double Stencil3Extra( Callable const& f, double x, double y, int n = 2 )
+  {
+    double h_x = CONST::h * std::max( std::abs( x ), 1.0 );
+    double h_y = CONST::h * std::max( std::abs( y ), 1.0 );
+    switch ( d )
+    {
+      case D::X:
+        return ( n * n * Stencil3<d>( f, h_x / n, x, y ) - Stencil3<d>( f, h_x, x, y ) ) / ( n * n - 1 );
+      case D::Y:
+        return ( n * n * Stencil3<d>( f, h_y / n, x, y ) - Stencil3<d>( f, h_y, x, y ) ) / ( n * n - 1 );
+      case D::XX: /// TODO: idk what should be here
+      case D::YY:
+      case D::XY:
+        return 0;
+    }
+  }
+
+  template<D d, typename Callable>
   double Stencil5( Callable const& f, double x, double y )
   {
     double h_x = CONST::h * std::max( std::abs( x ), 1.0 );
@@ -78,7 +103,7 @@ namespace ADAAI::Diff
     }
   }
 
-  template<D d, Method M, typename Callable>
+  template<D d, typename Callable>
   double Stencil5Extra( Callable const& f, double x, double y )
   {
     /// TODO
@@ -96,19 +121,19 @@ namespace ADAAI::Diff
   /// \tparam M - method to use
   /// \tparam Callable - function which derivative to approximate
   /// \return The computed coefficient a_k.
-  template<D d = D::X, Method M = Method::Stencil5, typename Callable>
+  template<Method M = Method::Stencil5, D d = D::X, typename Callable>
   double Differentiator( Callable f = ExampleFunction, double x = 0, double y = 0 )
   {
     switch ( M )
     {
       case Method::Stencil3:
-        return Stencil3<d, M>( f, x, y );
+        return Stencil3<d>( f, x, y );
       case Method::Stencil3Extra:
-        return Stencil3Extra<d, M>( f, x, y );
+        return Stencil3Extra<d>( f, x, y );
       case Method::Stencil5:
-        return Stencil5<d, M>( f, x, y );
+        return Stencil5<d>( f, x, y );
       case Method::Stencil5Extra:
-        return Stencil5Extra<d, M>( f, x, y );
+        return Stencil5Extra<d>( f, x, y );
       case Method::FwdAAD:
         return 0; /// TODO
       default:

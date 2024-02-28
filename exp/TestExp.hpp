@@ -4,7 +4,7 @@ void TestExp()
 {
   using namespace ADAAI::Exp;
 
-  exp_range_tests<Method::Taylor>();            // Estimated time: 1s
+  exp_range_tests<Method::Taylor>(); // Estimated time: 1s
   //  exp_range_tests<Method::Pade>();              // Estimated time: 1s
   //  exp_range_tests<Method::Chebyshev>();         // Estimated time: 27s
   //  exp_range_tests<Method::ChebyshevUnused>();   // Estimated time: 34s
