@@ -42,7 +42,7 @@ namespace ADAAI::Diff
       case D::YY:
         return ( f( x, y + h_y ) + f( x, y - h_y ) - 2 * f( x, y ) ) / ( h_y * h_y );
       case D::XY:
-        return 0; // TODO: idk what should be here
+        return ( f( x + h_x, y + h_y ) - f( x - h_x, y + h_y ) - f( x + h_x, y - h_y ) + f( x - h_x, y - h_y ) ) / ( 4 * h_x * h_y );
     }
   }
 
@@ -68,7 +68,13 @@ namespace ADAAI::Diff
       case D::YY:
         return ( -f( x, y + 2 * h_y ) + 16 * f( x, y + h_y ) - 30 * f( x, y ) + 16 * f( x, y - h_y ) - f( x, y - 2 * h_y ) ) / ( 12 * h_y * h_y );
       case D::XY:
-        return ( f( x + h_x, y + h_y ) - f( x - h_x, y + h_y ) - f( x + h_x, y - h_y ) + f( x - h_x, y - h_y ) ) / ( 4 * h_x * h_y );
+      { // pls, don't ask:)
+        return ( -f( x + 2 * h_x, y + 2 * h_y ) + 16 * f( x + h_x, y + h_y ) +
+                 f( x + 2 * h_x, y - 2 * h_y ) - 16 * f( x + h_x, y - h_y ) +
+                 f( x - 2 * h_x, y + 2 * h_y ) - 16 * f( x - h_x, y + h_y ) +
+                 -f( x - 2 * h_x, y - 2 * h_y ) + 16 * f( x - h_x, y - h_y ) ) /
+               ( 48 * h_x * h_y );
+      }
     }
   }
 
