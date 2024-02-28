@@ -58,31 +58,8 @@ void exp_standard_tests()
 }
 
 /// \brief Tests the range of the exp function
-/// \details Average test time: 18s
 template<ADAAI::Exp::Method M = ADAAI::Exp::Method::Taylor>
 void exp_range_tests()
 {
-  // real challenge to beat 4000 * eps
-  // test_case<M>( 1000.0, 12000.0, 0.1 );
-
-  // test_case<M>( 700.0, 720.0, 0.1 );
-  //  test_case<M>( 0, 1000, 0.001 );
-  //  test_case<M>( -300, 0, 0.001 );
   test_case<M>( -300, 1000, 0.001 );
-  // test_case<M>( -1000, 1000, 0.001 );
-
-  // just the limits checking (not really useful)
-  // test_case<M>( -1'000'000'000, 0, 1000 );
-  // test_case<M>( -1'000'000, 0, 1 );
-  // test_case<M>( -1'000, 0, 0.001 );
-  // test_case<M>( -1, 0, 0.000001 );
-  // test_case<M>( -0.001, 0, 0.000000001 );
-  // test_case<M>( -1.001, -1, 0.000000001 );
-  // test_case<M>( -1'000.001, -1'000, 0.000000001 );
-  // test_case<M>( -1'000'000.001, -1'000'000, 0.000000001 );
-  // test_case<M>( -1'000'000'000.001, -1'000'000'000, 0.000000001 );
-  // test_case<M>( 0, 1, 0.000001 );
-
-  // test_case<M>( 0, max_exp, 0.001 );
-  // test_case<M>( max_exp - 1, max_exp, 0.000001 );
 }
