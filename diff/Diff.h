@@ -27,10 +27,12 @@ namespace ADAAI::Diff
   };
 
   template<D d, typename Callable>
-  double Stencil3( Callable const& f, double x, double y )
+  double Stencil3( Callable const& f, double x, double y, double h_x = -1, double h_y = -1 )
   {
-    double h_x = CONST::h * std::max( std::abs( x ), 1.0 );
-    double h_y = CONST::h * std::max( std::abs( y ), 1.0 );
+    if ( h_x <= 0 )
+      h_x = CONST::h * std::max( std::abs( x ), 1.0 );
+    if ( h_y <= 0 )
+      h_y = CONST::h * std::max( std::abs( y ), 1.0 );
     switch ( d )
     {
       case D::X:
@@ -46,18 +48,6 @@ namespace ADAAI::Diff
     }
   }
 
-  template<D d, typename Callable>
-  double Stencil3( Callable const& f, double h, double x, double y )
-  {
-    switch ( d )
-    {
-      case D::X:
-        return ( f( x + h, y ) - f( x - h, y ) ) / ( 2 * h );
-      case D::Y:
-        return ( f( x, y + h ) - f( x, y - h ) ) / ( 2 * h );
-    }
-  }
-
   /// \param n - should be 2 at least
   template<D d, typename Callable>
   double Stencil3Extra( Callable const& f, double x, double y, int n = 2 )
@@ -67,21 +57,25 @@ namespace ADAAI::Diff
     switch ( d )
     {
       case D::X:
-        return ( n * n * Stencil3<d>( f, h_x / n, x, y ) - Stencil3<d>( f, h_x, x, y ) ) / ( n * n - 1 );
+        return ( n * n * Stencil3<d>( f, x, y, h_x = h_x / n ) - Stencil3<d>( f, x, y, h_x = h_x ) ) / ( n * n - 1 );
       case D::Y:
-        return ( n * n * Stencil3<d>( f, h_y / n, x, y ) - Stencil3<d>( f, h_y, x, y ) ) / ( n * n - 1 );
-      case D::XX: /// TODO: idk what should be here
+        return ( n * n * Stencil3<d>( f, x, y, h_y = h_y / n ) - Stencil3<d>( f, x, y, h_y = h_y ) ) / ( n * n - 1 );
+      case D::XX:
+        return ( n * n * Stencil3<d>( f, x, y, h_x = h_x / n ) - Stencil3<d>( f, x, y, h_x = h_x ) ) / ( n * n - 1 );
       case D::YY:
-      case D::XY:
+        return ( n * n * Stencil3<d>( f, x, y, h_y = h_y / n ) - Stencil3<d>( f, x, y, h_y = h_y ) ) / ( n * n - 1 );
+      case D::XY: /// TODO: understand what should be here
         return 0;
     }
   }
 
   template<D d, typename Callable>
-  double Stencil5( Callable const& f, double x, double y )
+  double Stencil5( Callable const& f, double x, double y, double h_x = -1, double h_y = -1 )
   {
-    double h_x = CONST::h * std::max( std::abs( x ), 1.0 );
-    double h_y = CONST::h * std::max( std::abs( y ), 1.0 );
+    if ( h_x <= 0 )
+      h_x = CONST::h * std::max( std::abs( x ), 1.0 );
+    if ( h_y <= 0 )
+      h_y = CONST::h * std::max( std::abs( y ), 1.0 );
     switch ( d )
     {
       case D::X:
@@ -103,18 +97,6 @@ namespace ADAAI::Diff
     }
   }
 
-  template<D d, typename Callable>
-  double Stencil5( Callable const& f, double h, double x, double y )
-  {
-    switch ( d )
-    {
-      case D::X:
-        return ( -f( x + 2 * h, y ) + 8 * f( x + h, y ) - 8 * f( x - h, y ) + f( x - 2 * h, y ) ) / ( 12 * h );
-      case D::Y:
-        return ( -f( x, y + 2 * h ) + 8 * f( x, y + h ) - 8 * f( x, y - h ) + f( x, y - 2 * h ) ) / ( 12 * h );
-    }
-  }
-
   /// \param n - should be 2 at least
   template<D d, typename Callable>
   double Stencil5Extra( Callable const& f, double x, double y, int n = 2 )
@@ -124,12 +106,14 @@ namespace ADAAI::Diff
     switch ( d )
     {
       case D::X:
-        return ( n * n * Stencil5<d>( f, h_x / n, x, y ) - Stencil5<d>( f, h_x, x, y ) ) / ( n * n - 1 );
+        return ( n * n * Stencil5<d>( f, x, y, h_x = h_x / n ) - Stencil5<d>( f, x, y, h_x = h_x ) ) / ( n * n - 1 );
       case D::Y:
-        return ( n * n * Stencil5<d>( f, h_y / n, x, y ) - Stencil5<d>( f, h_y, x, y ) ) / ( n * n - 1 );
-      case D::XX: /// TODO: idk what should be here
+        return ( n * n * Stencil5<d>( f, x, y, h_y = h_y / n ) - Stencil5<d>( f, x, y, h_y = h_y ) ) / ( n * n - 1 );
+      case D::XX:
+        return ( n * n * Stencil5<d>( f, x, y, h_x = h_x / n ) - Stencil5<d>( f, x, y, h_x = h_x ) ) / ( n * n - 1 );
       case D::YY:
-      case D::XY:
+        return ( n * n * Stencil5<d>( f, x, y, h_y = h_y / n ) - Stencil5<d>( f, x, y, h_y = h_y ) ) / ( n * n - 1 );
+      case D::XY: /// TODO: understand what should be here
         return 0;
     }
   }
