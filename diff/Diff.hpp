@@ -34,9 +34,15 @@ namespace ADAAI::Diff
 
   namespace FwdAAD
   {
-    template<D d = D::X, typename Callable>
-    double Differentiator( Callable f = ExampleFunction, AAD val = {} )
+    AAD ExampleFunctionAAD( AAD X, AAD Y )
     {
+      return sin( exp( X ) + Y * Y );
+    }
+
+    template<D d = D::X, typename Callable>
+    double Differentiator( Callable F = ExampleFunctionAAD, AAD X = {}, AAD Y = {} )
+    {
+      auto val = F( X, Y );
       switch ( d )
       {
         case D::X:
@@ -164,7 +170,7 @@ namespace ADAAI::Diff
       case Method::Stencil5Extra:
         return Stencil5Extra<d>( f, x, y );
       case Method::FwdAAD:
-        return FwdAAD::Differentiator( f, {} );
+        return FwdAAD::Differentiator( FwdAAD::ExampleFunctionAAD, FwdAAD::AAD::X( x ), FwdAAD::AAD::Y( y ) );
       default:
       {
         throw std::invalid_argument( "Invalid method for Differentiator" );
