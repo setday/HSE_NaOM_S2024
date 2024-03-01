@@ -4,10 +4,10 @@
 #include <stdexcept>
 
 #include "../utils/Consts.hpp"
+#include "methods/FwdAAD.hpp"
 
 namespace ADAAI::Diff
 {
-
   enum class Method : int
   {
     Stencil3,
@@ -23,8 +23,35 @@ namespace ADAAI::Diff
     Y,
     XX,
     YY,
-    XY
+    XY,
   };
+
+  /// \brief Example function for Differentiator in use demonstration
+  double ExampleFunction( double x, double y )
+  {
+    return std::sin( std::exp( x ) + std::pow( y, 2 ) );
+  }
+
+  namespace FwdAAD
+  {
+    template<D d = D::X, typename Callable>
+    double Differentiator( Callable f = ExampleFunction, AAD val = {} )
+    {
+      switch ( d )
+      {
+        case D::X:
+          return val.X();
+        case D::Y:
+          return val.Y();
+        case D::XX:
+          return val.XX();
+        case D::YY:
+          return val.YY();
+        case D::XY:
+          return val.XY();
+      }
+    }
+  } // namespace FwdAAD
 
   template<D d, typename Callable>
   double Stencil3( Callable const& f, double x, double y, double h_x = -1, double h_y = -1 )
@@ -118,12 +145,6 @@ namespace ADAAI::Diff
     }
   }
 
-  /// \brief Example function for Differentiator in use demonstration
-  double ExampleFunction( double x, double y )
-  {
-    return std::sin( std::exp( x ) + std::pow( y, 2 ) );
-  }
-
   /// \brief Computes derivative of f(x, y) in a given point
   /// \tparam d - which derivative to compute (first and second order available)
   /// \tparam M - method to use
@@ -143,7 +164,7 @@ namespace ADAAI::Diff
       case Method::Stencil5Extra:
         return Stencil5Extra<d>( f, x, y );
       case Method::FwdAAD:
-        return 0; /// TODO
+        return FwdAAD::Differentiator( f, {} );
       default:
       {
         throw std::invalid_argument( "Invalid method for Differentiator" );

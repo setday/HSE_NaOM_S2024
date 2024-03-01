@@ -1,4 +1,6 @@
-#include "Diff.h"
+#pragma once
+
+#include "Diff.hpp"
 
 void TestDiff()
 {
@@ -15,6 +17,8 @@ void TestDiff()
   std::cout << "Derivative dx using Stencil5 of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
   res = Differentiator<Method::Stencil5Extra, D::X>( ExampleFunction, x, y ); // better!
   std::cout << "Derivative dx using extrapolation on top of Stencil5 of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
+  res = Differentiator<Method::FwdAAD, D::X>( ExampleFunction, x, y );
+  std::cout << "Derivative dx using ADD of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
   std::cout << "in reality, it is e^x * cos(e^x + y^2) ≈ " << real;
 
   std::cout << "\n\n";
@@ -28,6 +32,9 @@ void TestDiff()
   std::cout << "Derivative dxdy using 5-points of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
   res = Differentiator<Method::Stencil5Extra, D::XY>( ExampleFunction, x, y ); // better!
   std::cout << "Derivative dxdy using extrapolation on top of Stencil5 of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  std::cout << "in reality, it is -2e^x * y * sin(e^x + y^2) ≈ −31.6067140403";
+  res = Differentiator<Method::FwdAAD, D::XY>( ExampleFunction, x, y );
+  std::cout << "Derivative dx using AAD of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
+
+  std::cout << "in reality, it is -2e^x * y * sin(e^x + y^2) ≈ " << real;
   std::cout << "\n===--===---===---===--===\n\n";
 }
