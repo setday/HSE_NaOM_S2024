@@ -2,39 +2,33 @@
 
 #include "Diff.hpp"
 
+using namespace ADAAI::Diff;
+
+template<D d>
+void TestCase( double x, double y, double real )
+{
+  auto res = Differentiator<Method::Stencil3, d>( ExampleFunction, x, y );
+  std::cout << "Derivative using Stencil3 at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
+  res = Differentiator<Method::Stencil3Extra, d>( ExampleFunction, x, y );
+  std::cout << "Derivative using extrapolation on top of Stencil3 at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
+  res = Differentiator<Method::Stencil5, d>( ExampleFunction, x, y );
+  std::cout << "Derivative using Stencil5 at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
+  res = Differentiator<Method::Stencil5Extra, d>( ExampleFunction, x, y ); // better!
+  std::cout << "Derivative using extrapolation on top of Stencil5 at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
+  res = Differentiator<Method::FwdAAD, d>( ExampleFunction, x, y );
+  std::cout << "Derivative using ADD at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
+  std::cout << "in reality, it is ≈ " << real;
+
+  std::cout << "\n\n";
+}
+
 void TestDiff()
 {
   std::cout << std::setprecision( 15 );
-
-  using namespace ADAAI::Diff;
   double x = 3, y = 1;
   double real = -12.3968826882;
-  auto   res  = Differentiator<Method::Stencil3>( ExampleFunction, x, y );
-  std::cout << "Derivative dx using Stencil3 of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  res = Differentiator<Method::Stencil3Extra>( ExampleFunction, x, y );
-  std::cout << "Derivative dx using extrapolation on top of Stencil3 of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  res = Differentiator<Method::Stencil5>( ExampleFunction, x, y );
-  std::cout << "Derivative dx using Stencil5 of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  res = Differentiator<Method::Stencil5Extra, D::X>( ExampleFunction, x, y ); // better!
-  std::cout << "Derivative dx using extrapolation on top of Stencil5 of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  res = Differentiator<Method::FwdAAD, D::X>( ExampleFunction, x, y );
-  std::cout << "Derivative dx using ADD of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  std::cout << "in reality, it is e^x * cos(e^x + y^2) ≈ " << real;
-
-  std::cout << "\n\n";
-
+  TestCase<D::X>( x, y, real );
   real = -31.6067140403;
-  res  = Differentiator<Method::Stencil3, D::XY>( ExampleFunction, x, y );
-  std::cout << "Derivative dxdy using 3-points of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  res = Differentiator<Method::Stencil3Extra, D::XY>( ExampleFunction, x, y );
-  std::cout << "Derivative dxdy using extrapolation on top of Stencil3 of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  res = Differentiator<Method::Stencil5, D::XY>( ExampleFunction, x, y );
-  std::cout << "Derivative dxdy using 5-points of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  res = Differentiator<Method::Stencil5Extra, D::XY>( ExampleFunction, x, y ); // better!
-  std::cout << "Derivative dxdy using extrapolation on top of Stencil5 of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  res = Differentiator<Method::FwdAAD, D::XY>( ExampleFunction, x, y );
-  std::cout << "Derivative dx using AAD of sin( e^x + y^2 ) at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-
-  std::cout << "in reality, it is -2e^x * y * sin(e^x + y^2) ≈ " << real;
+  TestCase<D::XY>( x, y, real );
   std::cout << "\n===--===---===---===--===\n\n";
 }

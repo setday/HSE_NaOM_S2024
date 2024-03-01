@@ -57,19 +57,18 @@ namespace ADAAI::Diff::FwdAAD
     /// TODO: implement unary +, -, binary +=, -=, *=, /, /=, elemenatry functions: cos friend function
 
   public:
-
     AAD operator+( AAD const& right )
     {
-      AAD res = *this;
-      res.val += right.val;
+      AAD res {};
+      res.val = this->val + right.val;
       for ( int i = 0; i < 2; ++i )
       {
-        res.d1[i] += right.d1[i];
+        res.d1[i] = this->d1[i] + right.d1[i];
       }
 
       for ( int i = 0; i < 3; ++i )
       {
-        res.d2[i] += right.d2[i];
+        res.d2[i] = this->d2[i] + right.d2[i];
       }
 
       return res;
@@ -77,16 +76,16 @@ namespace ADAAI::Diff::FwdAAD
 
     AAD operator-( AAD const& right )
     {
-      AAD res = *this;
-      res.val -= right.val;
+      AAD res {};
+      res.val = this->val - right.val;
       for ( int i = 0; i < 2; ++i )
       {
-        res.d1[i] -= right.d1[i];
+        res.d1[i] = this->d1[i] - right.d1[i];
       }
 
       for ( int i = 0; i < 3; ++i )
       {
-        res.d2[i] -= right.d2[i];
+        res.d2[i] = this->d2[i] - right.d2[i];
       }
       return res;
     }
@@ -115,7 +114,20 @@ namespace ADAAI::Diff::FwdAAD
     AAD operator/( AAD const& right )
     {
       AAD res {};
-      /// TODO
+      res.val = this->val / right.val;
+
+      for ( int i = 0; i < 2; ++i )
+      {
+        res.d1[i] = ( this->d1[i] * right.val - this->val * right.d1[i] ) / ( right.val * right.val );
+      }
+
+      for ( int i = 0; i < 2; ++i )
+      { // don't ask
+        res.d2[i] = this->d2[i] / right.val + ( -right.d2[i] * this->val - 2 * this->d1[i] * right.d1[i] ) / std::pow( right.val, 2 ) + 2 * this->val * right.d1[i] * right.d1[i] / std::pow( right.val, 3 );
+      }
+
+      /// TODO: implement mixed derivative
+
       return res;
     }
 

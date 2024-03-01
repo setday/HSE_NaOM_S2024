@@ -169,8 +169,8 @@ namespace ADAAI::Diff
         return Stencil5<d>( f, x, y );
       case Method::Stencil5Extra:
         return Stencil5Extra<d>( f, x, y );
-      case Method::FwdAAD:
-        return FwdAAD::Differentiator( FwdAAD::ExampleFunctionAAD, FwdAAD::AAD::X( x ), FwdAAD::AAD::Y( y ) );
+      case Method::FwdAAD:                                                                                     // terrible implicit passing of FwdAAD::ExampleFunctionAAD
+        return FwdAAD::Differentiator( FwdAAD::ExampleFunctionAAD, FwdAAD::AAD::X( x ), FwdAAD::AAD::Y( y ) ); /// TODO: here we should pass AAD F(AAD, AAD) equivalent to double f(double, double) somehow
       default:
       {
         throw std::invalid_argument( "Invalid method for Differentiator" );
