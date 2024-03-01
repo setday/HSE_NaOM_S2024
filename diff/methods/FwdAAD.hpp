@@ -54,7 +54,9 @@ namespace ADAAI::Diff::FwdAAD
       return res;
     }
 
-    /// TODO: implement unary +, -, binary +=, -=, *=, /, /=, elemenatry functions: cos friend function
+    /// TODO: same for cos
+
+    /// TODO: implement unary +, -, binary +=, -=, *=, /=
 
   public:
     AAD operator+( AAD const& right )
