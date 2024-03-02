@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <stdexcept>
+#include <string>
 
 #include "../utils/Consts.hpp"
 #include "methods/FwdAAD.hpp"
@@ -17,6 +18,14 @@ namespace ADAAI::Diff
     FwdAAD,
   };
 
+  constexpr std::string_view Methods[] = {
+      "Stencil3",
+      "Stencil3Extra",
+      "Stencil5",
+      "Stencil5Extra",
+      "FwdAAD",
+  };
+
   enum class D : int
   {
     X,
@@ -26,19 +35,28 @@ namespace ADAAI::Diff
     XY,
   };
 
+  constexpr std::string_view DTypes[] = {
+      "X",
+      "Y",
+      "XX",
+      "YY",
+      "XY",
+  };
+
   /// \brief Example function for Differentiator in use demonstration
   double ExampleFunction( double x, double y )
   {
     return std::sin( std::exp( x ) + std::pow( y, 2 ) );
   }
 
-  template<D d, typename Callable>
-  double Stencil3( Callable const& f, double x, double y, double h_x = -1, double h_y = -1 )
+  double ExampleFunction2( double x, double y )
   {
-    if ( h_x <= 0 )
-      h_x = CONST::h * std::max( std::abs( x ), 1.0 );
-    if ( h_y <= 0 )
-      h_y = CONST::h * std::max( std::abs( y ), 1.0 );
+    return -x * x / y + std::cos( x * y );
+  }
+
+  template<D d, typename Callable>
+  double Stencil3( Callable const& f, double x, double y, double h_x = CONST::h, double h_y = CONST::h )
+  {
     switch ( d )
     {
       case D::X:
@@ -56,33 +74,27 @@ namespace ADAAI::Diff
 
   /// \param n - must be at least 2
   template<D d, typename Callable>
-  double Stencil3Extra( Callable const& f, double x, double y, int n = 2 )
+  double Stencil3Extra( Callable const& f, double x, double y, double h_x = CONST::h, double h_y = CONST::h, int n = 2 )
   {
-    double h_x = CONST::h * std::max( std::abs( x ), 1.0 );
-    double h_y = CONST::h * std::max( std::abs( y ), 1.0 );
+    int squared = n * n;
     switch ( d )
     {
       case D::X:
-        return ( n * n * Stencil3<d>( f, x, y, h_x = h_x / n ) - Stencil3<d>( f, x, y, h_x = h_x ) ) / ( n * n - 1 );
+        return ( squared * Stencil3<d>( f, x, y, h_x = h_x / n ) - Stencil3<d>( f, x, y, h_x = h_x ) ) / ( squared - 1 );
       case D::Y:
-        return ( n * n * Stencil3<d>( f, x, y, h_y = h_y / n ) - Stencil3<d>( f, x, y, h_y = h_y ) ) / ( n * n - 1 );
+        return ( squared * Stencil3<d>( f, x, y, h_y = h_y / n ) - Stencil3<d>( f, x, y, h_y = h_y ) ) / ( squared - 1 );
       case D::XX:
-        return ( n * n * Stencil3<d>( f, x, y, h_x = h_x / n ) - Stencil3<d>( f, x, y, h_x = h_x ) ) / ( n * n - 1 );
+        return ( squared * Stencil3<d>( f, x, y, h_x = h_x / n ) - Stencil3<d>( f, x, y, h_x = h_x ) ) / ( squared - 1 );
       case D::YY:
-        return ( n * n * Stencil3<d>( f, x, y, h_y = h_y / n ) - Stencil3<d>( f, x, y, h_y = h_y ) ) / ( n * n - 1 );
-      // TODO: find out how to compute this.
+        return ( squared * Stencil3<d>( f, x, y, h_y = h_y / n ) - Stencil3<d>( f, x, y, h_y = h_y ) ) / ( squared - 1 );
       case D::XY:
-        return 0;
+        return ( squared * Stencil3<d>( f, x, y, h_x = h_x / n, h_y = h_y / n ) - Stencil3<d>( f, x, y, h_x = h_x, h_y = h_y ) ) / ( squared - 1 );
     }
   }
 
   template<D d, typename Callable>
-  double Stencil5( Callable const& f, double x, double y, double h_x = -1, double h_y = -1 )
+  double Stencil5( Callable const& f, double x, double y, double h_x = CONST::h, double h_y = CONST::h )
   {
-    if ( h_x <= 0 )
-      h_x = CONST::h * std::max( std::abs( x ), 1.0 );
-    if ( h_y <= 0 )
-      h_y = CONST::h * std::max( std::abs( y ), 1.0 );
     switch ( d )
     {
       case D::X:
@@ -94,34 +106,31 @@ namespace ADAAI::Diff
       case D::YY:
         return ( -f( x, y + 2 * h_y ) + 16 * f( x, y + h_y ) - 30 * f( x, y ) + 16 * f( x, y - h_y ) - f( x, y - 2 * h_y ) ) / ( 12 * h_y * h_y );
       case D::XY:
-      { // pls, don't ask:)
         return ( -f( x + 2 * h_x, y + 2 * h_y ) + 16 * f( x + h_x, y + h_y ) +
                  f( x + 2 * h_x, y - 2 * h_y ) - 16 * f( x + h_x, y - h_y ) +
                  f( x - 2 * h_x, y + 2 * h_y ) - 16 * f( x - h_x, y + h_y ) +
                  -f( x - 2 * h_x, y - 2 * h_y ) + 16 * f( x - h_x, y - h_y ) ) /
                ( 48 * h_x * h_y );
-      }
     }
   }
 
   /// \param n - must be at least 2
   template<D d, typename Callable>
-  double Stencil5Extra( Callable const& f, double x, double y, int n = 2 )
+  double Stencil5Extra( Callable const& f, double x, double y, double h_x = CONST::h, double h_y = CONST::h, int n = 2 )
   {
-    double h_x = CONST::h * std::max( std::abs( x ), 1.0 );
-    double h_y = CONST::h * std::max( std::abs( y ), 1.0 );
+    int squared = n * n;
     switch ( d )
     {
       case D::X:
-        return ( n * n * Stencil5<d>( f, x, y, h_x = h_x / n ) - Stencil5<d>( f, x, y, h_x = h_x ) ) / ( n * n - 1 );
+        return ( squared * Stencil5<d>( f, x, y, h_x = h_x / n ) - Stencil5<d>( f, x, y, h_x = h_x ) ) / ( squared - 1 );
       case D::Y:
-        return ( n * n * Stencil5<d>( f, x, y, h_y = h_y / n ) - Stencil5<d>( f, x, y, h_y = h_y ) ) / ( n * n - 1 );
+        return ( squared * Stencil5<d>( f, x, y, h_y = h_y / n ) - Stencil5<d>( f, x, y, h_y = h_y ) ) / ( squared - 1 );
       case D::XX:
-        return ( n * n * Stencil5<d>( f, x, y, h_x = h_x / n ) - Stencil5<d>( f, x, y, h_x = h_x ) ) / ( n * n - 1 );
+        return ( squared * Stencil5<d>( f, x, y, h_x = h_x / n ) - Stencil5<d>( f, x, y, h_x = h_x ) ) / ( squared - 1 );
       case D::YY:
-        return ( n * n * Stencil5<d>( f, x, y, h_y = h_y / n ) - Stencil5<d>( f, x, y, h_y = h_y ) ) / ( n * n - 1 );
-      case D::XY: /// TODO: understand what should be here
-        return 0;
+        return ( squared * Stencil5<d>( f, x, y, h_y = h_y / n ) - Stencil5<d>( f, x, y, h_y = h_y ) ) / ( squared - 1 );
+      case D::XY:
+        return ( squared * Stencil5<d>( f, x, y, h_x = h_x / n, h_y = h_y / n ) - Stencil5<d>( f, x, y, h_x = h_x, h_y = h_y ) ) / ( squared - 1 );
     }
   }
 
