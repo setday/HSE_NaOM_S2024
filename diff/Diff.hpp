@@ -70,8 +70,9 @@ namespace ADAAI::Diff
         return ( n * n * Stencil3<d>( f, x, y, h_x = h_x / n ) - Stencil3<d>( f, x, y, h_x = h_x ) ) / ( n * n - 1 );
       case D::YY:
         return ( n * n * Stencil3<d>( f, x, y, h_y = h_y / n ) - Stencil3<d>( f, x, y, h_y = h_y ) ) / ( n * n - 1 );
-      case D::XY: /// TODO: understand what should be here
-        return 0;
+      // TODO: make sure it works correctly.
+      case D::XY:
+        return ( n * n * Stencil3<d>( f, x, y, h_x = h_x / n ) - Stencil3<d>( f, x, y, h_x = h_x ) ) / ( n * n - 1 );
     }
   }
 

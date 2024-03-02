@@ -4,24 +4,31 @@
 
 using namespace ADAAI::Diff;
 
+void printResult( const std::string& method, double x, double y, double result, double absolute )
+{
+  std::cout << std::left << std::setw( 13 ) << method << "| x=" << std::setw( 2 ) << x
+            << "| y=" << std::setw( 2 ) << y
+            << "| res=" << std::setw( 18 ) << result
+            << "| abs=" << absolute << std::endl;
+}
+
 template<D d, typename Callable>
 void TestCase( Callable f = ExampleFunction, double x = 0.0, double y = 0.0, double real = 0.0 )
 {
+  std::cout << "\n=========================\nTEST CASE\n";
   auto res = Differentiator<Method::Stencil3, d>( f, x, y );
-  std::cout << "Derivative using Stencil3 at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
+  printResult( "Stencil3", x, y, res, std::abs( res - real ) );
   res = Differentiator<Method::Stencil3Extra, d>( f, x, y );
-  std::cout << "Derivative using extrapolation on top of Stencil3 at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
+  printResult( "Stencil3Extra", x, y, res, std::abs( res - real ) );
   res = Differentiator<Method::Stencil5, d>( f, x, y );
-  std::cout << "Derivative using Stencil5 at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
+  printResult( "Stencil5", x, y, res, std::abs( res - real ) );
   res = Differentiator<Method::Stencil5Extra, d>( f, x, y ); // better!
-  std::cout << "Derivative using extrapolation on top of Stencil5 at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
+  printResult( "Stencil5Extra", x, y, res, std::abs( res - real ) );
 
   // can't implicitly cast f anyway
   res = Differentiator<d>( FwdAAD::ExampleFunctionAAD, FwdAAD::AAD::X( x ), FwdAAD::AAD::Y( y ) );
-  std::cout << "Derivative using ADD at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  std::cout << "in reality, it is ≈ " << real;
-
-  std::cout << "\n\n";
+  printResult( "ADD", x, y, res, std::abs( res - real ) );
+  std::cout << "true value ≈ " << real << "\n=========================\n";
 }
 
 void TestDiff()
