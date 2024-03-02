@@ -151,11 +151,11 @@ namespace ADAAI::Diff
     }
   }
 
-/// \brief Computes the derivative of f(x, y) at the given point
-/// \tparam d is an order of the derivative to compute (first and second order available)
-/// \tparam M is a method to use
-/// \tparam Callable is a function which derivative to approximate
-/// \return The computed coefficient a_k.
+  /// \brief Computes the derivative of f(x, y) at the given point
+  /// \tparam d is an order of the derivative to compute (first and second order available)
+  /// \tparam M is a method to use
+  /// \tparam Callable is a function which derivative to approximate
+  /// \return The computed coefficient a_k.
   template<Method M = Method::Stencil5, D d = D::X, typename Callable>
   double Differentiator( Callable f = ExampleFunction, double x = 0, double y = 0 )
   {
@@ -169,8 +169,8 @@ namespace ADAAI::Diff
         return Stencil5<d>( f, x, y );
       case Method::Stencil5Extra:
         return Stencil5Extra<d>( f, x, y );
-      case Method::FwdAAD:                                                                                     // terrible implicit passing of FwdAAD::ExampleFunctionAAD
-        return FwdAAD::Differentiator( FwdAAD::ExampleFunctionAAD, FwdAAD::AAD::X( x ), FwdAAD::AAD::Y( y ) ); /// TODO: here we should pass AAD F(AAD, AAD) equivalent to double f(double, double) somehow
+      case Method::FwdAAD:                                                                                        // terrible implicit passing of FwdAAD::ExampleFunctionAAD
+        return FwdAAD::Differentiator<d>( FwdAAD::ExampleFunctionAAD, FwdAAD::AAD::X( x ), FwdAAD::AAD::Y( y ) ); /// TODO: here we should pass AAD F(AAD, AAD) equivalent to double f(double, double) somehow
       default:
       {
         throw std::invalid_argument( "Invalid method for Differentiator" );
