@@ -80,7 +80,7 @@ namespace ADAAI::Diff::FwdAAD
     AAD operator-()
     {
       AAD res {};
-      res.val - -this->val;
+      res.val = -this->val;
       for ( int i = 0; i < 2; ++i )
       {
         res.d1[i] = -this->d1[i];
