@@ -26,7 +26,7 @@ namespace ADAAI::Diff
     XY,
   };
 
-  /// \brief Example function for Differentiator in use demonstration
+  /// \brief Example Function for Demonstrating the Use of a Differentiator
   double ExampleFunction( double x, double y )
   {
     return std::sin( std::exp( x ) + std::pow( y, 2 ) );
@@ -81,7 +81,7 @@ namespace ADAAI::Diff
     }
   }
 
-  /// \param n - should be 2 at least
+  /// \param n - must be at least 2
   template<D d, typename Callable>
   double Stencil3Extra( Callable const& f, double x, double y, int n = 2 )
   {
@@ -130,7 +130,7 @@ namespace ADAAI::Diff
     }
   }
 
-  /// \param n - should be 2 at least
+  /// \param n - must be at least 2
   template<D d, typename Callable>
   double Stencil5Extra( Callable const& f, double x, double y, int n = 2 )
   {
@@ -151,11 +151,11 @@ namespace ADAAI::Diff
     }
   }
 
-  /// \brief Computes derivative of f(x, y) in a given point
-  /// \tparam d - which derivative to compute (first and second order available)
-  /// \tparam M - method to use
-  /// \tparam Callable - function which derivative to approximate
-  /// \return The computed coefficient a_k.
+/// \brief Computes the derivative of f(x, y) at the given point.
+/// \tparam d is an order of the derivative to compute (first/second)
+/// \tparam M is a method to use
+/// \tparam Callable is a function for which the derivative needs approximation
+/// \return The computed coefficient, denoted as a_k.
   template<Method M = Method::Stencil5, D d = D::X, typename Callable>
   double Differentiator( Callable f = ExampleFunction, double x = 0, double y = 0 )
   {

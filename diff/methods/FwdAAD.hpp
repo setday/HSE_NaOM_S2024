@@ -3,9 +3,9 @@ namespace ADAAI::Diff::FwdAAD
   class AAD
   {
   private:
-    double val;           // f(x, y) at given point
-    double d1[2] = { 0 }; // first derivatives by x and y
-    double d2[3] = { 0 }; // second derivatives (by xx, yy, xy)
+    double val;           // f(x, y) at the given point
+    double d1[2] = { 0 }; // First derivatives with respect to x and y
+    double d2[3] = { 0 }; // Second mixed partial derivatives (xx, yy, xy)
 
     constexpr AAD( double is_y, double v )
         : val( v ), d1( 1 - is_y, is_y )
