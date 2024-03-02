@@ -179,4 +179,9 @@ namespace ADAAI::Diff::FwdAAD
     }
   };
 
+  AAD ExampleFunctionAAD( AAD X, AAD Y )
+  {
+    return sin( exp( X ) + Y * Y );
+  }
+
 } // namespace ADAAI::Diff::FwdAAD

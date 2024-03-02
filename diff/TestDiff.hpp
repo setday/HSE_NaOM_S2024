@@ -15,7 +15,9 @@ void TestCase( Callable f = ExampleFunction, double x = 0.0, double y = 0.0, dou
   std::cout << "Derivative using Stencil5 at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
   res = Differentiator<Method::Stencil5Extra, d>( f, x, y ); // better!
   std::cout << "Derivative using extrapolation on top of Stencil5 at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
-  res = Differentiator<Method::FwdAAD, d>( f, x, y );
+
+  // can't implicitly cast f anyway
+  res = Differentiator<d>( FwdAAD::ExampleFunctionAAD, FwdAAD::AAD::X( x ), FwdAAD::AAD::Y( y ) );
   std::cout << "Derivative using ADD at point " << x << " " << y << " is " << res << " abs: " << std::abs( res - real ) << "\n";
   std::cout << "in reality, it is ≈ " << real;
 

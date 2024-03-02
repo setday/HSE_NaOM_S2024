@@ -32,33 +32,6 @@ namespace ADAAI::Diff
     return std::sin( std::exp( x ) + std::pow( y, 2 ) );
   }
 
-  namespace FwdAAD
-  {
-    AAD ExampleFunctionAAD( AAD X, AAD Y )
-    {
-      return sin( exp( X ) + Y * Y );
-    }
-
-    template<D d = D::X, typename Callable>
-    double Differentiator( Callable F = ExampleFunctionAAD, AAD X = {}, AAD Y = {} )
-    {
-      auto val = F( X, Y );
-      switch ( d )
-      {
-        case D::X:
-          return val.X();
-        case D::Y:
-          return val.Y();
-        case D::XX:
-          return val.XX();
-        case D::YY:
-          return val.YY();
-        case D::XY:
-          return val.XY();
-      }
-    }
-  } // namespace FwdAAD
-
   template<D d, typename Callable>
   double Stencil3( Callable const& f, double x, double y, double h_x = -1, double h_y = -1 )
   {
@@ -169,12 +142,27 @@ namespace ADAAI::Diff
         return Stencil5<d>( f, x, y );
       case Method::Stencil5Extra:
         return Stencil5Extra<d>( f, x, y );
-      case Method::FwdAAD:                                                                                        // terrible implicit passing of FwdAAD::ExampleFunctionAAD
-        return FwdAAD::Differentiator<d>( FwdAAD::ExampleFunctionAAD, FwdAAD::AAD::X( x ), FwdAAD::AAD::Y( y ) ); /// TODO: here we should pass AAD F(AAD, AAD) equivalent to double f(double, double) somehow
       default:
-      {
         throw std::invalid_argument( "Invalid method for Differentiator" );
-      }
+    }
+  }
+
+  template<D d = D::X, typename Callable>
+  double Differentiator( Callable F = FwdAAD::ExampleFunctionAAD, FwdAAD::AAD X = {}, FwdAAD::AAD Y = {} )
+  {
+    auto val = F( X, Y );
+    switch ( d )
+    {
+      case D::X:
+        return val.X();
+      case D::Y:
+        return val.Y();
+      case D::XX:
+        return val.XX();
+      case D::YY:
+        return val.YY();
+      case D::XY:
+        return val.XY();
     }
   }
 } // namespace ADAAI::Diff
