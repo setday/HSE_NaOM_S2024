@@ -26,7 +26,7 @@ namespace ADAAI::Diff
     XY,
   };
 
-  /// \brief Example Function for Demonstrating the Use of a Differentiator
+  /// \brief Example function for Differentiator in use demonstration
   double ExampleFunction( double x, double y )
   {
     return std::sin( std::exp( x ) + std::pow( y, 2 ) );
@@ -151,11 +151,11 @@ namespace ADAAI::Diff
     }
   }
 
-/// \brief Computes the derivative of f(x, y) at the given point.
-/// \tparam d is an order of the derivative to compute (first/second)
+/// \brief Computes the derivative of f(x, y) at the given point
+/// \tparam d is an order of the derivative to compute (first and second order available)
 /// \tparam M is a method to use
-/// \tparam Callable is a function for which the derivative needs approximation
-/// \return The computed coefficient, denoted as a_k.
+/// \tparam Callable is a function which derivative to approximate
+/// \return The computed coefficient a_k.
   template<Method M = Method::Stencil5, D d = D::X, typename Callable>
   double Differentiator( Callable f = ExampleFunction, double x = 0, double y = 0 )
   {
