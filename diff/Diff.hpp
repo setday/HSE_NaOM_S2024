@@ -43,17 +43,22 @@ namespace ADAAI::Diff
       "XY",
   };
 
-  /// \brief Example function for Differentiator in use demonstration
+  /// \brief First function for Differentiator in use demonstration
   double ExampleFunction( double x, double y )
   {
     return std::sin( std::exp( x ) + std::pow( y, 2 ) );
   }
 
+  /// \brief Second function for Differentiator in use demonstration
   double ExampleFunction2( double x, double y )
   {
     return -x * x / y + std::cos( x * y );
   }
 
+  /// \brief three points stencil method
+  /// \tparam D - derivative to compute
+  /// \param f - function which derivative to compute
+  /// \param x, y - point
   template<D d, typename Callable>
   double Stencil3( Callable const& f, double x, double y, double h_x = CONST::h, double h_y = CONST::h )
   {
@@ -72,6 +77,10 @@ namespace ADAAI::Diff
     }
   }
 
+  /// \brief three points stencil method with extrapolation
+  /// \tparam D - derivative to compute
+  /// \param f - function which derivative to compute
+  /// \param x, y - point
   /// \param n - must be at least 2
   template<D d, typename Callable>
   double Stencil3Extra( Callable const& f, double x, double y, double h_x = CONST::h, double h_y = CONST::h, int n = 2 )
@@ -92,6 +101,11 @@ namespace ADAAI::Diff
     }
   }
 
+  /// \brief five points stencil method
+  /// \tparam D - derivative to compute
+  /// \param f - function which derivative to compute
+  /// \param x, y - point
+  /// \param n - must be at least 2
   template<D d, typename Callable>
   double Stencil5( Callable const& f, double x, double y, double h_x = CONST::h, double h_y = CONST::h )
   {
@@ -114,6 +128,10 @@ namespace ADAAI::Diff
     }
   }
 
+  /// \brief five points stencil method with extrapolation
+  /// \tparam D - derivative to compute
+  /// \param f - function which derivative to compute
+  /// \param x, y - point
   /// \param n - must be at least 2
   template<D d, typename Callable>
   double Stencil5Extra( Callable const& f, double x, double y, double h_x = CONST::h, double h_y = CONST::h, int n = 2 )
@@ -137,8 +155,8 @@ namespace ADAAI::Diff
   /// \brief Computes the derivative of f(x, y) at the given point
   /// \tparam d is an order of the derivative to compute (first and second order available)
   /// \tparam M is a method to use
-  /// \tparam Callable is a function which derivative to approximate
-  /// \return The computed coefficient a_k.
+  /// \param Callable is a function which derivative to approximate
+  /// \return The computed derivative
   template<Method M = Method::Stencil5, D d = D::X, typename Callable>
   double Differentiator( Callable f = ExampleFunction, double x = 0, double y = 0 )
   {
@@ -157,8 +175,12 @@ namespace ADAAI::Diff
     }
   }
 
+  /// \brief Computes the derivative of f(x, y) at the given point using FwdAAD
+  /// \tparam d is an order of the derivative to compute (first and second order available)
+  /// \param Callable is an FwdAAD function which derivative to approximate
+  /// \return The computed derivative
   template<D d = D::X, typename Callable>
-  double Differentiator( Callable F = FwdAAD::ExampleFunctionAAD, FwdAAD::AAD X = {}, FwdAAD::AAD Y = {} )
+  double Differentiator( Callable F = AAD::ExampleFunctionAAD, AAD::FwdAAD X = {}, AAD::FwdAAD Y = {} )
   {
     auto val = F( X, Y );
     switch ( d )

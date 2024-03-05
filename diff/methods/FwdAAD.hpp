@@ -1,20 +1,24 @@
-namespace ADAAI::Diff::FwdAAD
-{ // Automatic analytic differentiation
-  class AAD
+/// \brief Namespace for AAD (automatic analytic differentiation)
+/// \details Contains classes and functions for AAD method
+namespace ADAAI::Diff::AAD
+{
+  /// \brief Forward AAD method class
+  class FwdAAD
   {
   private:
-    double val;           // f(x, y) at the given point
+    double val {};        // f(x, y) at the given point
     double d1[2] = { 0 }; // First derivatives with respect to x and y
-    double d2[3] = { 0 }; // Second partial derivatives (xx, yy, xy)
+    double d2[3] = { 0 }; // Second derivatives (xx, yy, xy)
 
-    constexpr AAD( double is_y, double v )
+    [[maybe_unused]] constexpr FwdAAD( double is_y, double v )
         : val( v ), d1( 1 - is_y, is_y )
     {
     }
 
-    friend AAD exp( AAD v )
+    /// \brief friend exp function
+    friend FwdAAD exp( FwdAAD v )
     {
-      AAD res {};
+      FwdAAD res {};
       res.val = std::exp( v.val );
 
       for ( int i = 0; i < 2; ++i )
@@ -32,9 +36,10 @@ namespace ADAAI::Diff::FwdAAD
       return res;
     }
 
-    friend AAD sin( AAD v )
+    /// \brief friend sin function
+    friend FwdAAD sin( FwdAAD v )
     {
-      AAD    res {};
+      FwdAAD res {};
       double sin_v = std::sin( v.val );
       double cos_v = std::cos( v.val );
       res.val      = sin_v;
@@ -54,9 +59,10 @@ namespace ADAAI::Diff::FwdAAD
       return res;
     }
 
-    friend AAD cos( AAD v )
+    /// \brief friend cos function
+    friend FwdAAD cos( FwdAAD v )
     {
-      AAD    res {};
+      FwdAAD res {};
       double sin_v = std::sin( v.val );
       double cos_v = std::cos( v.val );
       res.val      = cos_v;
@@ -77,9 +83,9 @@ namespace ADAAI::Diff::FwdAAD
     }
 
   public:
-    AAD operator-()
+    FwdAAD operator-()
     {
-      AAD res {};
+      FwdAAD res {};
       res.val = -this->val;
       for ( int i = 0; i < 2; ++i )
       {
@@ -94,9 +100,9 @@ namespace ADAAI::Diff::FwdAAD
       return res;
     }
 
-    AAD operator+( AAD const& g )
+    FwdAAD operator+( FwdAAD const& g )
     {
-      AAD res {};
+      FwdAAD res {};
       res.val = this->val + g.val;
 
       for ( int i = 0; i < 2; ++i )
@@ -112,7 +118,7 @@ namespace ADAAI::Diff::FwdAAD
       return res;
     }
 
-    AAD operator+=( const AAD& g )
+    FwdAAD operator+=( const FwdAAD& g )
     {
       this->val += g.val;
 
@@ -129,9 +135,9 @@ namespace ADAAI::Diff::FwdAAD
       return *this;
     }
 
-    AAD operator-( AAD const& g )
+    FwdAAD operator-( FwdAAD const& g )
     {
-      AAD res {};
+      FwdAAD res {};
       res.val = this->val - g.val;
 
       for ( int i = 0; i < 2; ++i )
@@ -147,7 +153,7 @@ namespace ADAAI::Diff::FwdAAD
       return res;
     }
 
-    AAD operator-=( AAD const& g )
+    FwdAAD operator-=( FwdAAD const& g )
     {
       this->val -= g.val;
 
@@ -164,9 +170,9 @@ namespace ADAAI::Diff::FwdAAD
       return *this;
     }
 
-    AAD operator*( AAD const& g )
+    FwdAAD operator*( FwdAAD const& g )
     {
-      AAD res {};
+      FwdAAD res {};
       res.val = this->val * g.val;
 
       for ( int i = 0; i < 2; ++i )
@@ -184,14 +190,14 @@ namespace ADAAI::Diff::FwdAAD
       return res;
     }
 
-    AAD operator*=( AAD const& g )
+    FwdAAD operator*=( FwdAAD const& g )
     {
       return *this * g;
     }
 
-    AAD operator/( AAD const& g )
+    FwdAAD operator/( FwdAAD const& g )
     {
-      AAD res {};
+      FwdAAD res {};
       res.val = this->val / g.val;
 
       auto g_2 = g.val * g.val;
@@ -212,65 +218,75 @@ namespace ADAAI::Diff::FwdAAD
       return res;
     }
 
-    AAD operator/=( AAD const& g )
+    FwdAAD operator/=( FwdAAD const& g )
     {
       return *this / g;
     }
 
-    AAD()
+    FwdAAD()
         : val( 0 )
     {
     }
 
-    constexpr explicit AAD( double v )
+    /// \brief creates FwdAAD with value v
+    constexpr explicit FwdAAD( double v )
         : val( v )
     {
     }
 
+    /// \brief returns dx at the given point
     constexpr double X()
     {
       return d1[0];
     }
 
+    /// \brief returns dy at the given point
     constexpr double Y()
     {
       return d1[1];
     }
 
+    /// \brief returns dx^2 at the given point
     constexpr double XX()
     {
       return d2[0];
     }
 
+    /// \brief returns dy^2 at the given point
     constexpr double YY()
     {
       return d2[1];
     }
 
+    /// \brief returns dxy at the given point
     constexpr double XY()
     {
       return d2[2];
     }
 
-    constexpr static AAD X( double v )
+    /// \brief creates FwdAAD with function f(x, y) = x
+    constexpr static FwdAAD X( double v )
     {
       return { 0, v };
     }
 
-    constexpr static AAD Y( double v )
+    /// \brief creates FwdAAD with function f(x, y) = y
+    constexpr static FwdAAD Y( double v )
     {
       return { 1, v };
     }
   };
 
-  AAD ExampleFunctionAAD( AAD X, AAD Y )
+  /// \brief first example function
+  FwdAAD ExampleFunctionAAD( FwdAAD X, FwdAAD Y )
   {
     return sin( exp( X ) + Y * Y );
   }
 
-  AAD ExampleFunctionAAD2( AAD X, AAD Y )
+  /// \brief second example function
+  FwdAAD ExampleFunctionAAD2( FwdAAD X, FwdAAD Y )
   {
     return -X * X / Y + cos( X * Y );
   }
 
-} // namespace ADAAI::Diff::FwdAAD
+} // namespace ADAAI::Diff::AAD
