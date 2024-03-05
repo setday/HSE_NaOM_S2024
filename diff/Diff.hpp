@@ -105,7 +105,6 @@ namespace ADAAI::Diff
   /// \tparam D - derivative to compute
   /// \param f - function which derivative to compute
   /// \param x, y - point
-  /// \param n - must be at least 2
   template<D d, typename Callable>
   double Stencil5( Callable const& f, double x, double y, double h_x = CONST::h, double h_y = CONST::h )
   {
