@@ -154,10 +154,10 @@ namespace ADAAI::Exp::Core::Fourier
     }
 
     size_t i          = 0;
-    double prev_delta = std::abs( x - result[i] );
+    double prev_delta = std::abs( x - nodes[i] );
     for ( ; i <= N; ++i )
     {
-      double delta = std::abs( x - result[i] );
+      double delta = std::abs( x - nodes[i] );
 
       if ( delta > prev_delta )
       {
