@@ -2,6 +2,6 @@
 #include "diff/TestDiff.hpp"
 
 int main() {
-  TestDiff();
-  TestExp();
+  // TestDiff();
+  // TestExp();
 }

@@ -5,11 +5,14 @@
 
 namespace ADAAI::Integration
 {
-  /// \brief A callable object that returns the value of air density at the given point
-  template<typename T>
-    requires std::is_floating_point_v<T>
-  class AirDensity
+  /// \brief A callable object that returns the value of \rho(h) at the given point h
+  struct AirDensity
   {
+    AirDensity( float h )
+        : h( h )
+    {
+    }
+
     const float g     = 9.80655f;  // gravitational acceleration constant
     const float R_air = 287.0528f; // R_air constant
 
@@ -34,7 +37,7 @@ namespace ADAAI::Integration
     const float p2 = 5475.03644646f;
     const float p3 = 868.056901172f;
 
-    T atmosphericPressure( T h, int caseNum )
+    float atmosphericPressure( float h, int caseNum ) const
     {
       if ( caseNum == 1 )
       {
@@ -55,8 +58,8 @@ namespace ADAAI::Integration
           h_l = h2;
           T_l = T2;
         }
-        else
-        { // caseNum == 3
+        else // caseNum == 3
+        {
           r_l = r3;
           h_l = h3;
           T_l = T3;
@@ -65,8 +68,7 @@ namespace ADAAI::Integration
       }
     }
 
-  public:
-    T operator()( T h )
+    float operator()() const
     {
       if ( h >= h0 && h <= h1 )
       {
@@ -84,8 +86,49 @@ namespace ADAAI::Integration
       {
         return atmosphericPressure( h, 3 ) / ( R_air * ( T3 - r3 * ( h - h3 ) ) );
       }
-      return static_cast<T>( -239 ); // error
+      return static_cast<float>( -239 ); // error
     }
+
+  private:
+    float h;
   };
 
+  /// \brief A callable object that returns the value of C_D( M ) at the given point M
+
+  struct DrugCoefficient
+  {
+    DrugCoefficient( float M )
+        : M( M )
+    {
+    }
+    static float CD[60]; // is must be filled with values obtained from a graph
+                         // (check tg message from Merkin)
+
+    static float slope[60]; // (CD[i + 1] - CD[i]) / (M[i + 1] - M[i])
+                            // must be precomputed
+
+    void initialize_slope()
+    {
+      // TODO;
+    }
+
+    float operator()() const // M is a Mach number
+    {
+      int i = M / 0.05;
+      return CD[i] + slope[i] * ( M - 0.05 * i );
+    }
+
+  private:
+    float M;
+  };
+
+  /// \brief Computes the value of Q (given M, y and v_x, v_y)
+  float AeroDynamicForce( float M, float y, float v_x, float v_y )
+  {
+    static float d = 0.216;              // calibre (diameter) in meters
+    static float S = M_PI * d * d / 4.0; // cross-sectional area
+    float        v = std::sqrt( v_x * v_x + v_y * v_y );
+
+    return DrugCoefficient { M }() * AirDensity { y }() * v * v * S / 2.0;
+  }
 } // namespace ADAAI::Integration
