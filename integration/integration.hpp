@@ -101,10 +101,10 @@ namespace ADAAI::Integration
         : M( M )
     {
     }
-    static float CD[60]; // is must be filled with values obtained from a graph
+    float CD[60]; // is must be filled with values obtained from a graph
                          // (check tg message from Merkin)
 
-    static float slope[60]; // (CD[i + 1] - CD[i]) / (M[i + 1] - M[i])
+    float slope[60]; // (CD[i + 1] - CD[i]) / (M[i + 1] - M[i])
                             // must be precomputed
 
     void initialize_slope()
