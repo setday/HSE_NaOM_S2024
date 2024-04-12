@@ -10,6 +10,7 @@ namespace ADAAI::Integration::Integrator
   template<typename RHS>
   class TimeStepper
   {
+  protected:
     const RHS* m_rhs;
 
   public:
@@ -47,7 +48,15 @@ namespace ADAAI::Integration::Integrator
 
     std::pair<double, double> operator()( double current_state[RHS::N], double next_state[RHS::N], double current_time, double suggested_d_time = 0.01 ) const override
     {
-      throw std::runtime_error( "Not implemented yet" );
+//      throw std::runtime_error( "Not implemented yet" );
+
+     /// FIXME: just testing function (lines 53-61 should be replaced)
+      this->m_rhs->operator()(current_time, current_state, next_state);
+
+      for ( int i = 0; i < RHS::N; ++i )
+      {
+        next_state[i] = current_state[i];
+      }
 
       return { current_time + suggested_d_time, suggested_d_time };
     }

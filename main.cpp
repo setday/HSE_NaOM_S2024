@@ -6,8 +6,9 @@ int main()
 {
   // TestDiff();
   // TestExp();
+
   double ang = ADAAI::Integration::Cannon::findBestAngle();
-  printf("Best angle: %f\n", ang);
+  std::cout << "Best angle: " << ang << std::endl;
 
   return 0;
 }

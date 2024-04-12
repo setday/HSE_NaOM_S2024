@@ -1,6 +1,7 @@
 #include <iostream>
-#include <vector>
+#include <thread>
 #include <tuple>
+#include <vector>
 
 #include "CannonBall.hpp"
 
@@ -17,44 +18,72 @@ namespace ADAAI::Integration::Cannon
 
     auto rhs      = new CannonBall::BallRHS();
     auto observer = new CannonBall::BallObserver();
-    auto stepper  = new Integrator::RFK45_TimeStepper<CannonBall::BallRHS>( rhs );
+    auto stepper  = new Integrator::RFK45_TimeStepper( rhs );
 
-    auto integrator = Integrator::ODE_Integrator<CannonBall::BallRHS, Integrator::RFK45_TimeStepper<CannonBall::BallRHS>, CannonBall::BallObserver>( stepper, observer );
+    auto integrator = Integrator::ODE_Integrator<CannonBall::BallRHS>( stepper, observer );
 
     double t = integrator( state, end_state );
 
     return { end_state[0], t };
   }
 
-  /// TODO: Make multy-threading
-  double findBestAngle()
+  void checkRange( std::vector<std::tuple<double, double, double>>& results, double min_angle, double max_angle, double delta_angle )
   {
-    double best_angle    = 0.0f;
-    double best_distance = 0.0f;
-
-    const double delta_angle = 0.1f;
-    const double min_angle   = 40.0f;
-    const double max_angle   = 60.0f;
-
-    std::vector<std::tuple<double, double, double>> results;
-
     for ( double angle = min_angle; angle < max_angle; angle += delta_angle )
     {
       auto [distance, t] = shootWithAngle( angle );
 
       results.emplace_back( angle, distance, t );
+    }
+  }
 
-      if ( distance > best_distance )
-      {
-        best_distance = distance;
-        best_angle    = angle;
-      }
+  /// TODO: Make multy-threading
+  double findBestAngle()
+  {
+    const int thread_cnt = ( int ) std::thread::hardware_concurrency();
+
+    const double delta_angle = 3;
+    const double min_angle   = 40.0;
+    const double max_angle   = 60.0;
+    const int    cnt_angle   = ( int ) ( ( max_angle - min_angle ) / delta_angle );
+    const double td_angle    = ( cnt_angle / thread_cnt ) * delta_angle;
+
+    // For initialization purposes (in multy-threading it could be very useful)
+    Environment::DrugCoefficient( 1.3 );
+
+    std::vector<std::vector<std::tuple<double, double, double>>> results( thread_cnt );
+    std::vector<std::thread>                                     threads;
+
+    for ( int i = 0; i < thread_cnt; i++ )
+    {
+      double l_angle = min_angle + td_angle * ( double ) i;
+      double r_angle = i != thread_cnt - 1 ? l_angle + td_angle : max_angle;
+
+      checkRange( results[0], l_angle, r_angle, delta_angle );
+      //      threads.emplace_back( checkRange, results[0], l_angle, r_angle, delta_angle );
     }
 
-    /// TODO: Make file dumping
-    for ( auto [angle, distance, t] : results )
+    for ( auto& th : threads )
     {
-      std::cout << "Angle: " << angle << " Distance: " << distance << " Time: " << t << std::endl;
+      th.join();
+    }
+
+    double best_angle    = min_angle;
+    double best_distance = 0.0f;
+
+    /// TODO: Make file dumping
+    for ( const auto& result_block : results )
+    {
+      for ( auto [angle, distance, t] : result_block )
+      {
+        std::cout << "Angle: " << angle << " Distance: " << distance << " Time: " << t << std::endl;
+
+        if ( distance > best_distance )
+        {
+          best_distance = distance;
+          best_angle    = angle;
+        }
+      }
     }
 
     return best_angle;
