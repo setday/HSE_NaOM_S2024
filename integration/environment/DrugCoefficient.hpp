@@ -10,41 +10,41 @@ namespace ADAAI::Integration::Environment
   struct DrugCoefficient
   {
   private:
-    float M;
+    double M;
 
-    static float CD[60]; // is must be filled with values obtained from a graph
-                         // (check tg message from Merkin)
-    const float d_CD = 0.03f;
+    static double CD[60]; // is must be filled with values obtained from a graph
+                          // (check tg message from Merkin)
+    const double d_CD = 0.03;
 
-    static float slope[60]; // (CD[i + 1] - CD[i]) / (M[i + 1] - M[i])
-                            // must be precomputed
+    static double slope[60]; // (CD[i + 1] - CD[i]) / (M[i + 1] - M[i])
+                             // must be precomputed
     static bool is_initialized;
 
     /// \brief A strange function that is used to compute CD
     /// \file See ./../assets/Prec.png
 
-    [[nodiscard]] static float g_strange( float x )
+    [[nodiscard]] static double g_strange( double x )
     {
-      return 1.0f / ( x + 1.1f ) - 0.04f;
+      return 1.0 / ( x + 1.1 ) - 0.04;
     }
 
-    [[nodiscard]] static float f_strange( float x )
+    [[nodiscard]] static double f_strange( double x )
     {
-      return std::pow( 1.0f / ( 2.05f - x ), 20.0f ) + 0.1f;
+      return std::pow( 1.0 / ( 2.05 - x ), 20.0 ) + 0.1;
     }
 
-    [[nodiscard]] static float h_strange( float x )
+    [[nodiscard]] static double h_strange( double x )
     {
-      if ( x < 0.3f )
+      if ( x < 0.3 )
       {
         throw std::invalid_argument( "h_strange: Invalid argument" );
       }
 
-      if ( x < 0.95f )
+      if ( x < 0.95 )
       {
         return f_strange( x );
       }
-      if ( x > 1.1f )
+      if ( x > 1.1 )
       {
         return g_strange( x );
       }
@@ -52,15 +52,15 @@ namespace ADAAI::Integration::Environment
       return std::min( g_strange( x ), f_strange( x ) );
     }
 
-    void initialize_CD()
+    void initialize_CD() const
     {
       for ( int i = 0; i < 60; i++ )
       {
-        CD[i] = h_strange( d_CD * ( float ) i + 0.4f );
+        CD[i] = h_strange( d_CD * ( double ) i + 0.4 );
       }
     }
 
-    void initialize_slope()
+    void initialize_slope() const
     {
       for ( int i = 0; i < 59; i++ )
       {
@@ -75,7 +75,7 @@ namespace ADAAI::Integration::Environment
     }
 
   public:
-    explicit DrugCoefficient( float MachNumber )
+    explicit DrugCoefficient( double MachNumber )
         : M( MachNumber )
     {
       if ( !is_initialized )
@@ -85,10 +85,10 @@ namespace ADAAI::Integration::Environment
       }
     }
 
-    float operator()() const // M is a Mach number
+    double operator()() const // M is a Mach number
     {
       int i = ( int ) ( M / d_CD );
-      return CD[i] + slope[i] * ( M - d_CD * ( float ) i );
+      return CD[i] + slope[i] * ( M - d_CD * ( double ) i );
     }
   };
 
