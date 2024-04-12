@@ -93,4 +93,6 @@ namespace ADAAI::Integration::Environment
   };
 
   bool DrugCoefficient::is_initialized = false;
+  double DrugCoefficient::CD[60];
+  double DrugCoefficient::slope[60];
 } // namespace ADAAI::Integration::Environment
