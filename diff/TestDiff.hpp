@@ -5,6 +5,9 @@
 
 #include "Diff.hpp"
 
+#include "test/Functions.h"
+#include "test/TestObject.h"
+
 using namespace ADAAI::Diff;
 
 /// \brief result pretty printing
@@ -47,6 +50,8 @@ void TestCase( Callable f = ExampleFunction, Callable2 F = AAD::ExampleFunctionA
   std::cout << "true value ≈ " << real << "\n=========================\n";
 }
 
+using namespace ADAAI::Diff::Tests;
+
 /// \brief tests functions ExampleFunction and ExampleFunction2 for some derivatives
 void TestDiff()
 {
@@ -69,6 +74,8 @@ void TestDiff()
 
   real = -22879.9426109;
   TestCase<D::XY>( ExampleFunction2, AAD::ExampleFunctionAAD2, x, y, real );
+
+  auto result = range_check<double, PentaCheckObject<ExampleFunction_1>>( 1, 2, 1 );
 
   std::cout << "\n===--===---===---===--===\n\n";
 }

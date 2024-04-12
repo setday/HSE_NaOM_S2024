@@ -3,5 +3,5 @@
 
 int main() {
   TestDiff();
-  TestExp();
+//  TestExp();
 }

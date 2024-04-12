@@ -69,6 +69,40 @@ namespace ADAAI::Utils
     return diff / expected / eps;
   }
 
+
+  /// \brief Tests if two functions are equal for a given value
+  /// \example \code assert( ( adaptive_compare<float, ADAAI::Exp, std::exp>( x ) ) ); \endcode
+  /// \tparam T - Type of the value
+  /// \tparam MimicFunction - Function to adaptive_compare
+  /// \tparam RealFunction - Function to compare with
+  /// \param x - Value to adaptive_compare
+  /// \return True if functions are close enough, false otherwise
+  template<typename R, typename T, R MimicFunction( T ), typename RealFunction>
+  R adaptive_compare( T x )
+  {
+    R got      = MimicFunction( x );
+    R expected = RealFunction( x );
+
+    // Checking for special cases
+    if ( std::isnan( got ) )
+    {
+      return std::isnan( expected ) ? 0.0 : std::numeric_limits<T>::quiet_NaN();
+    }
+    if ( std::isinf( got ) )
+    {
+      return std::isinf( expected ) ? 0.0 : std::numeric_limits<T>::infinity();
+    }
+
+    R eps  = std::numeric_limits<T>::epsilon();
+    R diff = std::abs( got - expected );
+
+    if ( x <= 0 )
+    {
+      return diff / eps;
+    }
+    return diff / expected / eps;
+  }
+
   /// \brief Tests a range of values with a given step
   /// \example \code range_check<float, ExpTripleCheckObject>( -100.0, 100.0, 0.1 ); \endcode
   /// \tparam T - Type of the value

@@ -78,6 +78,7 @@ namespace ADAAI::Exp::Tests
           method = "Unknown";
       }
 
+      os << "\n-> std::exp vs ADAAI::Exp";
       os << "\n-> Method used: " << method << "\n\n";
       os << "=> Max errors:\n";
       os << "==> Float:       " << f_error << " * eps\n";
