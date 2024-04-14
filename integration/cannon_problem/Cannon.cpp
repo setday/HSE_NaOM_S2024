@@ -16,11 +16,11 @@ namespace ADAAI::Integration::Cannon
     double state[4] = { 0.0f, 0.0f, v * std::cos( rad ), v * std::sin( rad ) };
     double end_state[4];
 
-    auto rhs      = new CannonBall::BallRHS();
-    auto observer = new CannonBall::BallObserver();
-    auto stepper  = new Integrator::RFK45_TimeStepper( rhs );
+    auto rhs      = CannonBall::BallRHS();
+    auto observer = CannonBall::BallObserver();
+    auto stepper  = Integrator::RFK45_TimeStepper( &rhs );
 
-    auto integrator = Integrator::ODE_Integrator<CannonBall::BallRHS>( stepper, observer );
+    auto integrator = Integrator::ODE_Integrator<CannonBall::BallRHS>( &stepper, &observer );
 
     double t = integrator( state, end_state );
 
@@ -59,14 +59,14 @@ namespace ADAAI::Integration::Cannon
       double l_angle = min_angle + td_angle * ( double ) i;
       double r_angle = i != thread_cnt - 1 ? l_angle + td_angle : max_angle;
 
-      checkRange( results[0], l_angle, r_angle, delta_angle );
-      //      threads.emplace_back( checkRange, results[0], l_angle, r_angle, delta_angle );
+      checkRange( results[i], l_angle, r_angle, delta_angle );
+      // threads.emplace_back( checkRange, results[i], l_angle, r_angle, delta_angle );
     }
 
-    for ( auto& th : threads )
-    {
-      th.join();
-    }
+    // for ( auto& th : threads )
+    // {
+    //   th.join();
+    // }
 
     double best_angle    = min_angle;
     double best_distance = 0.0f;
