@@ -44,7 +44,7 @@ namespace ADAAI::Integration::Integrator
 
     // ! warning: indexing from 1
     // 0.0 refers to fictive values
-    std::vector<double> A_K  = { 0.0, 0, 0.5, 0.5, 2.0 / 3, 0.2 };
+    std::vector<double> A_K  = { 0.0, 0, 0.5, 0.5, 1, 2.0 / 3, 0.2 };
     std::vector<double> C_K  = { 0.0, 1.0 / 6, 0, 2.0 / 3, 1.0 / 6 };
     std::vector<double> CH_K = { 0.0, 1.0 / 24, 0, 0, 5.0 / 48, 27.0 / 56, 125.0 / 336 };
     std::vector<double> CT_K = { 0.0, 0.125, 0, 2.0 / 3, 1.0 / 16, -27.0 / 56, -125.0 / 336 };
@@ -52,7 +52,7 @@ namespace ADAAI::Integration::Integrator
     std::vector<std::vector<double>> B_K_L = {
       { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
       { 0, 0.0, 0.0, 0.0, 0.0, 0.0 },
-      { 0.0, 0, 0.5, 0.25, 0, 7.0 / 27, 28.0 / 625 },
+      { 0.0, 0.5, 0.25, 0, 7.0 / 27, 28.0 / 625 },
       { 0.0, 0.0, 0.0, 0.25, -1, 10.0 / 27, -0.2 },
       { 0.0, 0.0, 0.0, 0.0, 2, 0, 546.0 / 625 },
       { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 / 27, 54.0 / 625 },
@@ -90,9 +90,9 @@ namespace ADAAI::Integration::Integrator
       // find ks
       std::vector<std::vector<double>> ks(6, std::vector<double>(RHS::N));
       for(std::size_t i = 0; i < ks.size(); ++i) {
-        std::memcpy(cur, current_state, RHS::N);
+        std::memcpy(cur, current_state, RHS::N * sizeof(double));
         for(std::size_t j = 0; j < i; ++j) {
-          std::memcpy(buf, ks[j].data(), RHS::N);
+          std::memcpy(buf, ks[j].data(), RHS::N * sizeof(double));
           mul(buf, B_K_L[i + 1][j + 1], RHS::N);
           add(cur, buf, RHS::N);
         }
@@ -102,9 +102,9 @@ namespace ADAAI::Integration::Integrator
 
       // ======================================================================
       // find error
-      std::memset(cur, 0, RHS::N);
+      std::memset(cur, 0, RHS::N * sizeof(double));
       for(std::size_t i = 0; i < ks.size(); ++i) {
-        std::memcpy(buf, ks[i].data(), RHS::N);
+        std::memcpy(buf, ks[i].data(), RHS::N * sizeof(double));
         mul(buf, CT_K[i + 1], RHS::N);
         add(cur, buf, RHS::N);
       }
@@ -120,9 +120,9 @@ namespace ADAAI::Integration::Integrator
 
       // ======================================================================
       // save res
-      std::memcpy(next_state, current_state, RHS::N);
+      std::memcpy(next_state, current_state, RHS::N * sizeof(double));
       for(int i = 0; i < RHS::N; ++i) {
-        std::memcpy(buf, ks[i].data(), RHS::N);
+        std::memcpy(buf, ks[i].data(), RHS::N * sizeof(double));
         mul(buf, CH_K[i + 1], RHS::N);
         add(next_state, buf, RHS::N);
       }
