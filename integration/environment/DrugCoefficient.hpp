@@ -37,7 +37,11 @@ namespace ADAAI::Integration::Environment
     {
       if ( x < 0.3 )
       {
-        throw std::invalid_argument( "h_strange: Invalid argument" );
+        throw std::invalid_argument( "h_strange: Evaluation of h_strange at x < 0.3 is imprecise" );
+      }
+      if ( x > 10.0 )
+      {
+        throw std::invalid_argument( "h_strange: Evaluation of h_strange at x > 5.0 is unpredictable" );
       }
 
       if ( x < 0.95 )
@@ -88,6 +92,12 @@ namespace ADAAI::Integration::Environment
     double operator()() const // M is a Mach number
     {
       int i = ( int ) ( M / d_CD );
+
+      if ( i < 0 || i > 59 )
+      {
+        return h_strange( M );
+      }
+
       return CD[i] + slope[i] * ( M - d_CD * ( double ) i );
     }
   };
