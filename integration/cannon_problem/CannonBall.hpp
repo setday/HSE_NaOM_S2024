@@ -44,7 +44,9 @@ namespace ADAAI::Integration::CannonBall
   {
     bool operator()( double current_time, const double current_state[BallRHS::N] ) const override
     {
-      return current_state[1] >= 0.0 || current_time < 1.0;
+      if ( current_time == 0 )
+        return true;
+      return current_state[1] > 0.0;
     }
   };
 } // namespace ADAAI::Integration::CannonBall

@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 #include <thread>
 #include <tuple>
@@ -27,22 +28,21 @@ namespace ADAAI::Integration::Cannon
     return { end_state[0], t };
   }
 
-  void checkRange( std::vector<std::tuple<double, double, double>>& results, double min_angle, double max_angle, double delta_angle )
+  void checkRange( std::vector<std::tuple<double, double, double>>* results, double min_angle, double max_angle, double delta_angle )
   {
     for ( double angle = min_angle; angle < max_angle; angle += delta_angle )
     {
       auto [distance, t] = shootWithAngle( angle );
 
-      results.emplace_back( angle, distance, t );
+      results->emplace_back( angle, distance, t );
     }
   }
 
-  /// TODO: Make multy-threading
   double findBestAngle()
   {
-    const int thread_cnt = ( int ) std::thread::hardware_concurrency();
+    const int thread_cnt = ( int ) std::thread::hardware_concurrency() - 1;
 
-    const double delta_angle = 3;
+    const double delta_angle = 0.1;
     const double min_angle   = 40.0;
     const double max_angle   = 60.0;
     const int    cnt_angle   = ( int ) ( ( max_angle - min_angle ) / delta_angle );
@@ -59,23 +59,26 @@ namespace ADAAI::Integration::Cannon
       double l_angle = min_angle + td_angle * ( double ) i;
       double r_angle = i != thread_cnt - 1 ? l_angle + td_angle : max_angle;
 
-      checkRange( results[i], l_angle, r_angle, delta_angle );
-      // threads.emplace_back( checkRange, results[i], l_angle, r_angle, delta_angle );
+      // checkRange( results[i], l_angle, r_angle, delta_angle );
+      threads.emplace_back( checkRange, &results[i], l_angle, r_angle, delta_angle );
     }
 
-    // for ( auto& th : threads )
-    // {
-    //   th.join();
-    // }
+    for ( auto& th : threads )
+    {
+      th.join();
+    }
 
     double best_angle    = min_angle;
     double best_distance = 0.0f;
 
-    /// TODO: Make file dumping
+    std::ofstream file;
+    file.open( "./../data/Cannon_angle_results.data", std::ios::out | std::ios::trunc );
+
     for ( const auto& result_block : results )
     {
       for ( auto [angle, distance, t] : result_block )
       {
+        file << "Angle: " << angle << " Distance: " << distance << " Time: " << t << '\n';
         std::cout << "Angle: " << angle << " Distance: " << distance << " Time: " << t << std::endl;
 
         if ( distance > best_distance )
@@ -85,6 +88,10 @@ namespace ADAAI::Integration::Cannon
         }
       }
     }
+
+    file << "\nOverall ======================================\n";
+    file << "Best angle: " << best_angle << " Best distance: " << best_distance << '\n';
+    file.close();
 
     return best_angle;
   }
