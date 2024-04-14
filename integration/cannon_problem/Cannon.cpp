@@ -28,6 +28,24 @@ namespace ADAAI::Integration::Cannon
     return { end_state[0], t };
   }
 
+  void shootWithAngle( std::ostream& os, double angle = 45 )
+  {
+    double rad = angle * M_PI / 180.0f;
+
+    double v = 1640.0f; // initial velocity (m/s)
+
+    double state[4] = { 0.0f, 0.0f, v * std::cos( rad ), v * std::sin( rad ) };
+    double end_state[4];
+
+    auto rhs      = CannonBall::BallRHS();
+    auto observer = CannonBall::BallDumperObserver( os );
+    auto stepper  = Integrator::RFK45_TimeStepper( &rhs );
+
+    auto integrator = Integrator::ODE_Integrator<CannonBall::BallRHS>( &stepper, &observer );
+
+    integrator( state, end_state );
+  }
+
   void checkRange( std::vector<std::tuple<double, double, double>>* results, double min_angle, double max_angle, double delta_angle )
   {
     for ( double angle = min_angle; angle < max_angle; angle += delta_angle )
@@ -91,6 +109,19 @@ namespace ADAAI::Integration::Cannon
 
     file << "\nOverall ======================================\n";
     file << "Best angle: " << best_angle << " Best distance: " << best_distance << '\n';
+    file.close();
+
+    // Dump best trajectory
+    file.open( "./../data/Cannon_best_angle_data.json", std::ios::out );
+    file << "{\n";
+    file << "  \"angle\": " << best_angle << ",\n";
+    file << "  \"distance\": " << best_distance << ",\n";
+    file << "  \"data\": [\n";
+
+    shootWithAngle( file, best_angle );
+
+    file << "  ]\n";
+    file << "}\n";
     file.close();
 
     return best_angle;

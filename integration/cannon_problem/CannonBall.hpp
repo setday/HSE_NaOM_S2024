@@ -49,4 +49,47 @@ namespace ADAAI::Integration::CannonBall
       return current_state[1] > 0.0;
     }
   };
+
+  struct BallDumperObserver : Integrator::Observer<BallRHS>
+  {
+    std::ostream& m_os;
+
+    explicit BallDumperObserver( std::ostream& os )
+        : m_os( os )
+    {
+    }
+
+    bool operator()( double current_time, const double current_state[BallRHS::N] ) const override
+    {
+      try
+      {
+        double rhs[BallRHS::N]{};
+        BallRHS {}( current_time, current_state, rhs );
+
+        m_os << "    {\n"
+             << "      \"current_time\":" << current_time << ",\n"
+             << "      \"current_state\": {\n"
+             << "        \"x\": " << current_state[0] << ",\n"
+             << "        \"y\": " << current_state[1] << ",\n"
+             << "        \"v_x\": " << current_state[2] << ",\n"
+             << "        \"v_y\": " << current_state[3] << "\n"
+             << "      },\n"
+             << "      \"rhs\": {\n"
+             << "        \"v_x\": " << rhs[0] << ",\n"
+             << "        \"v_y\": " << rhs[1] << ",\n"
+             << "        \"a_x\": " << rhs[2] << ",\n"
+             << "        \"a_y\": " << rhs[3] << "\n"
+             << "      }\n"
+             << "    },\n";
+      }
+      catch ( ... )
+      {
+        std::cout << "Error in BallDumperObserver" << std::endl;
+      }
+
+      if ( current_time == 0 )
+        return true;
+      return current_state[1] > 0.0;
+    }
+  };
 } // namespace ADAAI::Integration::CannonBall
