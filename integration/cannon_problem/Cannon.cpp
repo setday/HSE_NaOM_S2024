@@ -23,7 +23,12 @@ namespace ADAAI::Integration::Cannon
 
     auto integrator = Integrator::ODE_Integrator<CannonBall::BallRHS>( &stepper, &observer );
 
-    double t = integrator( state, end_state );
+    double t = 0.0;
+    try {
+      t = integrator( state, end_state );
+    } catch ( std::exception& e ) {
+      std::cerr << e.what() << std::endl;
+    }
 
     return { end_state[0], t };
   }
@@ -43,7 +48,11 @@ namespace ADAAI::Integration::Cannon
 
     auto integrator = Integrator::ODE_Integrator<CannonBall::BallRHS>( &stepper, &observer );
 
-    integrator( state, end_state );
+    try {
+      integrator( state, end_state );
+    } catch ( std::exception& e ) {
+      std::cerr << e.what() << std::endl;
+    }
   }
 
   void checkRange( std::vector<std::tuple<double, double, double>>* results, double min_angle, double max_angle, double delta_angle )
@@ -77,7 +86,7 @@ namespace ADAAI::Integration::Cannon
       double l_angle = min_angle + td_angle * ( double ) i;
       double r_angle = i != thread_cnt - 1 ? l_angle + td_angle : max_angle;
 
-      // checkRange( results[i], l_angle, r_angle, delta_angle );
+      // checkRange( &results[i], l_angle, r_angle, delta_angle );
       threads.emplace_back( checkRange, &results[i], l_angle, r_angle, delta_angle );
     }
 
@@ -96,8 +105,16 @@ namespace ADAAI::Integration::Cannon
     {
       for ( auto [angle, distance, t] : result_block )
       {
-        file << "Angle: " << angle << " Distance: " << distance << " Time: " << t << '\n';
-        std::cout << "Angle: " << angle << " Distance: " << distance << " Time: " << t << std::endl;
+        if ( t != 0.0 )
+        {
+          file << "Angle: " << angle << " Distance: " << distance << " Time: " << t << '\n';
+          std::cout << "Angle: " << angle << " Distance: " << distance << " Time: " << t << std::endl;
+        }
+        else
+        {
+          file << "Angle: " << angle << " ==>Error<==" << '\n';
+          std::cout << "Angle: " << angle << " ==>Error<==" << std::endl;
+        }
 
         if ( distance > best_distance )
         {

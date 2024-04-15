@@ -44,9 +44,9 @@ namespace ADAAI::Integration::CannonBall
   {
     bool operator()( double current_time, const double current_state[BallRHS::N] ) const override
     {
-      if ( current_time == 0 )
+      if ( current_time <= 1.0 )
         return true;
-      return current_state[1] > 0.0;
+      return current_state[1] > 3.0; // Optimal to not underground calculation in RHS
     }
   };
 
@@ -92,9 +92,9 @@ namespace ADAAI::Integration::CannonBall
         }
       }
 
-      if ( current_time == 0 )
+      if ( current_time <= 1.0 )
         return true;
-      return current_state[1] > 0.0;
+      return current_state[1] > 3.0; // Optimal to not underground calculation in RHS
     }
   };
 } // namespace ADAAI::Integration::CannonBall

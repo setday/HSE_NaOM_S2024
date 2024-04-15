@@ -77,7 +77,12 @@ namespace ADAAI::Integration::Environment
         return computeAtmosphericPressure( h, l_id );
       }
 
-      throw std::invalid_argument( "AirDensity: Invalid height" );
+      if (h < 0)
+      {
+        throw std::invalid_argument( "AirDensity: Invalid height" );
+      }
+
+      return computeAtmosphericPressure( h, 3 );
     }
 
     [[nodiscard]] double getDensity() const
@@ -95,7 +100,13 @@ namespace ADAAI::Integration::Environment
                ( R_air * ( layer.avg_temperature - layer.avg_r * ( h - layer.min_height ) ) );
       }
 
-      throw std::invalid_argument( "AirDensity: Invalid height" );
+      if (h < 0)
+      {
+        throw std::invalid_argument( "AirDensity: Invalid height" );
+      }
+
+      return computeAtmosphericPressure( h, 3 ) /
+             ( R_air * ( layers[3].avg_temperature - layers[3].avg_r * ( h - layers[3].min_height ) ) );
     }
   };
 } // namespace ADAAI::Integration::Environment
