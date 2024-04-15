@@ -48,4 +48,5 @@ fig.grid(True)
 plt.tight_layout()
 plt.show()
 
-
+# Save the plot
+figure.savefig('data/Cannon_best_angle_plot.png')

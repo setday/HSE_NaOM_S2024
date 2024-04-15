@@ -46,7 +46,7 @@ namespace ADAAI::Integration::CannonBall
     {
       if ( current_time <= 1.0 )
         return true;
-      return current_state[1] > 3.0; // Optimal to not underground calculation in RHS
+      return current_state[1] > 4.3; // Optimal to not underground calculation in RHS
     }
   };
 

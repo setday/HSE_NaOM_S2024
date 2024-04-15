@@ -29,7 +29,7 @@ namespace ADAAI::Integration::Integrator
     /// \param t_start The initial time
     /// \param t_end The final time
     /// \return The time of the final state
-    double operator()( const double state_start[TS::N], double state_end[TS::N], double t_start = 0.0, double t_end = 1500.0 ) const
+    double operator()( const double state_start[TS::N], double state_end[TS::N], double t_start = 0.0, double t_end = 2000.0 ) const
     {
       double current_time = t_start;
       double current_state[TS::N];
