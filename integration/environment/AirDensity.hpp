@@ -30,7 +30,7 @@ namespace ADAAI::Integration::Environment
         { 11'000, 0, 288.15, 101325.0, 0.0065 },
         { 20'000, 11'000, 216.65, 22632.3777602, 0 },
         { 32'000, 20'000, 216.65, 5475.03644646, -0.001 },
-        { 47'000, 32'000, 228.65, 868.056901172, -0.0028 } // should this have a maximum height?
+        { 47'000, 32'000, 228.65, 868.056901172, -0.0028 }
     };
 
     [[nodiscard]] double computeAtmosphericPressure( double height, int caseNum ) const

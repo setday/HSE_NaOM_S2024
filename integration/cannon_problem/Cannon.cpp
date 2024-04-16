@@ -69,7 +69,7 @@ namespace ADAAI::Integration::Cannon
   {
     const int thread_cnt = ( int ) std::thread::hardware_concurrency() - 1;
 
-    const double delta_angle = 0.1;
+    const double delta_angle = 1;
     const double min_angle   = 40.0;
     const double max_angle   = 60.0;
     const int    cnt_angle   = ( int ) ( ( max_angle - min_angle ) / delta_angle );
