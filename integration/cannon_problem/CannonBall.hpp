@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../environment/ComputeFunctions.hpp"
-#include "../intergartor/Interator.hpp"
+#include "../intergartor/Observer.hpp"
 
 /// Integrator implementation for the cannonball problem
 
@@ -18,7 +18,9 @@ namespace ADAAI::Integration::CannonBall
     // float v_y;
 
   public:
-    constexpr static int N = 4; // x, y, v_x, v_y
+    constexpr static int    N = 4;                  // x, y, v_x, v_y
+    constexpr static double d = 0.216;              // calibre (diameter) in meters
+    constexpr static double S = M_PI * d * d / 4.0; // cross-sectional area
 
     BallRHS() = default;
 
@@ -35,8 +37,8 @@ namespace ADAAI::Integration::CannonBall
 
       rhs[0] = v_x;
       rhs[1] = v_y;
-      rhs[2] = -Environment::AeroDynamicForce( y, v2 ) * v_x / v / m;
-      rhs[3] = -Environment::AeroDynamicForce( y, v2 ) * v_y / v / m - Environment::G_force;
+      rhs[2] = -Environment::AeroDynamicForce( y, v2, S ) * v_x / v / m;
+      rhs[3] = -Environment::AeroDynamicForce( y, v2, S ) * v_y / v / m - Environment::G_force;
     }
   };
 
@@ -63,7 +65,7 @@ namespace ADAAI::Integration::CannonBall
     {
       static int ind = 0;
 
-      if ( (ind++) % 10 == 0 )
+      if ( ( ind++ ) % 10 == 0 )
       {
         try
         {

@@ -1,9 +1,9 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
-#include <tuple>
 #include <vector>
 
+#include "../intergartor/Interator.hpp"
 #include "CannonBall.hpp"
 
 namespace ADAAI::Integration::Cannon
@@ -19,14 +19,17 @@ namespace ADAAI::Integration::Cannon
 
     auto rhs      = CannonBall::BallRHS();
     auto observer = CannonBall::BallObserver();
-    auto stepper  = Integrator::RFK45_TimeStepper( &rhs );
+    auto stepper  = Integrator::Stepper::RFK45_TimeStepper( &rhs );
 
     auto integrator = Integrator::ODE_Integrator<CannonBall::BallRHS>( &stepper, &observer );
 
     double t = 0.0;
-    try {
+    try
+    {
       t = integrator( state, end_state );
-    } catch ( std::exception& e ) {
+    }
+    catch ( std::exception& e )
+    {
       std::cerr << e.what() << std::endl;
     }
 
@@ -44,15 +47,35 @@ namespace ADAAI::Integration::Cannon
 
     auto rhs      = CannonBall::BallRHS();
     auto observer = CannonBall::BallDumperObserver( os );
-    auto stepper  = Integrator::RFK45_TimeStepper( &rhs );
+    auto stepper  = Integrator::Stepper::RFK45_TimeStepper( &rhs );
 
     auto integrator = Integrator::ODE_Integrator<CannonBall::BallRHS>( &stepper, &observer );
 
-    try {
-      integrator( state, end_state );
-    } catch ( std::exception& e ) {
+    double t = 0.0;
+    try
+    {
+      t = integrator( state, end_state );
+    }
+    catch ( std::exception& e )
+    {
       std::cerr << e.what() << std::endl;
     }
+
+    os << "    {\n"
+       << "      \"current_time\":" << t << ",\n"
+       << "      \"current_state\": {\n"
+       << "        \"x\": " << end_state[0] << ",\n"
+       << "        \"y\": " << end_state[1] << ",\n"
+       << "        \"v_x\": " << end_state[2] << ",\n"
+       << "        \"v_y\": " << end_state[3] << "\n"
+       << "      },\n"
+       << "      \"rhs\": {\n"
+       << "        \"v_x\": 0,\n"
+       << "        \"v_y\": 0,\n"
+       << "        \"a_x\": 0,\n"
+       << "        \"a_y\": 0\n"
+       << "      }\n"
+       << "    }\n";
   }
 
   void checkRange( std::vector<std::tuple<double, double, double>>* results, double min_angle, double max_angle, double delta_angle )

@@ -1,38 +1,13 @@
 #pragma once
 
-#include <cmath>
 #include <cstring>
-#include <stdexcept>
-#include <utility>
+#include <valarray>
+#include <vector>
 
-#include "RHS.hpp"
+#include "BasicTimeStepper.hpp"
 
-namespace ADAAI::Integration::Integrator
+namespace ADAAI::Integration::Integrator::Stepper
 {
-  template<typename RHS>
-  class TimeStepper
-  {
-  protected:
-    const RHS* m_rhs;
-
-  public:
-    constexpr static int N = RHS::N;
-
-    explicit TimeStepper( const RHS* rhs )
-        : m_rhs( rhs )
-    {
-    }
-
-    /// \brief The stepper function
-    /// \param current_time The current time
-    /// \param current_state The current state of the system
-    /// \param next_state The next state of the system
-    /// \return The next time (current_time + dt) and the delta time
-
-    virtual std::pair<double, double>
-    operator()( double current_state[N], double next_state[N], double current_time, double suggested_d_time ) const = 0;
-  }; // struct Stepper
-
   template<typename RHS>
   class RFK45_TimeStepper : public TimeStepper<RHS>
   {
@@ -51,13 +26,13 @@ namespace ADAAI::Integration::Integrator
 
     // B[K][L]
     std::vector<std::vector<double>> B_K_L = {
-        { 0.0,          0.0,         0.0,           0.0,          0.0,            0.0 },
-        { 0.0,          0.0,         0.0,           0.0,          0.0,            0.0 },
-        { 0.0,          0.5,         0.0,           0.0,          0.0,            0.0 }, // K = 2
-        { 0.0,         0.25,        0.25,           0.0,          0.0,            0.0 }, // K = 3
-        { 0.0,          0.0,        -1.0,           2.0,          0.0,            0.0 }, // K = 4
-        { 0.0,   7.0 / 27.0, 10.0 / 27.0,           0.0,   1.0 / 27.0,            0.0 }, // K = 5
-        { 0.0, 28.0 / 625.0,        -0.2, 546.0 / 625.0, 54.0 / 625.0, -378.0 / 625.0 }, // K = 6
+        { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+        { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+        { 0.0, 0.5, 0.0, 0.0, 0.0, 0.0 },                                         // K = 2
+        { 0.0, 0.25, 0.25, 0.0, 0.0, 0.0 },                                       // K = 3
+        { 0.0, 0.0, -1.0, 2.0, 0.0, 0.0 },                                        // K = 4
+        { 0.0, 7.0 / 27.0, 10.0 / 27.0, 0.0, 1.0 / 27.0, 0.0 },                   // K = 5
+        { 0.0, 28.0 / 625.0, -0.2, 546.0 / 625.0, 54.0 / 625.0, -378.0 / 625.0 }, // K = 6
     };
 
     /// \brief The stepper function
@@ -124,8 +99,9 @@ namespace ADAAI::Integration::Integrator
       double eps = 1e-9;
       // what eps to choose?
       double new_step = 0.9 * h * std::pow( eps / TE, 0.1 );
-      if(TE > eps) {
-        return (*this)(current_state, next_state, current_time, new_step);
+      if ( TE > eps )
+      {
+        return ( *this )( current_state, next_state, current_time, new_step );
       }
 
       // ======================================================================
@@ -141,4 +117,4 @@ namespace ADAAI::Integration::Integrator
       return { current_time + h, new_step };
     }
   };
-} // namespace ADAAI::Integration::Integrator
+} // namespace ADAAI::Integration::Integrator::Stepper

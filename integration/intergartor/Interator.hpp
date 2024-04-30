@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Observer.hpp"
-#include "Stepper.hpp"
+#include "steppers/RFK45_TimeStepper.hpp"
 
 namespace ADAAI::Integration::Integrator
 {
@@ -10,8 +10,8 @@ namespace ADAAI::Integration::Integrator
   /// \tparam TS The time stepper
   /// \tparam RHS_O The observer
 
-  template<typename RHS_I = RHS, typename TS = RFK45_TimeStepper<RHS_I>, typename RHS_O = Observer<RHS_I>>
-    requires std::is_base_of_v<RHS, RHS_I> && std::is_base_of_v<Observer<RHS_I>, RHS_O> && std::is_base_of_v<TimeStepper<RHS_I>, TS>
+  template<typename RHS_I = RHS, typename TS = Stepper::RFK45_TimeStepper<RHS_I>, typename RHS_O = Observer<RHS_I>>
+    requires std::is_base_of_v<RHS, RHS_I> && std::is_base_of_v<Observer<RHS_I>, RHS_O> && std::is_base_of_v<Stepper::TimeStepper<RHS_I>, TS>
   class ODE_Integrator
   {
     const TS*    m_stepper;
@@ -29,7 +29,7 @@ namespace ADAAI::Integration::Integrator
     /// \param t_start The initial time
     /// \param t_end The final time
     /// \return The time of the final state
-    double operator()( const double state_start[TS::N], double state_end[TS::N], double t_start = 0.0, double t_end = 2000.0 ) const
+    double operator()( const double state_start[TS::N], double state_end[TS::N], double t_start = 0.0, double t_end = 2e3, double suggested_dt = 1e-2 ) const
     {
       double current_time = t_start;
       double current_state[TS::N];
@@ -47,7 +47,7 @@ namespace ADAAI::Integration::Integrator
           break;
         }
 
-        auto [next_time, dt] = ( *m_stepper )( current_state, next_state, current_time );
+        auto [next_time, dt] = ( *m_stepper )( current_state, next_state, current_time, suggested_dt );
 
         if ( next_time > t_end )
         {
