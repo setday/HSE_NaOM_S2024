@@ -43,7 +43,10 @@ namespace ADAAI::Integration::Satellite
          << "      \"z\": " << end_state[2] << ",\n"
          << "      \"v_x\": " << end_state[3] << ",\n"
          << "      \"v_y\": " << end_state[4] << ",\n"
-         << "      \"v_z\": " << end_state[5] << "\n"
+         << "      \"v_z\": " << end_state[5] << ",\n"
+         << "      \"a_x\": " << 0 << ",\n"
+         << "      \"a_y\": " << 0 << ",\n"
+         << "      \"a_z\": " << 0 << "\n"
          << "    }\n"
          << "  }\n";
     file << "]\n";

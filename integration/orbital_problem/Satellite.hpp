@@ -53,35 +53,44 @@ namespace ADAAI::Integration::Satellite
     {
       static int ind = 0;
 
+      double rhs[SatelliteRHS::N] {};
+      SatelliteRHS {}( current_time, current_state, rhs );
+
+      double
+          x = current_state[0],
+          y = current_state[1],
+          z = current_state[2];
+      double
+          v_x = current_state[3],
+          v_y = current_state[4],
+          v_z = current_state[5];
+      double
+          a_x = rhs[3],
+          a_y = rhs[4],
+          a_z = rhs[5];
+
       if ( ( ind++ ) % 10 == 0 )
       {
-        try
-        {
-          double rhs[SatelliteRHS::N] {};
-          SatelliteRHS {}( current_time, current_state, rhs );
-
-          m_os << "  {\n"
-               << "    \"current_time\":" << current_time << ",\n"
-               << "    \"current_state\": {\n"
-               << "      \"x\": " << current_state[0] << ",\n"
-               << "      \"y\": " << current_state[1] << ",\n"
-               << "      \"z\": " << current_state[2] << ",\n"
-               << "      \"v_x\": " << current_state[2] << ",\n"
-               << "      \"v_y\": " << current_state[3] << ",\n"
-               << "      \"v_z\": " << current_state[4] << ",\n"
-               << "      \"a_x\": " << rhs[2] << ",\n"
-               << "      \"a_y\": " << rhs[3] << ",\n"
-               << "      \"a_z\": " << rhs[4] << "\n"
-               << "    }\n"
-               << "  },\n";
-        }
-        catch ( ... )
-        {
-          std::cout << "Error in BallDumperObserver" << std::endl;
-        }
+        m_os << "  {\n"
+             << "    \"current_time\":" << current_time << ",\n"
+             << "    \"current_state\": {\n"
+             << "      \"x\": " << x << ",\n"
+             << "      \"y\": " << y << ",\n"
+             << "      \"z\": " << z << ",\n"
+             << "      \"v_x\": " << v_x << ",\n"
+             << "      \"v_y\": " << v_y << ",\n"
+             << "      \"v_z\": " << v_z << ",\n"
+             << "      \"a_x\": " << a_x << ",\n"
+             << "      \"a_y\": " << a_y << ",\n"
+             << "      \"a_z\": " << a_z << "\n"
+             << "    }\n"
+             << "  },\n";
       }
 
-      return current_time <= 3.1e7; // 1 year
+      double
+          r2 = x * x + y * y + z * z;
+
+      return current_time <= 3.1e7 && r2 > 8000; // 1 year
     }
   };
 } // namespace ADAAI::Integration::Satellite
