@@ -51,13 +51,13 @@ namespace ADAAI::Integration::Integrator
 
     // B[K][L]
     std::vector<std::vector<double>> B_K_L = {
-        { 0.0,          0.0,         0.0,           0.0,          0.0,            0.0 },
-        { 0.0,          0.0,         0.0,           0.0,          0.0,            0.0 },
-        { 0.0,          0.5,         0.0,           0.0,          0.0,            0.0 }, // K = 2
-        { 0.0,         0.25,        0.25,           0.0,          0.0,            0.0 }, // K = 3
-        { 0.0,          0.0,        -1.0,           2.0,          0.0,            0.0 }, // K = 4
-        { 0.0,   7.0 / 27.0, 10.0 / 27.0,           0.0,   1.0 / 27.0,            0.0 }, // K = 5
-        { 0.0, 28.0 / 625.0,        -0.2, 546.0 / 625.0, 54.0 / 625.0, -378.0 / 625.0 }, // K = 6
+        { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+        { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+        { 0.0, 0.5, 0.0, 0.0, 0.0, 0.0 },                                         // K = 2
+        { 0.0, 0.25, 0.25, 0.0, 0.0, 0.0 },                                       // K = 3
+        { 0.0, 0.0, -1.0, 2.0, 0.0, 0.0 },                                        // K = 4
+        { 0.0, 7.0 / 27.0, 10.0 / 27.0, 0.0, 1.0 / 27.0, 0.0 },                   // K = 5
+        { 0.0, 28.0 / 625.0, -0.2, 546.0 / 625.0, 54.0 / 625.0, -378.0 / 625.0 }, // K = 6
     };
 
     /// \brief The stepper function
@@ -124,8 +124,9 @@ namespace ADAAI::Integration::Integrator
       double eps = 1e-9;
       // what eps to choose?
       double new_step = 0.9 * h * std::pow( eps / TE, 0.1 );
-      if(TE > eps) {
-        return (*this)(current_state, next_state, current_time, new_step);
+      if ( TE > eps )
+      {
+        return ( *this )( current_state, next_state, current_time, new_step );
       }
 
       // ======================================================================
@@ -139,6 +140,171 @@ namespace ADAAI::Integration::Integrator
       }
 
       return { current_time + h, new_step };
+    }
+  };
+
+  // ======================================================================
+  // !!! DEV !!! (Nikolay)
+  // ======================================================================
+
+  template<typename RHS>
+  class Everhart_TimeStepper : public TimeStepper<RHS>
+  {
+  public:
+    const static int k = 5;
+    double           DD[k + 1][k + 1]; // Divided Differences
+    //                             DD[i][j] = F[t_i, ... , t_j]
+
+    double F[k + 1]; // second derivative of y at the points t_0...t_k
+
+    void initial_approximation_of_F() // what are the parameters ?
+    {
+      // TODO
+      // F[t] = f(t, y(t), y'(t)) for t = t1, t2, ..., tk
+    }
+
+    void compute_F() // what are the parameters ?
+    {
+      // TODO
+    }
+
+    /// \brief Computes DD
+    void compute_DD( double t0, double h )
+    {
+      // First, we should find F[t_i, t_{i + 1}]
+
+      for ( int i = 0; i <= k - 1; i++ )
+      {
+        DD[i][i + 1] = ( F[i + 1] - F[i] ) / h;
+      }
+
+      for ( int order = 2; order <= k - 1; order++ )
+      {
+        int vals = k + 1 - order;
+        for ( int j = 0; j < vals; j++ )
+        {
+          DD[j][j + order] = ( DD[j][j + order - 1] - DD[j + 1][j + order - 1] ) / ( order * h );
+        }
+      }
+    }
+
+    // Default values are used only to match the signature of other getBN functions.
+    double getB0( double t0 = 0, double h = 0 )
+    {
+      return F[0];
+    }
+
+    /// \param h  The distance between adjacent ts (e.g. t1-t0)
+    double getB1( double t0, double h )
+    {
+      double b1 = 0;
+      for ( int i = 1; i <= 5; i++ )
+      {
+        double prod = 1;
+        for ( int j = 1; j <= i - 1; j++ )
+        {
+          prod *= ( -h * j ); // t_0 - t_j = -h * j
+        }
+        b1 += DD[0][i] * prod;
+      }
+      return b1;
+    }
+
+    /// \param h  The distance between adjacent ts (e.g. t1-t0)
+    double getB2( double t0, double h )
+    {
+      double t1 = t0 + h;
+      double t2 = t0 + 2 * h;
+      double t3 = t0 + 3 * h;
+      double t4 = t0 + 4 * h;
+
+      double t = t0;
+      return DD[0][2] + DD[0][3] * ( 2 * t - ( t1 + t2 ) ) + DD[0][4] * ( 3 * t * t - 2 * t * ( t1 + t2 + t3 ) + t1 * t2 + t2 * t3 + t1 * t3 ) + DD[0][5] * ( 4 * t * t * t - 3 * t * t * ( t1 + t2 + t3 + t4 ) + 2 * t * ( t1 * t2 + t1 * t3 + t1 * t4 + t2 * t3 + t2 * t4 + t3 * t4 ) - ( t1 * t2 * t3 + t1 * t3 * t4 + t1 * t2 * t4 + t2 * t3 * t4 ) );
+    }
+
+    /// \param h  The distance between adjacent ts (e.g. t1-t0)
+    double getB3( double t0, double h )
+    {
+      double t1 = t0 + h;
+      double t2 = t0 + 2 * h;
+      double t3 = t0 + 3 * h;
+      double t4 = t0 + 4 * h;
+
+      double t = t0;
+      return DD[0][3] * 2 + DD[0][4] * ( 6 * t - 2 * ( t1 + t2 + t3 ) ) + DD[0][5] * ( 12 * t * t - 6 * t * ( t1 + t2 + t3 + t4 ) + 2 * ( t1 * t2 + t1 * t3 + t1 * t4 + t2 * t3 + t2 * t4 + t3 * t4 ) );
+    }
+
+    /// \param h  The distance between adjacent ts (e.g. t1-t0)
+    double getB4( double t0, double h )
+    {
+      double t1 = t0 + h;
+      double t2 = t0 + 2 * h;
+      double t3 = t0 + 3 * h;
+      double t4 = t0 + 4 * h;
+
+      double t = t0;
+      return DD[0][4] * 6 + DD[0][5] * ( 24 * t - 6 * ( t1 + t2 + t3 + t4 ) );
+    }
+
+    /// \param h  The distance between adjacent ts (e.g. t1-t0)
+    double getB5( double t0, double h )
+    {
+      double t1 = t0 + h;
+      double t2 = t0 + 2 * h;
+      double t3 = t0 + 3 * h;
+      double t4 = t0 + 4 * h;
+
+      double t = t0;
+      return DD[0][5] * 24;
+    }
+    explicit Everhart_TimeStepper( const RHS* rhs )
+        : TimeStepper<RHS>( rhs )
+    {
+    }
+
+    /// \brief The stepper function
+    /// \param current_time The current time
+    /// \param current_state The current state of the system
+    /// \param next_state The next state of the system
+    /// \return The next time (current_time + dt) and the delta time
+
+    std::pair<double, double>
+    operator()( double current_state[RHS::N], double next_state[RHS::N], double current_time, double suggested_d_time = 0.01 ) const override
+    {
+      double x   = current_state[0];
+      double y   = current_state[1];
+      double z   = current_state[2];
+      double v_x = current_state[3];
+      double v_y = current_state[5];
+      double v_z = current_state[5];
+
+      // step 0: fix K
+      // Let's say k=5
+
+      // step 1: INITIAL APPROXIMATION
+      initial_approximation_of_F();
+
+      // for i in range (N) do the following:
+      //      step 2: COMPUTE F_i (i = 0..k)
+      //      TODO
+
+      //      step 3: compute all divided differences (to order k)
+      compute_DD( current_time, suggested_d_time / k );
+
+      //      step 4: find B_j (as functions of divided differences)
+      double b0 = getB0( current_time, suggested_d_time / k ); // I know, it's probably better to use an array for Bs
+      double b1 = getB1( current_time, suggested_d_time / k );
+      double b2 = getB2( current_time, suggested_d_time / k );
+      double b3 = getB3( current_time, suggested_d_time / k );
+      double b4 = getB4( current_time, suggested_d_time / k );
+      double b5 = getB5( current_time, suggested_d_time / k );
+
+      //      step 5: compute more accurate y(t) and d[y(t)]/dt
+      //      TODO
+
+      double new_step = 0.01;
+
+      return { current_time + suggested_d_time, new_step };
     }
   };
 } // namespace ADAAI::Integration::Integrator
