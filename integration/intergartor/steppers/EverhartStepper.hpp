@@ -15,32 +15,100 @@ namespace ADAAI::Integration::Integrator::Stepper
   class Everhart_TimeStepper : public TimeStepper<RHS>
   {
   public:
-    const static int k = 5;            // never change this number!
-    double           DD[k + 1][k + 1]; // Divided Differences (DD[i][j] = F[t_i, ... , t_j])
-    double           F[k + 1];         // second derivative of y at the points t_0...t_k
+    explicit Everhart_TimeStepper( const RHS* rhs )
+        : TimeStepper<RHS>( rhs )
+    {
+    }
+    const static int          k = 5;            // never change this number!
+    double                    DD[k + 1][k + 1]; // Divided Differences (DD[i][j] = F[t_i, ... , t_j])
+    std::array<double, k + 1> F = { 0 };
+    // second derivative of y at the points t_0...t_k
+    std::array<double, k + 1> B = { 0 };
 
     void initial_approximation_of_F( double t0 = 0, double h = 0.01 )
     {
       // F[i] = f(t, y(t), y'(t)) for t = t1, t2, ..., tk
-      for ( int i = 0; i <= k; i++ )
+      // Notation: y*(t) := dy(t)/dt
+      //           y*(t) = y_dt[0] + F[0] * (t - t_0)
+      //           y(t) = y[0] + y_dt[0] * (t - t_0) + F_0 * (t - t_0)^2 / 2
+
+      std::vector<std::valarray<double>> y( k + 1, std::valarray<double>( 3 ) );
+      std::vector<std::valarray<double>> y_dt( k + 1, std::valarray<double>( 3 ) );
+
+      // Assuming current_state contains the initial state of the system:
+      // current_state[0] = x, current_state[1] = y, current_state[2] = z
+      // current_state[3] = v_x, current_state[4] = v_y, current_state[5] = v_z
+      const double* current_state = this->rhs->current_state;
+
+      // Initialize y[0] with the initial position
+      y[0][0] = current_state[0]; // x
+      y[0][1] = current_state[1]; // y
+      y[0][2] = current_state[2]; // z
+
+      // Initialize y_dt[0] with the initial velocity
+      y_dt[0][0] = current_state[3]; // v_x
+      y_dt[0][1] = current_state[4]; // v_y
+      y_dt[0][2] = current_state[5]; // v_z
+
+      // Initialize t0_initial for calculating future positions and velocities
+      double t0_initial = t0;
+
+      for ( int i = 1; i <= k; i++ )
       {
-        // TODO
-        // F[i] = rhs[t0]
+        // y[i] = y[0] + y_dt[0] * (t0 - t_initial) + 0.5 * F[0] * (t0 - t_initial)^2
+        y[i] = y[0] + y_dt[0] * ( t0 - t0_initial ) + 0.5 * F[0] * std::pow( t0 - t0_initial, 2 );
+
+        // y_dt[i] = y_dt[0] + F[0] * (t0 - t0_initial)
+        y_dt[i] = y_dt[0] + F[0] * ( t0 - t0_initial );
+
+        // F[i] = RHS(t0, y[i], y_dt[i])
+        std::valarray<double> rhs( 6 );
+        this->rhs->           operator()( t0, &y[i][0], &rhs[0] );
+        F[i] = rhs[3]; // rhs[3] corresponds to the acceleration in the x direction
+
         t0 += h;
       }
     }
 
-    // Computes F using (*) and (**), where (*) and (**) are formulas for computing y(t) and dy(t)/dt (which utilize only B_i coeffs) - see below.
     void compute_F( double t0 = 0, double h = 0 )
     {
-      // TODO
-      // (*) dy(t)/dt = [dy(t)/dt]|[t=t0] + sum of B_j * (t - t0) ^ (j + 1) / ( j + 1) over j = 0...k
+      // The number of dimensions for the state vector (3D space)
+      constexpr int dim = 3;
 
-      // TODO
-      // (**) y(t) = y(t0) + [dy(t)/dt]|[t=t0] * (t - t0) + sum of B_j * (t - t0) ^ (j + 2) / (( j + 1) * (j + 2)) over j = 0...k
+      // Vectors to store y(t) and dy(t)/dt
+      std::valarray<double> y( dim );
+      std::valarray<double> y_dt( dim );
 
-      // TODO
-      // Now we know y(t) and dy(t)/dt, so we can find F
+      // Compute y(t) and dy(t)/dt using the formulas provided by L. Merkin
+      for ( int i = 0; i <= k; i++ )
+      {
+        double t = t0 + i * h;
+
+        // (*) dy(t)/dt = [dy(t)/dt]|[t=t0] + sum of B_j * (t - t0) ^ (j + 1) / ( j + 1) over j = 0...k
+        std::valarray<double> dy_dt = y_dt[0];
+        for ( int j = 0; j <= k; j++ )
+        {
+          double coeff = std::pow( t - t0, j + 1 ) / ( j + 1 );
+          dy_dt += B[j] * coeff;
+        }
+
+        // (**) y(t) = y(t0) + [dy(t)/dt]|[t=t0] * (t - t0) + sum of B_j * (t - t0) ^ (j + 2) / (( j + 1) * (j + 2)) over j = 0...k
+        std::valarray<double> y_val = y[0] + y_dt[0] * ( t - t0 );
+        for ( int j = 0; j <= k; j++ )
+        {
+          double coeff = std::pow( t - t0, j + 2 ) / ( ( j + 1 ) * ( j + 2 ) );
+          y_val += B[j] * coeff;
+        }
+
+        // Now we know y(t) and dy(t)/dt at the points, so we can find F
+        double current_state[dim * 2];
+        std::copy( std::begin( y_val ), std::end( y_val ), current_state );
+        std::copy( std::begin( dy_dt ), std::end( dy_dt ), current_state + dim );
+
+        std::valarray<double> rhs( dim * 2 );
+        this->rhs->           operator()( t, current_state, &rhs[0] );
+        F[i] = rhs[3]; // Update F[i] based on the new state
+      }
     }
 
     /// \brief Computes DD.
@@ -132,10 +200,6 @@ namespace ADAAI::Integration::Integrator::Stepper
 
       double t = t0;
       return DD[0][5] * 24;
-    }
-    explicit Everhart_TimeStepper( const RHS* rhs )
-        : TimeStepper<RHS>( rhs )
-    {
     }
 
     /// \brief The stepper function
