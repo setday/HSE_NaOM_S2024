@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "../intergartor/Interator.hpp"
+#include "../intergartor/steppers/EverhartStepper.hpp"
 #include "Satellite.hpp"
 
 namespace ADAAI::Integration::Satellite
@@ -21,9 +22,9 @@ namespace ADAAI::Integration::Satellite
 
     auto rhs      = SatelliteRHS();
     auto observer = SatelliteDumperObserver( file );
-    auto stepper  = Integrator::Stepper::DiscreteTimeStepper( &rhs );
+    auto stepper  = Integrator::Stepper::Everhart_TimeStepper( &rhs );
 
-    auto integrator = Integrator::ODE_Integrator<SatelliteRHS, Integrator::Stepper::DiscreteTimeStepper<SatelliteRHS>>( &stepper, &observer );
+    auto integrator = Integrator::ODE_Integrator<SatelliteRHS, Integrator::Stepper::Everhart_TimeStepper<SatelliteRHS>>( &stepper, &observer );
 
     double t = 0.0;
     try
