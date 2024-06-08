@@ -226,7 +226,7 @@ namespace ADAAI::Integration::Integrator::Stepper
       // step 1: INITIAL APPROXIMATION
       initial_approximation_of_F( t0 = current_time, h = dist_between_adjacent_ts );
 
-      const int number_of_iterations = 10; // it should be improved later by observing convergence (if almost nothing has changed, then finish the step)
+      const int number_of_iterations = 50; // it should be improved later by observing convergence (if almost nothing has changed, then finish the step)
 
       for ( int z = 1; z <= number_of_iterations; z++ )
       {
