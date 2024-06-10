@@ -40,6 +40,8 @@ namespace ADAAI::Integration::Integrator
         current_state[i] = state_start[i];
       }
 
+      int percent_count = 0;
+
       while ( current_time < t_end )
       {
         if ( !( *m_observer )( current_time, current_state ) )
@@ -59,6 +61,12 @@ namespace ADAAI::Integration::Integrator
         for ( int i = 0; i < TS::N; ++i )
         {
           current_state[i] = next_state[i];
+        }
+
+        if ( current_time / t_end * 100.0 > percent_count + 5 )
+        {
+          percent_count += 5;
+          std::cout << percent_count << "%" << std::endl;
         }
       }
 
