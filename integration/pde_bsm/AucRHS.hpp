@@ -9,7 +9,7 @@ namespace ADAAI::Integration::PDE_BSM
   {
     constexpr static int N = 502; // Number of equations
 
-    constexpr static double tau_max = 1.0; // Tau Maxim, Nikolay said
+    constexpr static double tau_max = 1.0;
     constexpr static int K = 100;          // Strike price
     constexpr static double S_max = K * std::exp( 5 * AUX_FUNC::sigma_max );
 

@@ -32,7 +32,7 @@ namespace ADAAI::Integration::PDE_BSM
     }
 
     int S_tau_max = 0.9 * AucRHS::K;
-    std::cout << "ACTUAL_PRICE = " << AUX_FUNC::get_price(S_tau_max, 1) << '\n';
+    std::cout << "ACTUAL PAYOFF = " << AUX_FUNC::get_price(S_tau_max, 1) << '\n';
     return AucFunc::get_c( end_state, S_tau_max );
   }
 } // namespace ADAAI::Integration::PDE_BSM
