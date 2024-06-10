@@ -88,28 +88,26 @@ namespace ADAAI::Integration::Integrator::Stepper
         // (*) dy(t)/dt = [dy(t)/dt]|[t=t0] + sum of B_j * (t - t0) ^ (j + 1) / ( j + 1) over j = 0...k
         double delt_t = t0 - t0_initial;
 
-        for ( int j = 0; j <= k; j++ )
+        for (int equation = 0; equation < N2; equation++ ) 
         {
-          double coeff = std::pow( delt_t, j + 1 ) / ( j + 1 );
-          for (int equation = 0; equation < N2; equation++ ) 
+          for ( int j = 0; j <= k; j++ )
           {
+            double coeff = std::pow( delt_t, j + 1 ) / ( j + 1 );
             dy_dt[i][equation] += B[j][equation] * coeff;
-            state[equation + N2] = dy_dt[i][equation];
           }
+          state[equation + N2] = dy_dt[i][equation];
         }
 
         // (**) y(t) = y(t0) + [dy(t)/dt]|[t=t0] * (t - t0) + sum of B_j * (t - t0) ^ (j + 2) / (( j + 1) * (j + 2)) over j = 0...k
-
-        for ( int j = 0; j <= k; j++ )
+        for (int equation = 0; equation < N2; equation++ ) 
         {
-          double coeff = std::pow( delt_t, j + 2 ) / ( ( j + 1 ) * ( j + 2 ) );
-          for (int equation = 0; equation < N2; equation++ ) 
+          for ( int j = 0; j <= k; j++ )
           {
+            double coeff = std::pow( delt_t, j + 2 ) / ( ( j + 1 ) * ( j + 2 ) );
             y[i][equation] += B[j][equation] * coeff;
-            state[equation] = y[i][equation];
           }
+          state[equation] = y[i][equation];
         }
-
         // Now we know y(t) and dy(t)/dt at the points, so we can find F
 
         // TODO:
@@ -248,7 +246,7 @@ namespace ADAAI::Integration::Integrator::Stepper
       // Step 1: INITIAL APPROXIMATION
       initial_approximation_of_F( current_time, dist_between_adjacent_ts );
 
-      const int number_of_iterations = 0; // it should be improved later by observing convergence (if almost nothing has changed, then finish the step)
+      const int number_of_iterations = 1; // it should be improved later by observing convergence (if almost nothing has changed, then finish the step)
 
       // Step 2: complete N iterations
       for ( int j = 1; j <= number_of_iterations; j++ )
