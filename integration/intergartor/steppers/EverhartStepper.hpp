@@ -6,6 +6,7 @@
 #include <valarray>
 #include <vector>
 
+#include "../../../utils/Consts.hpp"
 #include "BasicTimeStepper.hpp"
 
 namespace ADAAI::Integration::Integrator::Stepper
@@ -71,10 +72,12 @@ namespace ADAAI::Integration::Integrator::Stepper
       }
     }
 
-    void compute_F( double t0, double h ) const
+    double compute_F( double t0, double h ) const
     {
       // y(t) and dy(t)/dt
       double t0_initial = t0;
+
+      static double old_y_k[N2];
 
       // Compute y(t) and dy(t)/dt using the formulas provided by L. Merkin
       for ( int i = 1; i <= k; i++ )
@@ -87,7 +90,6 @@ namespace ADAAI::Integration::Integrator::Stepper
         for ( int equation = 0; equation < N2; equation++ )
         {
           dy_dt[i][equation] = dy_dt[0][equation];
-          // std::cout << dy_dt[0][equation] << ' ';
           for ( int j = 0; j <= k; j++ )
           {
             double coeff = std::pow( delt_t, j + 1 ) / ( j + 1 );
@@ -95,13 +97,16 @@ namespace ADAAI::Integration::Integrator::Stepper
           }
           state[equation + N2] = dy_dt[i][equation];
         }
-        // std::cout << '\n';
 
         // (**) y(t) = y(t0) + [dy(t)/dt]|[t=t0] * (t - t0) + sum of B_j * (t - t0) ^ (j + 2) / (( j + 1) * (j + 2)) over j = 0...k
         for ( int equation = 0; equation < N2; equation++ )
         {
-          y[i][equation] = y[0][equation] + dy_dt[0][equation] * (delt_t);
-          // std::cout << y[0][equation] << ' ';
+          if ( i == k )
+          {
+            old_y_k[equation] = y[k][equation];
+          }
+
+          y[i][equation] = y[0][equation] + dy_dt[0][equation] * ( delt_t );
           for ( int j = 0; j <= k; j++ )
           {
             double coeff = std::pow( delt_t, j + 2 ) / ( ( j + 1 ) * ( j + 2 ) );
@@ -109,13 +114,23 @@ namespace ADAAI::Integration::Integrator::Stepper
           }
           state[equation] = y[i][equation];
         }
-        // std::cout << '\n';
         // Now we know y(t) and dy(t)/dt at the points, so we can find F
 
         ( *this->m_rhs )( t0, state, rhs_out );
 
         memcpy( F[i], rhs_out + N2, sizeof( state[0] ) * N2 );
       }
+
+      double norm_dy    = 0;
+      double norm_old_y = 0;
+
+      for ( int i = 0; i < N2; i++ )
+      {
+        norm_dy += ( y[k][i] - old_y_k[i] ) * ( y[k][i] - old_y_k[i] );
+        norm_old_y += ( old_y_k[i] ) * ( old_y_k[i] );
+      }
+
+      return ( norm_dy / norm_old_y );
     }
 
     /// \brief Computes DD.
@@ -142,9 +157,9 @@ namespace ADAAI::Integration::Integrator::Stepper
       }
     }
 
-    //  params are specified only to match the signature of other getBN functions.
+    //  params are specified only to match the signature of other computeBN functions.
     /// \param h  The distance between adjacent ts (e.g. t1-t0)
-    void getB0( [[maybe_unused]] double t0, [[maybe_unused]] double h ) const
+    void computeB0( [[maybe_unused]] double t0, [[maybe_unused]] double h ) const
     {
       for ( int index = 0; index < N2; index++ )
       {
@@ -153,7 +168,7 @@ namespace ADAAI::Integration::Integrator::Stepper
     }
 
     /// \param h  The distance between adjacent ts (e.g. t1-t0)
-    void getB1( [[maybe_unused]] double t0, double h ) const
+    void computeB1( [[maybe_unused]] double t0, double h ) const
     {
       for ( int index = 0; index < N2; index++ )
       {
@@ -172,7 +187,7 @@ namespace ADAAI::Integration::Integrator::Stepper
     }
 
     /// \param h  The distance between adjacent ts (e.g. t1-t0)
-    void getB2( double t0, double h ) const
+    void computeB2( double t0, double h ) const
     {
       const double t  = t0;
       const double t1 = t0 + h;
@@ -188,14 +203,11 @@ namespace ADAAI::Integration::Integrator::Stepper
       {
         // the following formula was derivided manually and revised in 2 weeks with a help of Wolfram Alpha
         B[2][index] = DD[0][2][index] + DD[0][3][index] * F3_coef + DD[0][4][index] * F4_coef + DD[0][5][index] * F5_coef;
-        // B[2][index] /= 1.0;
       }
-
-      // std::cout << "1: " << F3_coef << " 2: " << F4_coef << " 3: " << F5_coef << '\n';
     }
 
     /// \param h  The distance between adjacent ts (e.g. t1-t0)
-    void getB3( double t0, double h ) const
+    void computeB3( double t0, double h ) const
     {
       const double t  = t0;
       const double t1 = t0 + h;
@@ -203,21 +215,17 @@ namespace ADAAI::Integration::Integrator::Stepper
       const double t3 = t0 + 3 * h;
       const double t4 = t0 + 4 * h;
 
-      const double F3_coef = 2;
-      const double F4_coef = ( 6 * t - 2 * ( t1 + t2 + t3 ) );
-      const double F5_coef = ( 12 * t * t - 6 * t * ( t1 + t2 + t3 + t4 ) + 2 * ( t1 * ( t2 + t3 + t4 ) + t2 * ( t3 + t4 ) + t3 * t4 ) );
+      const double F4_coef = ( 3 * t - ( t1 + t2 + t3 ) );
+      const double F5_coef = ( 6 * t * t - 3 * t * ( t1 + t2 + t3 + t4 ) + ( t1 * ( t2 + t3 + t4 ) + t2 * ( t3 + t4 ) + t3 * t4 ) );
 
       for ( int index = 0; index < N2; index++ )
       {
-        B[3][index] = DD[0][3][index] * F3_coef + DD[0][4][index] * F4_coef + DD[0][5][index] * F5_coef;
-        B[3][index] /= 2.0;
+        B[3][index] = DD[0][3][index] + DD[0][4][index] * F4_coef + DD[0][5][index] * F5_coef;
       }
-
-      // std::cout << " 4: " << F4_coef << " 5: " << F5_coef << '\n';
     }
 
     /// \param h  The distance between adjacent ts (e.g. t1-t0)
-    void getB4( double t0, double h ) const
+    void computeB4( double t0, double h ) const
     {
       const double t  = t0;
       const double t1 = t0 + h;
@@ -225,26 +233,33 @@ namespace ADAAI::Integration::Integrator::Stepper
       const double t3 = t0 + 3 * h;
       const double t4 = t0 + 4 * h;
 
-      const double F4_coef = 6;
-      const double F5_coef = ( 24 * t - 6 * ( t1 + t2 + t3 + t4 ) );
+      const double F5_coef = ( 4 * t - ( t1 + t2 + t3 + t4 ) );
 
       for ( int index = 0; index < N2; index++ )
       {
-        B[4][index] = DD[0][4][index] * F4_coef + DD[0][5][index] * F5_coef;
-        B[4][index] /= 6.0;
+        B[4][index] = DD[0][4][index] + DD[0][5][index] * F5_coef;
       }
-
-      // std::cout << "6: " << F5_coef << '\n';
     }
 
     /// \param h  The distance between adjacent ts (e.g. t1-t0)
-    void getB5( [[maybe_unused]] double t0, [[maybe_unused]] double h ) const
+    void computeB5( [[maybe_unused]] double t0, [[maybe_unused]] double h ) const
     {
       for ( int index = 0; index < N2; index++ )
       {
-        B[5][index] = DD[0][5][index] * 24;
-        B[5][index] /= 24.0;
+        B[5][index] = DD[0][5][index];
       }
+    }
+
+    /// \brief Compute all the B_j
+    /// \param h  The distance between adjacent ts (e.g. t1-t0)
+    void computeBs( double t0, double h ) const
+    {
+      computeB0( t0, h );
+      computeB1( t0, h );
+      computeB2( t0, h );
+      computeB3( t0, h );
+      computeB4( t0, h );
+      computeB5( t0, h );
     }
 
     /// \brief The stepper function
@@ -273,15 +288,15 @@ namespace ADAAI::Integration::Integrator::Stepper
         compute_DD( dist_between_adjacent_ts );
 
         // Step 4: find B_j (as functions of divided differences)
-        getB0( current_time, dist_between_adjacent_ts );
-        getB1( current_time, dist_between_adjacent_ts );
-        getB2( current_time, dist_between_adjacent_ts );
-        getB3( current_time, dist_between_adjacent_ts );
-        getB4( current_time, dist_between_adjacent_ts );
-        getB5( current_time, dist_between_adjacent_ts );
+        computeBs( current_time, dist_between_adjacent_ts );
 
         // Step 5: compute more accurate y(t), d[y(t)]/dt and F[i]
-        compute_F( current_time, dist_between_adjacent_ts );
+        double eps = compute_F( current_time, dist_between_adjacent_ts );
+
+        if ( eps < CONST::EPS<double> )
+        {
+          break;
+        }
       }
 
       memcpy( next_state, y[k], sizeof( current_state[0] ) * N2 );
