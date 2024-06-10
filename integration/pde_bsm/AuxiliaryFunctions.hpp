@@ -68,4 +68,21 @@ namespace ADAAI::Integration::PDE_BSM::AUX_FUNC
     }
     return 0.1125 + 0.13 * ( tau - 0.75 );
   }
+
+  double get_sigma2_integral( double tau )
+  {
+    if ( tau <= 0.25 )
+    {
+      return 0.21 * 0.21 * tau;
+    }
+    if ( tau <= 0.5 )
+    {
+      return 0.011025 + 0.229 * 0.229 * ( tau - 0.25 );
+    }
+    if ( tau <= 0.75 )
+    {
+      return 0.02413525 + 0.29 * 0.29 * ( tau - 0.5 );
+    }
+    return 0.04516025 + 0.25 * 0.25 * ( tau - 0.75 );
+  }
 } // namespace ADAAI::Integration::PDE_BSM::AUX_FUNC
