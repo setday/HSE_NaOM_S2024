@@ -1,4 +1,5 @@
 #include "../AuxiliaryFunctions.hpp"
+#include "../AnalyticalSolution.hpp"
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -7,8 +8,8 @@
 
 namespace ADAAI::Integration::PDE_BSM::Implicit
 {
-  constexpr static uint64_t N = 100;
-  constexpr static uint64_t M = 100;
+  constexpr static uint64_t N = 1000;
+  constexpr static uint64_t M = 1000;
   constexpr static uint64_t K = 100;
 
   constexpr static double TAU_MAX = 1.0;
@@ -131,6 +132,6 @@ namespace ADAAI::Integration::PDE_BSM::Implicit
     --i;
     double S_tau = S_TAU_MAX - i * S_MAX / N;
 
-    std::cout << c_ij[i][N] * ( 1.0 - S_tau ) + c_ij[i][N] * S_tau;
+    std::cout << "Expected: " << AUX_FUNC::get_price(S_TAU_MAX, TAU_MAX) << '\n' << "Got: " << c_ij[i][N] * ( 1.0 - S_tau ) + c_ij[i][N] * S_tau << '\n';
   }
 } // namespace ADAAI::Integration::PDE_BSM::Implicit
