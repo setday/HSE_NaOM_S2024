@@ -1,42 +1,51 @@
 //#define EXP_TEST
 #ifdef EXP_TEST
-#include "exp/TestExp.hpp"
+#  include "exp/TestExp.hpp"
 #endif
 
 //#define DIFF_TEST
 #ifdef DIFF_TEST
-#include "diff/TestDiff.hpp"
+#  include "diff/TestDiff.hpp"
 #endif
 
 //#define INTEGRATION_CANNON_PROBLEM
 #ifdef INTEGRATION_CANNON_PROBLEM
-#include "integration/cannon_problem/Cannon.cpp"
+#  include "integration/cannon_problem/Cannon.cpp"
 #endif
-#define INTEGRATION_ORBITAL_PROBLEM
+//#define INTEGRATION_ORBITAL_PROBLEM
 #ifdef INTEGRATION_ORBITAL_PROBLEM
-#include "integration/orbital_problem/SatelliteLauncher.cpp"
+#  include "integration/orbital_problem/SatelliteLauncher.cpp"
 #endif
 
+#define PDE_BSM_PROBLEM
+#ifdef PDE_BSM_PROBLEM
+#  include "integration/pde_bsm/AucLauncher.cpp"
+#endif
 
 int main()
 {
   // Exp part
 #ifdef EXP_TEST
-   TestDiff();
+  TestDiff();
 #endif
 
-   // Diff part
+  // Diff part
 #ifdef DIFF_TEST
-   TestExp();
+  TestExp();
 #endif
 
-   // Integration part
+  // Integration part
 #ifdef INTEGRATION_CANNON_PROBLEM
   double ang = ADAAI::Integration::Cannon::findBestAngle();
   std::cout << "Best angle: " << ang << std::endl;
 #endif
 #ifdef INTEGRATION_ORBITAL_PROBLEM
   ADAAI::Integration::Satellite::launchSatellite();
+#endif
+
+  // PDE BSM part
+#ifdef PDE_BSM_PROBLEM
+  std::cout << ADAAI::Integration::PDE_BSM::launchAuc();
 #endif
 
   return 0;

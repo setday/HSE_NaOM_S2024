@@ -107,7 +107,7 @@ namespace ADAAI::Integration::Integrator::Stepper
       // ======================================================================
       // save res
       std::memcpy( next_state, current_state, RHS::N * sizeof( double ) );
-      for ( int i = 0; i < RHS::N; ++i )
+      for ( std::size_t i = 0; i < ks.size(); ++i )
       {
         std::memcpy( buf, ks[i].data(), RHS::N * sizeof( double ) );
         mul( buf, CH_K[i + 1], RHS::N );
