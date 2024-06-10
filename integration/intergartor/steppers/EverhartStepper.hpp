@@ -87,7 +87,7 @@ namespace ADAAI::Integration::Integrator::Stepper
         for ( int equation = 0; equation < N2; equation++ )
         {
           dy_dt[i][equation] = dy_dt[0][equation];
-          std::cout << dy_dt[0][equation] << ' ';
+          // std::cout << dy_dt[0][equation] << ' ';
           for ( int j = 0; j <= k; j++ )
           {
             double coeff = std::pow( delt_t, j + 1 ) / ( j + 1 );
@@ -95,13 +95,13 @@ namespace ADAAI::Integration::Integrator::Stepper
           }
           state[equation + N2] = dy_dt[i][equation];
         }
-        std::cout << '\n';
+        // std::cout << '\n';
 
         // (**) y(t) = y(t0) + [dy(t)/dt]|[t=t0] * (t - t0) + sum of B_j * (t - t0) ^ (j + 2) / (( j + 1) * (j + 2)) over j = 0...k
         for ( int equation = 0; equation < N2; equation++ )
         {
-          y[i][equation] = y[0][equation];
-          std::cout << y[0][equation] << ' ';
+          y[i][equation] = y[0][equation] + dy_dt[0][equation] * (delt_t);
+          // std::cout << y[0][equation] << ' ';
           for ( int j = 0; j <= k; j++ )
           {
             double coeff = std::pow( delt_t, j + 2 ) / ( ( j + 1 ) * ( j + 2 ) );
@@ -109,7 +109,7 @@ namespace ADAAI::Integration::Integrator::Stepper
           }
           state[equation] = y[i][equation];
         }
-        std::cout << '\n';
+        // std::cout << '\n';
         // Now we know y(t) and dy(t)/dt at the points, so we can find F
 
         ( *this->m_rhs )( t0, state, rhs_out );
@@ -264,7 +264,7 @@ namespace ADAAI::Integration::Integrator::Stepper
       // Step 1: INITIAL APPROXIMATION
       initial_approximation_of_F( current_time, dist_between_adjacent_ts );
 
-      const int number_of_iterations = 1; // it should be improved later by observing convergence (if almost nothing has changed, then finish the step)
+      const int number_of_iterations = 10; // it should be improved later by observing convergence (if almost nothing has changed, then finish the step)
 
       // Step 2: complete N iterations
       for ( int j = 1; j <= number_of_iterations; j++ )
@@ -284,8 +284,8 @@ namespace ADAAI::Integration::Integrator::Stepper
         compute_F( current_time, dist_between_adjacent_ts );
       }
 
-      memcpy( next_state, y[1], sizeof( current_state[0] ) * N2 );
-      memcpy( next_state + N2, dy_dt[1], sizeof( current_state[0] ) * N2 );
+      memcpy( next_state, y[k], sizeof( current_state[0] ) * N2 );
+      memcpy( next_state + N2, dy_dt[k], sizeof( current_state[0] ) * N2 );
 
       return { current_time + suggested_d_time, suggested_d_time };
     }
