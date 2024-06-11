@@ -17,14 +17,9 @@
 #  include "integration/orbital_problem/SatelliteLauncher.cpp"
 #endif
 
-// #define PDE_BSM_PROBLEM
+#define PDE_BSM_PROBLEM
 #ifdef PDE_BSM_PROBLEM
 #  include "integration/pde_bsm/AucLauncher.cpp"
-#endif
-
-#define IMPLICIT_PDE_BSM_PROBLEM
-#ifdef IMPLICIT_PDE_BSM_PROBLEM
-#  include "integration/pde_bsm/implicit/solution.cpp"
 #endif
 
 int main()
@@ -57,11 +52,6 @@ int main()
   std::cout << "Actual Premium = " << analytical << '\n';
   std::cout << "Explicit Premium = " << explicit_ << '\n';
   std::cout << "Implicit Premium = " << implicit_ << '\n';
-#endif
-
-  // Implicit PDE BSM part
-#ifdef IMPLICIT_PDE_BSM_PROBLEM
-  ADAAI::Integration::PDE_BSM::Implicit::runSolution();
 #endif
 
   return 0;

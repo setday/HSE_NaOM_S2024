@@ -5,7 +5,7 @@
 #include <gsl/gsl_sf.h>
 #include <gsl/gsl_sf_erf.h>
 
-namespace ADAAI::Integration::PDE_BSM
+namespace ADAAI::Integration::PDE_BSM::Analytical
 {
   /// @brief r_tau
   /// @param tau

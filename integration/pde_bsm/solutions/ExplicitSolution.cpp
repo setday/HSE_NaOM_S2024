@@ -3,7 +3,7 @@
 
 #include "../AucRHS.hpp"
 
-namespace ADAAI::Integration::PDE_BSM
+namespace ADAAI::Integration::PDE_BSM::Explicit
 {
   /// @brief r_tau
   /// @param tau
