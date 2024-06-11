@@ -26,12 +26,12 @@ namespace ADAAI::Utils
 
     std::string test_data;
 
-    virtual bool check_function( T value )
+    virtual bool check_function( [[maybe_unused]] T value )
     {
       return true;
     }
 
-    virtual void print_data( std::ostream& os ) const
+    virtual void print_data( [[maybe_unused]] std::ostream& os ) const
     {
     }
   };

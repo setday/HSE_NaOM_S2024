@@ -24,9 +24,9 @@ namespace ADAAI::Integration::CannonBall
 
     BallRHS() = default;
 
-    void operator()( double current_time, const double* current_state, double* rhs ) const override
+    void operator()( [[maybe_unused]] double current_time, const double* current_state, double* rhs ) const override
     {
-      double
+      [[maybe_unused]] double
           x   = current_state[0],
           y   = current_state[1],
           v_x = current_state[2],

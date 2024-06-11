@@ -89,15 +89,15 @@ namespace ADAAI::Diff
     switch ( d )
     {
       case D::X:
-        return ( squared * Stencil3<d>( f, x, y, h_x = h_x / n ) - Stencil3<d>( f, x, y, h_x = h_x ) ) / ( squared - 1 );
+        return ( squared * Stencil3<d>( f, x, y, h_x / n, h_y ) - Stencil3<d>( f, x, y, h_x, h_y ) ) / ( squared - 1 );
       case D::Y:
-        return ( squared * Stencil3<d>( f, x, y, h_y = h_y / n ) - Stencil3<d>( f, x, y, h_y = h_y ) ) / ( squared - 1 );
+        return ( squared * Stencil3<d>( f, x, y, h_x, h_y / n ) - Stencil3<d>( f, x, y, h_x, h_y ) ) / ( squared - 1 );
       case D::XX:
-        return ( squared * Stencil3<d>( f, x, y, h_x = h_x / n ) - Stencil3<d>( f, x, y, h_x = h_x ) ) / ( squared - 1 );
+        return ( squared * Stencil3<d>( f, x, y, h_x / n, h_y ) - Stencil3<d>( f, x, y, h_x, h_y ) ) / ( squared - 1 );
       case D::YY:
-        return ( squared * Stencil3<d>( f, x, y, h_y = h_y / n ) - Stencil3<d>( f, x, y, h_y = h_y ) ) / ( squared - 1 );
+        return ( squared * Stencil3<d>( f, x, y, h_x, h_y / n ) - Stencil3<d>( f, x, y, h_x, h_y ) ) / ( squared - 1 );
       case D::XY:
-        return ( squared * Stencil3<d>( f, x, y, h_x = h_x / n, h_y = h_y / n ) - Stencil3<d>( f, x, y, h_x = h_x, h_y = h_y ) ) / ( squared - 1 );
+        return ( squared * Stencil3<d>( f, x, y, h_x / n, h_y / n ) - Stencil3<d>( f, x, y, h_x, h_y ) ) / ( squared - 1 );
     }
   }
 
@@ -139,15 +139,15 @@ namespace ADAAI::Diff
     switch ( d )
     {
       case D::X:
-        return ( squared * Stencil5<d>( f, x, y, h_x = h_x / n ) - Stencil5<d>( f, x, y, h_x = h_x ) ) / ( squared - 1 );
+        return ( squared * Stencil5<d>( f, x, y, h_x / n, h_y ) - Stencil5<d>( f, x, y, h_x, h_y ) ) / ( squared - 1 );
       case D::Y:
-        return ( squared * Stencil5<d>( f, x, y, h_y = h_y / n ) - Stencil5<d>( f, x, y, h_y = h_y ) ) / ( squared - 1 );
+        return ( squared * Stencil5<d>( f, x, y, h_x, h_y / n ) - Stencil5<d>( f, x, y, h_x, h_y ) ) / ( squared - 1 );
       case D::XX:
-        return ( squared * Stencil5<d>( f, x, y, h_x = h_x / n ) - Stencil5<d>( f, x, y, h_x = h_x ) ) / ( squared - 1 );
+        return ( squared * Stencil5<d>( f, x, y, h_x / n, h_y ) - Stencil5<d>( f, x, y, h_x, h_y ) ) / ( squared - 1 );
       case D::YY:
-        return ( squared * Stencil5<d>( f, x, y, h_y = h_y / n ) - Stencil5<d>( f, x, y, h_y = h_y ) ) / ( squared - 1 );
+        return ( squared * Stencil5<d>( f, x, y, h_x, h_y / n ) - Stencil5<d>( f, x, y, h_x, h_y ) ) / ( squared - 1 );
       case D::XY:
-        return ( squared * Stencil5<d>( f, x, y, h_x = h_x / n, h_y = h_y / n ) - Stencil5<d>( f, x, y, h_x = h_x, h_y = h_y ) ) / ( squared - 1 );
+        return ( squared * Stencil5<d>( f, x, y, h_x / n, h_y / n ) - Stencil5<d>( f, x, y, h_x, h_y ) ) / ( squared - 1 );
     }
   }
 

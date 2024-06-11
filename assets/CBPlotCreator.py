@@ -1,10 +1,9 @@
 import json
 
-import pandas as pd
-import numpy as np
-
-import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
 
 # Read data (../data/Cannon_best_angle_data.json)
 data = json.load(open('data/Cannon_best_angle_data.json'))
@@ -13,7 +12,7 @@ data = json.load(open('data/Cannon_best_angle_data.json'))
 df = pd.json_normalize(data['data'])
 print(df.info())
 
-df['v'] = np.sqrt(df['current_state.v_x']**2 + df['current_state.v_y']**2)
+df['v'] = np.sqrt(df['current_state.v_x'] ** 2 + df['current_state.v_y'] ** 2)
 
 # Plot the data
 figure, axes = plt.subplots(3, 2, figsize=(18, 9))
