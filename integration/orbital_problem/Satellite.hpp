@@ -22,7 +22,7 @@ namespace ADAAI::Integration::Satellite
 
     SatelliteRHS() = default;
 
-    void operator()( double current_time, const double* current_state, double* rhs ) const override
+    void operator()( [[maybe_unused]] double current_time, const double* current_state, double* rhs ) const override
     {
       rhs[0] = current_state[3];
       rhs[1] = current_state[4];
@@ -34,7 +34,7 @@ namespace ADAAI::Integration::Satellite
 
   struct SatelliteObserver : Integrator::Observer<SatelliteRHS>
   {
-    bool operator()( double current_time, const double current_state[SatelliteRHS::N] ) const override
+    bool operator()( double current_time, [[maybe_unused]] const double current_state[SatelliteRHS::N] ) const override
     {
       return current_time <= 3.1e7; // 1 year
     }

@@ -24,7 +24,7 @@ namespace ADAAI::Integration::Integrator
     }
 
     /// \brief The right-hand side of the harmonic oscillator equation
-    void operator()( double current_time, const double* current_state, double* rhs ) const override
+    void operator()( [[maybe_unused]] double current_time, const double* current_state, double* rhs ) const override
     {
       rhs[0] = current_state[1];
       rhs[1] = -m_omega2 * current_state[0];

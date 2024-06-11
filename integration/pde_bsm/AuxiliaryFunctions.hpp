@@ -1,8 +1,8 @@
 #include <fstream>
 #include <iostream>
+#include <math.h>
 #include <stdexcept>
 #include <utility>
-#include <math.h>
 
 namespace ADAAI::Integration::PDE_BSM::AUX_FUNC
 {
@@ -29,8 +29,8 @@ namespace ADAAI::Integration::PDE_BSM::AUX_FUNC
   constexpr double sigma_max = 0.29; // Sigma maximum
 
   /// @brief r_tau
-  /// @param tau 
-  /// @return 
+  /// @param tau
+  /// @return
   double risk_free_interest_rate_function( double tau )
   {
     if ( tau <= 0.25 )

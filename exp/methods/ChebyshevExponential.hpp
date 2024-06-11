@@ -33,7 +33,7 @@ namespace ADAAI::Exp::Core::Chebyshev
     {
       gsl_cheb_series* cs = gsl_cheb_alloc( Taylor::N<T> + 1 );
 
-      gsl_function F = { .function = &f };
+      gsl_function F = { .function = &f, .params = nullptr };
 
       gsl_cheb_init( cs, &F, -1, 1 );
 

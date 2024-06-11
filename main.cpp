@@ -26,12 +26,12 @@ int main()
 {
   // Exp part
 #ifdef EXP_TEST
-  TestDiff();
+  TestExp();
 #endif
 
   // Diff part
 #ifdef DIFF_TEST
-  TestExp();
+  TestDiff();
 #endif
 
   // Integration part
@@ -45,7 +45,9 @@ int main()
 
   // PDE BSM part
 #ifdef PDE_BSM_PROBLEM
-  std::cout << ADAAI::Integration::PDE_BSM::launchAuc();
+  std::cout << "Actual Premium = " << ADAAI::Integration::PDE_BSM::launchAuc( ADAAI::Integration::PDE_BSM::SolutionApproach::ANALYTICAL ) << '\n';
+  std::cout << "Explicit Premium = " << ADAAI::Integration::PDE_BSM::launchAuc( ADAAI::Integration::PDE_BSM::SolutionApproach::EXPLICIT ) << '\n';
+  std::cout << "Implicit Premium = " << ADAAI::Integration::PDE_BSM::launchAuc( ADAAI::Integration::PDE_BSM::SolutionApproach::IMPLICIT ) << '\n';
 #endif
 
   return 0;
