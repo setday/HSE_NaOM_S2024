@@ -45,9 +45,13 @@ int main()
 
   // PDE BSM part
 #ifdef PDE_BSM_PROBLEM
-  std::cout << "Actual Premium = " << ADAAI::Integration::PDE_BSM::launchAuc( ADAAI::Integration::PDE_BSM::SolutionApproach::ANALYTICAL ) << '\n';
-  std::cout << "Explicit Premium = " << ADAAI::Integration::PDE_BSM::launchAuc( ADAAI::Integration::PDE_BSM::SolutionApproach::EXPLICIT ) << '\n';
-  std::cout << "Implicit Premium = " << ADAAI::Integration::PDE_BSM::launchAuc( ADAAI::Integration::PDE_BSM::SolutionApproach::IMPLICIT ) << '\n';
+  double analytical = ADAAI::Integration::PDE_BSM::launchAuc( ADAAI::Integration::PDE_BSM::SolutionApproach::ANALYTICAL );
+  double explicit_  = ADAAI::Integration::PDE_BSM::launchAuc( ADAAI::Integration::PDE_BSM::SolutionApproach::EXPLICIT );
+  double implicit_  = ADAAI::Integration::PDE_BSM::launchAuc( ADAAI::Integration::PDE_BSM::SolutionApproach::IMPLICIT );
+
+  std::cout << "Actual Premium = " << analytical << '\n';
+  std::cout << "Explicit Premium = " << explicit_ << '\n';
+  std::cout << "Implicit Premium = " << implicit_ << '\n';
 #endif
 
   return 0;
