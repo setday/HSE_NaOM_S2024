@@ -1,114 +1,106 @@
 #include <cmath>
 #include <cstdint>
 
+#include "../../intergartor/steppers/BasicTimeStepper.hpp"
 #include "../AuxiliaryFunctions.hpp"
 
 namespace ADAAI::Integration::PDE_BSM::Implicit
 {
-  constexpr static uint64_t N = AucRHS::N;
-  constexpr static uint64_t M = AucRHS::N;
+  template<typename RHS>
+  class ImplicitStepper : public Integration::Integrator::Stepper::TimeStepper<RHS> {
+  public:
+    constexpr static int N = RHS::N - 1;
 
-  double state[ N + 1 ];
-  double matrix[ N ][ N ];
-  double F_i[ N ];
-
-  static double DT;
-
-  double A_ij( uint64_t i, double tau )
-  {
-    double a = i * AUX_FUNC::risk_free_interest_rate_function( tau );
-    double b = i * AUX_FUNC::sigma_function( tau );
-    return b * b / 2 - a;
-  }
-
-  double B_ij( uint64_t i, double tau )
-  {
-    double b = i * AUX_FUNC::sigma_function( tau );
-    double c = -AUX_FUNC::risk_free_interest_rate_function( tau );
-    return c - b * b - 1 / DT;
-  }
-
-  double D_ij( uint64_t i, double tau )
-  {
-    double a = i * AUX_FUNC::risk_free_interest_rate_function( tau );
-    double b = i * AUX_FUNC::sigma_function( tau );
-    return b * b / 2 + a;
-  }
-
-  void init_matrix( double tau )
-  {
-    for ( uint64_t i = 1; i <= N - 2; ++i )
+  private:
+    double A_ij( uint64_t i, double tau, [[maybe_unused]] double dTau ) const
     {
-      matrix[i][i]     = B_ij( i, tau );
-      matrix[i + 1][i] = A_ij( i + 1, tau );
-      matrix[i][i + 1] = D_ij( i, tau );
-    }
-    matrix[N - 1][N - 1] = B_ij( N - 1, tau );
-  }
+      double a = i * AUX_FUNC::risk_free_interest_rate_function( tau );
+      double b = i * AUX_FUNC::sigma_function( tau );
 
-  void init_F_i( double tau )
-  {
-    for ( uint64_t i = 1; i <= N - 1; ++i )
-    {
-      F_i[i] = -state[i] / DT;
+      return b * b / 2 - a;
     }
 
-    F_i[1] -= A_ij( 1, tau ) * 0.0;
-    F_i[N - 1] -= D_ij( N - 1, tau ) * AucRHS::S_max - AucRHS::K * std::exp( -AUX_FUNC::get_r_integral( tau ) );
-
-    for ( uint64_t i = 1; i <= N - 2; ++i )
+    double B_ij( uint64_t i, double tau, double dTau ) const
     {
-      double coef      = matrix[i + 1][i] / matrix[i][i];
-      matrix[i + 1][i] = 0.0;
-      matrix[i + 1][i + 1] -= coef * matrix[i][i + 1];
+      double b = i * AUX_FUNC::sigma_function( tau );
+      double c = -AUX_FUNC::risk_free_interest_rate_function( tau );
 
-      F_i[i + 1] -= coef * F_i[i];
+      return c - b * b - 1 / dTau;
     }
 
-    for ( uint64_t i = N - 1; i >= 2; --i )
+    double D_ij( uint64_t i, double tau, [[maybe_unused]] double dTau ) const
     {
-      double coef      = matrix[i - 1][i] / matrix[i][i];
-      matrix[i - 1][i] = 0.0;
+      double a = i * AUX_FUNC::risk_free_interest_rate_function( tau );
+      double b = i * AUX_FUNC::sigma_function( tau );
 
-      F_i[i - 1] -= coef * F_i[i];
-    }
-  }
-
-  void init_state()
-  {
-    for ( uint64_t i = 0; i <= N; i++ )
-    {
-      state[i] = std::max( i * AucRHS::S_max / N - AucRHS::K, 0.0 );
-    }
-  }
-
-  void recalculate_state( double tau )
-  {
-    for ( uint64_t i = 1; i <= N - 1; ++i )
-    {
-      state[i] = F_i[i] / matrix[i][i];
+      return b * b / 2 + a;
     }
 
-    state[0] = 0.0;
-    state[N] = AucRHS::S_max - AucRHS::K * std::exp( -AUX_FUNC::get_r_integral( tau ) );
-  }
-
-  double runSolution( double S_tau_max, double tau_max )
-  {
-    DT      = tau_max / N;
-
-    init_state();
-
-    for ( uint64_t j = 1; j <= M; ++j )
+    void init_matrix( double matrix[N][N], double tau, double dTau ) const
     {
-      double tau_j = j * tau_max / M;
-
-      init_matrix( tau_j );
-      init_F_i( tau_j );
-
-      recalculate_state( tau_j );
+      for ( int i = 1; i <= N - 2; ++i )
+      {
+        matrix[i][i]     = B_ij( i, tau, dTau );
+        matrix[i + 1][i] = A_ij( i + 1, tau, dTau );
+        matrix[i][i + 1] = D_ij( i, tau, dTau );
+      }
+      matrix[N - 1][N - 1] = B_ij( N - 1, tau, dTau );
     }
 
-    return AucFunc::get_c( state, S_tau_max );
-  }
+    void init_F_i( double F_i[N], double matrix[N][N], double current_state[RHS::N], double tau, double dTau ) const
+    {
+      for ( uint64_t i = 1; i <= N - 1; ++i )
+      {
+        F_i[i] = -current_state[i] / dTau;
+      }
+
+      F_i[1] -= A_ij( 1, tau, dTau ) * 0.0;
+      F_i[N - 1] -= D_ij( N - 1, tau, dTau ) * AucRHS::S_max - AucRHS::K * std::exp( -AUX_FUNC::get_r_integral( tau ) );
+
+      for ( int i = 1; i <= N - 2; ++i )
+      {
+        double coef      = matrix[i + 1][i] / matrix[i][i];
+        matrix[i + 1][i] = 0.0;
+        matrix[i + 1][i + 1] -= coef * matrix[i][i + 1];
+
+        F_i[i + 1] -= coef * F_i[i];
+      }
+
+      for ( int i = N - 1; i >= 2; --i )
+      {
+        double coef      = matrix[i - 1][i] / matrix[i][i];
+        matrix[i - 1][i] = 0.0;
+
+        F_i[i - 1] -= coef * F_i[i];
+      }
+    }
+
+
+    void recalculate_state( double F_i[N], double matrix[N][N], double next_state[RHS::N], double tau ) const
+    {
+      for ( int i = 1; i <= N - 1; ++i )
+      {
+        next_state[i] = F_i[i] / matrix[i][i];
+      }
+
+      next_state[0] = 0.0;
+      next_state[N] = AucRHS::S_max - AucRHS::K * std::exp( -AUX_FUNC::get_r_integral( tau ) );
+    }
+
+  public:
+    explicit ImplicitStepper( RHS* rhs ) : Integration::Integrator::Stepper::TimeStepper<RHS>( rhs ) {}
+
+    std::pair<double, double> operator()( double current_state[RHS::N], double next_state[RHS::N], double current_time, double suggested_d_time ) const override
+    {
+      static double matrix[N][N];
+      static double F_i[N];
+
+      init_matrix( matrix, current_time, suggested_d_time );
+      init_F_i( F_i, matrix, current_state, current_time, suggested_d_time );
+
+      recalculate_state( F_i, matrix, next_state, current_time );
+
+      return { current_time + suggested_d_time, suggested_d_time };
+    }
+  };
 } // namespace ADAAI::Integration::PDE_BSM::Implicit

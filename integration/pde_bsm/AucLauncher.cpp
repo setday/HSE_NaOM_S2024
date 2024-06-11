@@ -4,8 +4,7 @@
 #include "AucRHS.hpp"
 
 #include "solutions/AnalyticalSolution.cpp"
-#include "solutions/ExplicitSolution.cpp"
-#include "solutions/ImplicitSolution.cpp"
+#include "solutions/NumericalSolution.cpp"
 
 namespace ADAAI::Integration::PDE_BSM
 {
@@ -26,9 +25,9 @@ namespace ADAAI::Integration::PDE_BSM
       case SolutionApproach::ANALYTICAL:
         return Analytical::solveAnalytical( S_tau_max, tau_max );
       case SolutionApproach::EXPLICIT:
-        return Explicit::solveExplicit( S_tau_max, tau_max );
+        return Numerical::solveNumerical( S_tau_max, tau_max, Numerical::SolutionApproach::EXPLICIT );
       case SolutionApproach::IMPLICIT:
-        return Implicit::runSolution( S_tau_max, tau_max );
+        return Numerical::solveNumerical( S_tau_max, tau_max, Numerical::SolutionApproach::IMPLICIT );
     }
 
     throw std::invalid_argument( "Unknown solution approach" );

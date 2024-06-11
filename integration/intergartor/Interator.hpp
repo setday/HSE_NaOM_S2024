@@ -29,13 +29,13 @@ namespace ADAAI::Integration::Integrator
     /// \param t_start The initial time
     /// \param t_end The final time
     /// \return The time of the final state
-    double operator()( const double state_start[TS::N], double state_end[TS::N], double t_start = 0.0, double t_end = 2e3, double suggested_dt = 1e-2 ) const
+    double operator()( const double state_start[RHS_I::N], double state_end[RHS_I::N], double t_start = 0.0, double t_end = 2e3, double suggested_dt = 1e-2 ) const
     {
       double current_time = t_start;
-      double current_state[TS::N];
-      double next_state[TS::N];
+      double current_state[RHS_I::N];
+      double next_state[RHS_I::N];
 
-      for ( int i = 0; i < TS::N; ++i )
+      for ( int i = 0; i < RHS_I::N; ++i )
       {
         current_state[i] = state_start[i];
       }
@@ -58,7 +58,7 @@ namespace ADAAI::Integration::Integrator
         }
 
         current_time = next_time;
-        for ( int i = 0; i < TS::N; ++i )
+        for ( int i = 0; i < RHS_I::N; ++i )
         {
           current_state[i] = next_state[i];
         }
@@ -70,7 +70,7 @@ namespace ADAAI::Integration::Integrator
         }
       }
 
-      for ( int i = 0; i < TS::N; ++i )
+      for ( int i = 0; i < RHS_I::N; ++i )
       {
         state_end[i] = current_state[i];
       }
