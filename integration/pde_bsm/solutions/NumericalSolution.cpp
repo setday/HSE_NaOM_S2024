@@ -31,14 +31,14 @@ namespace ADAAI::Integration::PDE_BSM::Numerical
     {
       if ( approach == SolutionApproach::EXPLICIT )
       {
-        auto stepper = Integrator::Stepper::RFK45_TimeStepper( &rhs );
+        auto stepper    = Integrator::Stepper::RFK45_TimeStepper( &rhs );
         auto integrator = Integrator::ODE_Integrator<AucRHS, Integrator::Stepper::RFK45_TimeStepper<AucRHS>>( &stepper, &observer );
 
         integrator( state, end_state, 0.0, tau_max, delta_tau );
       }
       else
       {
-        auto stepper = Implicit::ImplicitStepper( &rhs );
+        auto stepper    = Implicit::ImplicitStepper( &rhs );
         auto integrator = Integrator::ODE_Integrator<AucRHS, Implicit::ImplicitStepper<AucRHS>>( &stepper, &observer );
 
         integrator( state, end_state, 0.0, tau_max, delta_tau );

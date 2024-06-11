@@ -19,4 +19,4 @@ namespace ADAAI::Integration::PDE_BSM::Analytical
 
     return S_tau_max * ( 1 - gsl_sf_erf_Q( d_plus ) ) - AucRHS::K * std::exp( -AUX_FUNC::risk_free_interest_rate_function( tau_max ) ) * ( 1 - gsl_sf_erf_Q( d_minus ) );
   }
-} // namespace ADAAI::Integration::PDE_BSM
+} // namespace ADAAI::Integration::PDE_BSM::Analytical

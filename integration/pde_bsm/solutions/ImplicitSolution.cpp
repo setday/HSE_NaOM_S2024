@@ -7,7 +7,8 @@
 namespace ADAAI::Integration::PDE_BSM::Implicit
 {
   template<typename RHS>
-  class ImplicitStepper : public Integration::Integrator::Stepper::TimeStepper<RHS> {
+  class ImplicitStepper : public Integration::Integrator::Stepper::TimeStepper<RHS>
+  {
   public:
     constexpr static int N = RHS::N - 1;
 
@@ -75,7 +76,6 @@ namespace ADAAI::Integration::PDE_BSM::Implicit
       }
     }
 
-
     void recalculate_state( double F_i[N], double matrix[N][N], double next_state[RHS::N], double tau ) const
     {
       for ( int i = 1; i <= N - 1; ++i )
@@ -88,7 +88,10 @@ namespace ADAAI::Integration::PDE_BSM::Implicit
     }
 
   public:
-    explicit ImplicitStepper( RHS* rhs ) : Integration::Integrator::Stepper::TimeStepper<RHS>( rhs ) {}
+    explicit ImplicitStepper( RHS* rhs )
+        : Integration::Integrator::Stepper::TimeStepper<RHS>( rhs )
+    {
+    }
 
     std::pair<double, double> operator()( double current_state[RHS::N], double next_state[RHS::N], double current_time, double suggested_d_time ) const override
     {
