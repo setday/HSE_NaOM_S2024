@@ -10,7 +10,7 @@ namespace ADAAI::Integration::PDE_BSM::Implicit
   class ImplicitStepper : public Integration::Integrator::Stepper::TimeStepper<RHS>
   {
   public:
-    constexpr static int N = RHS::N - 1;
+    constexpr static int N = RHS::N;
 
   private:
     double A_ij( uint64_t i, double tau, [[maybe_unused]] double dTau ) const
@@ -45,7 +45,7 @@ namespace ADAAI::Integration::PDE_BSM::Implicit
         matrix[i + 1][i] = A_ij( i + 1, tau, dTau );
         matrix[i][i + 1] = D_ij( i, tau, dTau );
       }
-      matrix[N - 1][N - 1] = B_ij( N - 1, tau, dTau );
+      matrix[N - 2][N - 2] = B_ij( N - 2, tau, dTau );
     }
 
     double get_zero_state() const
@@ -60,15 +60,15 @@ namespace ADAAI::Integration::PDE_BSM::Implicit
 
     void init_F_i( double F_i[N], double matrix[N][N], double current_state[RHS::N], double tau, double dTau ) const
     {
-      for ( uint64_t i = 1; i <= N - 1; ++i )
+      for ( uint64_t i = 1; i <= N - 2; ++i )
       {
         F_i[i] = -current_state[i] / dTau;
       }
 
       F_i[1] -= A_ij( 1, tau, dTau ) * get_zero_state();
-      F_i[N - 1] -= D_ij( N - 1, tau, dTau ) * get_last_state( tau );
+      F_i[N - 2] -= D_ij( N - 2, tau, dTau ) * get_last_state( tau );
 
-      for ( int i = 1; i <= N - 2; ++i )
+      for ( int i = 1; i <= N - 3; ++i )
       {
         double coef      = matrix[i + 1][i] / matrix[i][i];
         matrix[i + 1][i] = 0.0;
@@ -77,7 +77,7 @@ namespace ADAAI::Integration::PDE_BSM::Implicit
         F_i[i + 1] -= coef * F_i[i];
       }
 
-      for ( int i = N - 1; i >= 2; --i )
+      for ( int i = N - 2; i >= 2; --i )
       {
         double coef      = matrix[i - 1][i] / matrix[i][i];
         matrix[i - 1][i] = 0.0;
@@ -88,13 +88,13 @@ namespace ADAAI::Integration::PDE_BSM::Implicit
 
     void recalculate_state( double F_i[N], double matrix[N][N], double next_state[RHS::N], double tau ) const
     {
-      for ( int i = 1; i <= N - 1; ++i )
+      for ( int i = 1; i <= N - 2; ++i )
       {
         next_state[i] = F_i[i] / matrix[i][i];
       }
 
       next_state[0] = get_zero_state();
-      next_state[N] = get_last_state( tau );
+      next_state[N - 1] = get_last_state( tau );
     }
 
   public:
