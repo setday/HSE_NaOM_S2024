@@ -48,6 +48,16 @@ namespace ADAAI::Integration::PDE_BSM::Implicit
       matrix[N - 1][N - 1] = B_ij( N - 1, tau, dTau );
     }
 
+    double get_zero_state() const
+    {
+      return 0.0;
+    }
+
+    double get_last_state( double tau ) const
+    {
+      return AucRHS::S_max - AucRHS::K * std::exp( -AUX_FUNC::get_r_integral( tau ) );
+    }
+
     void init_F_i( double F_i[N], double matrix[N][N], double current_state[RHS::N], double tau, double dTau ) const
     {
       for ( uint64_t i = 1; i <= N - 1; ++i )
@@ -55,8 +65,8 @@ namespace ADAAI::Integration::PDE_BSM::Implicit
         F_i[i] = -current_state[i] / dTau;
       }
 
-      F_i[1] -= A_ij( 1, tau, dTau ) * 0.0;
-      F_i[N - 1] -= D_ij( N - 1, tau, dTau ) * AucRHS::S_max - AucRHS::K * std::exp( -AUX_FUNC::get_r_integral( tau ) );
+      F_i[1] -= A_ij( 1, tau, dTau ) * get_zero_state();
+      F_i[N - 1] -= D_ij( N - 1, tau, dTau ) * get_last_state( tau );
 
       for ( int i = 1; i <= N - 2; ++i )
       {
@@ -83,8 +93,8 @@ namespace ADAAI::Integration::PDE_BSM::Implicit
         next_state[i] = F_i[i] / matrix[i][i];
       }
 
-      next_state[0] = 0.0;
-      next_state[N] = AucRHS::S_max - AucRHS::K * std::exp( -AUX_FUNC::get_r_integral( tau ) );
+      next_state[0] = get_zero_state();
+      next_state[N] = get_last_state( tau );
     }
 
   public:
