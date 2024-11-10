@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "Observer.hpp"
 #include "steppers/RFK45_TimeStepper.hpp"
 
@@ -63,9 +65,9 @@ namespace ADAAI::Integration::Integrator
           current_state[i] = next_state[i];
         }
 
-        if ( current_time / t_end * 100.0 > percent_count + 5 )
+        if ( current_time / t_end * 100.0 > percent_count + 1 )
         {
-          percent_count += 5;
+          percent_count++;
           std::cout << percent_count << "%" << std::endl;
         }
       }
